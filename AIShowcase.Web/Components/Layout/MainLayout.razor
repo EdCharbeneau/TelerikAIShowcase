@@ -1,0 +1,94 @@
+﻿@inherits LayoutComponentBase
+
+<TelerikRootComponent>
+
+@using System.Globalization
+
+<PageTitle>Telerik UI for Blazor | Machine Manufacturing Dashboard Template</PageTitle>
+
+<style>
+    :root {
+        --machine-manufacturing-appbar-height: 46px;
+    }
+
+    .machine-manufacturing-appbar {
+        z-index: 10000;
+    }
+
+    .machine-manufacturing-textbox {
+        min-width: 360px;
+    }
+
+    .machine-manufacturing-drawer .k-drawer {
+        height: calc(100vh - var(--machine-manufacturing-appbar-height)) !important;
+        top: var(--machine-manufacturing-appbar-height) !important;
+        position: sticky !important;
+        flex: none !important;
+    }
+</style>
+
+<TelerikAppBar PositionMode="AppBarPositionMode.Sticky"
+               ThemeColor="@ThemeConstants.AppBar.ThemeColor.Dark"
+               Class="machine-manufacturing-appbar">
+    <AppBarSection Class="k-flex-basis-0 k-flex-grow k-gap-x-xs-6">
+        <TelerikButton OnClick="@ToggleDrawer" FillMode="@ThemeConstants.Button.FillMode.Flat" Icon="SvgIcon.Menu" Title="Menu"></TelerikButton>
+        <a href="#">
+            <span class="k-text-on-app-surface">AI Showcase</span>
+        </a>
+    </AppBarSection>
+    <AppBarSection Class="k-flex-basis-0 k-flex-grow k-justify-content-center">
+        <TelerikTextBox Placeholder="Input Value" ShowPrefixSeparator="false" Class="machine-manufacturing-textbox k-d-xs-none k-d-lg-flex">
+            <TextBoxPrefixTemplate>
+                <TelerikSvgIcon Icon="@SvgIcon.Search" />
+            </TextBoxPrefixTemplate>
+        </TelerikTextBox>
+        <TelerikButton Title="Search" Class="k-d-xs-inline-flex k-d-lg-none" FillMode="@ThemeConstants.Button.FillMode.Flat" ThemeColor="@ThemeConstants.Button.ThemeColor.Secondary" Icon="SvgIcon.Search"></TelerikButton>
+    </AppBarSection>
+    <AppBarSection Class="k-flex-basis-0 k-flex-grow k-justify-content-end k-gap-1.5">
+        <div class="k-badge-container">
+            <TelerikButton Title="Notifications" FillMode="@ThemeConstants.Button.FillMode.Flat" Icon="@SvgIcon.Bell"></TelerikButton>
+            <TelerikBadge Rounded="@ThemeConstants.Badge.Rounded.Full"
+                          Position="@BadgePosition.Inside"
+                          HorizontalAlign="@BadgeHorizontalAlign.End"
+                          VerticalAlign="@BadgeVerticalAlign.Top"
+                          ThemeColor="@ThemeConstants.Badge.ThemeColor.Primary">
+            </TelerikBadge>
+        </div>
+        <span class="k-appbar-separator k-border-border"></span>
+        <TelerikDropDownButton Icon="@SvgIcon.User" ShowArrowButton="false" FillMode="@ThemeConstants.Button.FillMode.Flat">
+            <DropDownButtonContent>
+                Hi, admin!
+            </DropDownButtonContent>
+        </TelerikDropDownButton>
+    </AppBarSection>
+</TelerikAppBar>
+
+<TelerikDrawer Data="@DrawerItems"
+               Mode="@DrawerMode.Push"
+               @ref="@DrawerRef"
+               @bind-Expanded="@DrawerExpanded"
+               @bind-SelectedItem="@SelectedDrawerItem"
+               Class="machine-manufacturing-drawer"
+               Width="248px">
+    <DrawerContent>
+        <h1 class="k-h1 k-py-8 k-px-10 !k-mb-0 k-overflow-hidden k-text-ellipsis">Dashboard</h1>
+        <div class="k-d-grid k-grid-cols-xs-1 k-grid-cols-md-3 k-grid-cols-lg-4 k-gap-4 k-px-lg-10 k-px-xs-4">
+            <div class="k-d-grid k-grid-cols-xs-1 k-grid-cols-md-8 k-grid-cols-lg-12 k-gap-4 k-col-span-md-2 k-col-span-lg-3">
+              @Body
+            </div>
+        </div>
+        @* Start of Footer Card 7 *@
+        <div class="!k-bg-surface !k-color-subtle k-mt-14 k-bg-light k-py-6 k-px-10">
+            <p class="!k-mb-0">Copyright &#169; 2024 Progress Software. All rights reserved.</p>
+        </div>
+        @* End of Footer Card 7 *@
+    </DrawerContent>
+</TelerikDrawer>
+
+</TelerikRootComponent>
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>
