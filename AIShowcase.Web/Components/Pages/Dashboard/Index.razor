@@ -1,1 +1,119 @@
 ﻿@page "/"
+
+<section class="k-d-grid k-gap-4 k-gap-lg-6 k-grid-cols-6 k-grid-cols-md-8 k-grid-cols-lg-12 k-text-center k-pt-26 k-pb-12 k-px-4.5 k-px-md-6 k-px-lg-4 k-px-xl-7.5 k-px-xxl-10">
+    <div class="k-d-flex k-flex-col k-gap-4 k-align-items-center k-col-span-6 k-col-span-lg-8 k-col-span-xl-6 k-col-start-sm-1 k-col-start-md-2 k-col-start-lg-3 k-col-start-xl-4">
+        <div class="k-d-flex k-flex-col k-w-full k-align-items-center k-gap-4 k-mt-2">
+            <h2 class="k-h2 !k-m-0">Ask.AI</h2>
+            <p class="k-font-size-xl k-line-height-lg k-color-subtle !k-m-0">Welcome to Ask.ai, your new reliable assistant designed to help you get work done</p>
+        </div>
+        <div class="k-d-flex k-flex-col k-w-full k-gap-4 k-align-items-center k-box-sizing-border k-p-4 k-bg-surface k-border k-border-solid k-border-border k-rounded-md k-mt-2">
+            <div class="k-d-grid k-grid-cols-2 k-gap-4">
+                <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
+                    <TelerikSvgIcon Icon="@SvgIcon.Sparkles"
+                                    ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
+                                    Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
+                    </TelerikSvgIcon>
+                    <span class="k-font-size-sm k-line-height-lg k-color-subtle">Summarize the latest news on generative AI</span>
+                </div>
+                <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
+                    <TelerikSvgIcon Icon="@SvgIcon.TrackChanges"
+                                    ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
+                                    Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
+                    </TelerikSvgIcon>
+                    <span class="k-font-size-sm k-line-height-lg k-color-subtle">Write a personalized email for marketing campaign</span>
+                </div>
+                <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
+                    <TelerikSvgIcon Icon="@SvgIcon.Pinterest"
+                                    ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
+                                    Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
+                    </TelerikSvgIcon>
+                    <span class="k-font-size-sm k-line-height-lg k-color-subtle">Create a blog post about this season fashion trends</span>
+                </div>
+                <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
+                    <TelerikSvgIcon Icon="@SvgIcon.Code"
+                                    ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
+                                    Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
+                    </TelerikSvgIcon>
+                    <span class="k-font-size-sm k-line-height-lg k-color-subtle">Generate code to setup Kendo Grid with filter and bind to data</span>
+                </div>
+            </div>
+            <TelerikTextArea @bind-Value="@prompt" AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
+                             ResizeMode="@TextAreaResizeMode.None"
+                             Placeholder="Message  AskAI ..."
+                             AriaLabel="Ask AI"
+                             Rows="3">
+                <TextAreaPrefixTemplate>
+                    <TelerikButton Id="floating-action-button" Icon="@SvgIcon.MoreVertical" OnClick="OnClick"></TelerikButton>
+                </TextAreaPrefixTemplate>
+                <TextAreaSuffixTemplate>
+                    @if (string.IsNullOrWhiteSpace(prompt))
+                    {
+                        <SpeechToTextButton OnRecongizededText="OnRecognizedText" />
+                    }
+                    else 
+                    {
+                        <TelerikButton Icon="SvgIcon.ArrowUp"></TelerikButton>
+                    }
+                </TextAreaSuffixTemplate>
+            </TelerikTextArea>
+        </div>
+        <p class='k-font-size-sm k-color-subtle k-line-height-lg !k-mb-0'>AskAI can make mistakes. Check out <a href="#" class="k-link k-color-primary">Terms of Use and Privacy Policy</a></p>
+    </div>
+</section>
+<TelerikPopup @ref="@PopupRef"
+              Width="100"
+              AnchorSelector="#floating-action-button"
+              AnimationType="@AnimationType.SlideUp"
+              AnimationDuration="100"
+              HorizontalAlign="@PopupHorizontalAlign.Left"
+              VerticalAlign="@PopupVerticalAlign.Bottom"
+              AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
+              AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
+              VerticalOffset="4">
+    <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
+        <TelerikButton Icon="@SvgIcon.FileAdd"
+                       Rounded="@ThemeConstants.Button.Rounded.Medium"
+                       FillMode="@ThemeConstants.Button.FillMode.Flat"
+                       Size="@ThemeConstants.Button.Size.Large"
+                       Title="New">New</TelerikButton>
+        <TelerikButton Icon="@SvgIcon.Plus"
+                       Rounded="@ThemeConstants.Button.Rounded.Medium"
+                       FillMode="@ThemeConstants.Button.FillMode.Flat"
+                       Size="@ThemeConstants.Button.Size.Large"
+                       Title="Add" />
+    </div>
+</TelerikPopup>
+@code {
+    string prompt { get; set; } = "";
+    private bool popupVisible = false;
+
+    private TelerikPopup PopupRef { get; set; }
+    private void OnClick()
+    {
+        if (popupVisible)
+        {
+            HidePopup();
+        }
+        else
+        {
+            ShowPopup();
+        }
+    }
+
+    private void HidePopup()
+    {
+        PopupRef.Hide();
+        popupVisible = false;
+    }
+
+    private void ShowPopup()
+    {
+        PopupRef.Show();
+        popupVisible = true;
+    }
+
+    void OnRecognizedText(string recognizedText)
+    {
+        prompt = recognizedText;
+    }
+}

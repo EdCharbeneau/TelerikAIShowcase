@@ -1,0 +1,34 @@
+﻿@inherits LayoutComponentBase
+@layout TelerikLayout
+@using System.Globalization
+
+
+<PageTitle>Telerik UI for Blazor | AI Showcase </PageTitle>
+
+<TopBar OnToggleDrawer="ToggleDrawer" />
+
+<TelerikDrawer Data="@DrawerItems"
+               MiniMode="true"
+               Mode="@DrawerMode.Push"
+               @ref="@DrawerRef"
+               @bind-Expanded="@DrawerExpanded"
+               @bind-SelectedItem="@SelectedDrawerItem"
+               Class="ai-showcase-drawer"
+               Width="248px">
+    <DrawerContent>
+        <h1 class="k-h1 k-py-8 k-px-10 !k-mb-0 k-overflow-hidden k-text-ellipsis">Dashboard</h1>
+        @Body
+        @* Start of Footer Card 7 *@
+        <div class="!k-bg-surface !k-color-subtle k-mt-14 k-bg-light k-py-6 k-px-10">
+            <p class="!k-mb-0">Copyright &#169; 2024 Progress Software. All rights reserved.</p>
+        </div>
+        @* End of Footer Card 7 *@
+    </DrawerContent>
+</TelerikDrawer>
+
+
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="" class="reload">Reload</a>
+    <a class="dismiss">🗙</a>
+</div>

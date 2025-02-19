@@ -16,3 +16,10 @@
         right: 0.75rem;
         top: 0.5rem;
     }
+
+.ai-showcase-drawer .k-drawer {
+    height: calc(100vh - var(--ai-showcase-appbar-height)) !important;
+    top: var(--ai-showcase-appbar-height) !important;
+    position: sticky !important;
+    flex: none !important;
+}

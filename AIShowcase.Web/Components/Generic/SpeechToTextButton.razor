@@ -1,0 +1,85 @@
+﻿@inject ISpeechRecognitionService SpeechRecognition
+@implements IDisposable
+
+@if (isRecording)
+{
+    <TelerikButton Title="Stop Recording" OnClick="OnStopRecording"
+    ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
+    FillMode="@(ThemeConstants.Button.FillMode.Solid)">
+        <TelerikLoader Type="@LoaderType.Pulsing"
+        ThemeColor="@(ThemeConstants.Button.ThemeColor.Inverse)"
+        Size="@(ThemeConstants.Loader.Size.Small)"
+        Visible="isRecording" />
+        <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
+        Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
+    </TelerikButton>
+}
+else
+{
+    <TelerikButton Title="Record" OnClick="OnRecord"
+    ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
+    FillMode="@(ThemeConstants.Button.FillMode.Outline)">
+        <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
+        Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
+    </TelerikButton>
+}
+
+@code {
+
+    IDisposable? _recognitionSubscription;
+    bool isRecording;
+
+    [Parameter]
+    public EventCallback<string> OnRecongizededText { get; set; }
+
+    Task OnRecognized(string recognizedText) => OnRecongizededText.InvokeAsync(recognizedText);
+    
+    async Task OnRecord()
+    {
+        if (isRecording) await SpeechRecognition.CancelSpeechRecognitionAsync(true);
+        _recognitionSubscription?.Dispose();
+        _recognitionSubscription = await SpeechRecognition.RecognizeSpeechAsync("en",
+           onError: OnError,
+           onRecognized: OnRecognized,
+           onStarted: OnStarted,
+           onEnded: OnEnded);
+    }
+
+    async Task OnStopRecording() => await SpeechRecognition.CancelSpeechRecognitionAsync(true);
+
+    Task OnEnded()
+    {
+        isRecording = false;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    Task OnStarted()
+    {
+        isRecording = true;
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+    Task OnError(SpeechRecognitionErrorEvent args)
+    {
+        switch (args.Error)
+        {
+            case "audio-capture":
+            case "network":
+            case "not-allowed":
+            case "service-not-allowed":
+            case "bad-grammar":
+            case "language-not-supported":
+                throw new Exception($"Speech: {args.Error}: {args.Message}");
+            case "no-speech":
+            case "aborted":
+                break;
+        };
+        StateHasChanged();
+        return Task.CompletedTask;
+    }
+
+   public void Dispose() => _recognitionSubscription?.Dispose();
+
+}

@@ -10,6 +10,8 @@ builder.AddServiceDefaults();
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddSpeechRecognitionServices();
+
 builder.Services.AddTelerikBlazor();
 
 var culture = new CultureInfo("en-US");

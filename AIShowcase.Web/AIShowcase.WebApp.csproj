@@ -2,12 +2,15 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <Nullable>disable</Nullable>
+    <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Telerik.UI.for.Blazor" Version="8.0.0" />
+	  <!-- Required for speech recognition button -->
+	  <PackageReference Include="Blazor.SpeechRecognition" Version="9.0.1" />
+	  <!-- Telerik UI for Blazor requires a license see terms for details -->
+	  <PackageReference Include="Telerik.UI.for.Blazor" Version="8.0.0" />
   </ItemGroup>
 
   <ItemGroup>

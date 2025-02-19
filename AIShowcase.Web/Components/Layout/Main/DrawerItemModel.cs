@@ -1,6 +1,7 @@
-﻿using Telerik.SvgIcons;
+﻿using Telerik.Blazor;
+using Telerik.SvgIcons;
 
-namespace AIShowcase.WebApp.Components.Layout
+namespace AIShowcase.WebApp.Components.Layout.Main
 {
 	public class DrawerItemModel
 	{
