@@ -2,33 +2,36 @@
 @layout TelerikLayout
 @using System.Globalization
 
+<div>
+    <TopBar OnToggleDrawer="ToggleDrawer" />
 
-<PageTitle>Telerik UI for Blazor | AI Showcase </PageTitle>
+    <TelerikDrawer Data="@DrawerItems"
+                   MiniMode="true"
+                   Mode="@DrawerMode.Push"
+                   @ref="@DrawerRef"
+                   @bind-Expanded="@DrawerExpanded"
+                   @bind-SelectedItem="@SelectedDrawerItem"
+                   Class="ai-showcase-drawer"
+                   Width="248px">
+        <DrawerContent>
+            <div class="k-px-2 k-px-sm-4.5 k-px-md-6 k-px-lg-4 k-px-xl-10 k-py-2 k-py-sm-4.5 k-py-md-6 k-py-lg-4 k-py-xl-12 k-pt-8">
+                <h1 class="k-h1 !k-mb-5 k-color-primary k-text-ellipsis">AI Usage Monitoring Dashboard</h1>
+                <div class="k-display-flex k-flex-col k-gap-10">
+                    @Body
+                </div>
+            </div>
+            @* Start of Footer Card 7 *@
+            <div class="!k-bg-surface !k-color-subtle k-mt-14 k-bg-light k-py-6 k-px-10">
+                <p class="!k-mb-0">Copyright &#169; 2024 Progress Software. All rights reserved.</p>
+            </div>
+            @* End of Footer Card 7 *@
+        </DrawerContent>
+    </TelerikDrawer>
 
-<TopBar OnToggleDrawer="ToggleDrawer" />
 
-<TelerikDrawer Data="@DrawerItems"
-               MiniMode="true"
-               Mode="@DrawerMode.Push"
-               @ref="@DrawerRef"
-               @bind-Expanded="@DrawerExpanded"
-               @bind-SelectedItem="@SelectedDrawerItem"
-               Class="ai-showcase-drawer"
-               Width="248px">
-    <DrawerContent>
-        <h1 class="k-h1 k-py-8 k-px-10 !k-mb-0 k-overflow-hidden k-text-ellipsis">Dashboard</h1>
-        @Body
-        @* Start of Footer Card 7 *@
-        <div class="!k-bg-surface !k-color-subtle k-mt-14 k-bg-light k-py-6 k-px-10">
-            <p class="!k-mb-0">Copyright &#169; 2024 Progress Software. All rights reserved.</p>
-        </div>
-        @* End of Footer Card 7 *@
-    </DrawerContent>
-</TelerikDrawer>
-
-
-<div id="blazor-error-ui">
-    An unhandled error has occurred.
-    <a href="" class="reload">Reload</a>
-    <a class="dismiss">🗙</a>
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
 </div>

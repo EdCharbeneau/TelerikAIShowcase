@@ -20,8 +20,8 @@ public partial class MainLayout
 
 	private IEnumerable<DrawerItemModel> DrawerItems { get; set; } = new List<DrawerItemModel>()
 		{
-			new DrawerItemModel() { Text = "Dashboard", Icon = SvgIcon.Star },
-			//new DrawerItemModel() { Text = "Statistics", Icon = SvgIcon.ChartColumnStacked },
+			new DrawerItemModel() { Text = "Dashboard", Icon = SvgIcon.Star, Url = "/" },
+			new DrawerItemModel() { Text = "Speech", Icon = SvgIcon.RadiobuttonChecked, Url = "/speech-to-text" },
 			//new DrawerItemModel() { Text = "Reports", Icon = SvgIcon.FileTxt },
 			//new DrawerItemModel() { Separator = true },
 			//new DrawerItemModel() { Text = "Settings", Icon = SvgIcon.Gear },

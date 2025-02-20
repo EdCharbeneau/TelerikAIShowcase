@@ -17,9 +17,17 @@
         top: 0.5rem;
     }
 
-.ai-showcase-drawer .k-drawer {
+::deep .k-drawer {
     height: calc(100vh - var(--ai-showcase-appbar-height)) !important;
     top: var(--ai-showcase-appbar-height) !important;
     position: sticky !important;
     flex: none !important;
 }
+
+    ::deep .k-drawer-content
+{
+    backdrop-filter: blur(16px) saturate(180%);
+    -webkit-backdrop-filter: blur(16px) saturate(180%);
+    background-color: rgba(17, 25, 40, 0.75);
+}
+    }
