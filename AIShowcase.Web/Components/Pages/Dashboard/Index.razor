@@ -6,57 +6,64 @@
             <h2 class="k-h2 !k-m-0">Ask.AI</h2>
             <p class="k-font-size-xl k-line-height-lg k-color-subtle !k-m-0">Welcome to Ask.ai, your new reliable assistant designed to help you get work done</p>
         </div>
-        <div class="k-d-flex k-flex-col k-w-full k-gap-4 k-align-items-center k-box-sizing-border k-p-4 k-bg-surface k-border k-border-solid k-border-border k-rounded-md k-mt-2">
-            <div class="k-d-grid k-grid-cols-2 k-gap-4">
-                <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
-                    <TelerikSvgIcon Icon="@SvgIcon.Sparkles"
-                                    ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
-                                    Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
-                    </TelerikSvgIcon>
-                    <span class="k-font-size-sm k-line-height-lg k-color-subtle">Summarize the latest news on generative AI</span>
+        <TelerikCard>
+            <CardBody>
+
+            <div class="k-d-flex k-flex-col k-w-full k-gap-4 k-align-items-center k-box-sizing-border k-p-4 ">
+                <div class="k-d-grid k-grid-cols-2 k-gap-4">
+                    <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
+                        <TelerikSvgIcon Icon="@SvgIcon.Sparkles"
+                                        ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
+                                        Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
+                        </TelerikSvgIcon>
+                        <span class="k-font-size-sm k-line-height-lg k-color-subtle">Summarize the latest news on generative AI</span>
+                    </div>
+                    <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
+                        <TelerikSvgIcon Icon="@SvgIcon.TrackChanges"
+                                        ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
+                                        Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
+                        </TelerikSvgIcon>
+                        <span class="k-font-size-sm k-line-height-lg k-color-subtle">Write a personalized email for marketing campaign</span>
+                    </div>
+                    <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
+                        <TelerikSvgIcon Icon="@SvgIcon.Pinterest"
+                                        ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
+                                        Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
+                        </TelerikSvgIcon>
+                        <span class="k-font-size-sm k-line-height-lg k-color-subtle">Create a blog post about this season fashion trends</span>
+                    </div>
+                    <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
+                        <TelerikSvgIcon Icon="@SvgIcon.Code"
+                                        ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
+                                        Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
+                        </TelerikSvgIcon>
+                        <span class="k-font-size-sm k-line-height-lg k-color-subtle">Generate code to setup Kendo Grid with filter and bind to data</span>
+                    </div>
                 </div>
-                <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
-                    <TelerikSvgIcon Icon="@SvgIcon.TrackChanges"
-                                    ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
-                                    Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
-                    </TelerikSvgIcon>
-                    <span class="k-font-size-sm k-line-height-lg k-color-subtle">Write a personalized email for marketing campaign</span>
-                </div>
-                <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
-                    <TelerikSvgIcon Icon="@SvgIcon.Pinterest"
-                                    ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
-                                    Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
-                    </TelerikSvgIcon>
-                    <span class="k-font-size-sm k-line-height-lg k-color-subtle">Create a blog post about this season fashion trends</span>
-                </div>
-                <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
-                    <TelerikSvgIcon Icon="@SvgIcon.Code"
-                                    ThemeColor="@ThemeConstants.SvgIcon.ThemeColor.Secondary"
-                                    Size="@ThemeConstants.SvgIcon.Size.ExtraExtraLarge">
-                    </TelerikSvgIcon>
-                    <span class="k-font-size-sm k-line-height-lg k-color-subtle">Generate code to setup Kendo Grid with filter and bind to data</span>
-                </div>
+                <TelerikTextArea @bind-Value="@prompt" AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
+                                 ResizeMode="@TextAreaResizeMode.None"
+                                 Placeholder="Message  AskAI ..."
+                                 AriaLabel="Ask AI"
+                                 Rows="3">
+                    <TextAreaPrefixTemplate>
+                        <TelerikButton Id="floating-action-button" Icon="@SvgIcon.MoreVertical" OnClick="OnClick"></TelerikButton>
+                    </TextAreaPrefixTemplate>
+                    <TextAreaSuffixTemplate>
+                        @if (string.IsNullOrWhiteSpace(prompt))
+                        {
+                            <SpeechToTextButton OnRecongizededText="OnRecognizedText" />
+                        }
+                        else
+                        {
+                            <TelerikButton Icon="SvgIcon.ArrowUp"></TelerikButton>
+                        }
+                    </TextAreaSuffixTemplate>
+                </TelerikTextArea>
+
             </div>
-            <TelerikTextArea @bind-Value="@prompt" AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
-                             ResizeMode="@TextAreaResizeMode.None"
-                             Placeholder="Message  AskAI ..."
-                             AriaLabel="Ask AI"
-                             Rows="3">
-                <TextAreaPrefixTemplate>
-                    <TelerikButton Id="floating-action-button" Icon="@SvgIcon.MoreVertical" OnClick="OnClick"></TelerikButton>
-                </TextAreaPrefixTemplate>
-                <TextAreaSuffixTemplate>
-                    @if (string.IsNullOrWhiteSpace(prompt))
-                    {
-                        <SpeechToTextButton OnRecongizededText="OnRecognizedText" />
-                    }
-                    else 
-                    {
-                        <TelerikButton Icon="SvgIcon.ArrowUp"></TelerikButton>
-                    }
-                </TextAreaSuffixTemplate>
-            </TelerikTextArea>
-        </div>
+            </CardBody>
+
+        </TelerikCard>
         <p class='k-font-size-sm k-color-subtle k-line-height-lg !k-mb-0'>AskAI can make mistakes. Check out <a href="#" class="k-link k-color-primary">Terms of Use and Privacy Policy</a></p>
     </div>
 </section>

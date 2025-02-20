@@ -1,28 +1,31 @@
-﻿@inject ISpeechRecognitionService SpeechRecognition
+﻿@using System.Globalization
+@inject ISpeechRecognitionService SpeechRecognition
 @implements IDisposable
 
-@if (isRecording)
-{
-    <TelerikButton Title="Stop Recording" OnClick="OnStopRecording"
-    ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
-    FillMode="@(ThemeConstants.Button.FillMode.Solid)">
-        <TelerikLoader Type="@LoaderType.Pulsing"
-        ThemeColor="@(ThemeConstants.Button.ThemeColor.Inverse)"
-        Size="@(ThemeConstants.Loader.Size.Small)"
-        Visible="isRecording" />
-        <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
-        Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
-    </TelerikButton>
-}
-else
-{
-    <TelerikButton Title="Record" OnClick="OnRecord"
-    ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
-    FillMode="@(ThemeConstants.Button.FillMode.Outline)">
-        <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
-        Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
-    </TelerikButton>
-}
+<div id="@Id">
+    @if (isRecording)
+    {
+        <TelerikButton Title="Stop Recording" OnClick="OnStopRecording"
+        ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
+        FillMode="@(ThemeConstants.Button.FillMode.Solid)">
+            <TelerikLoader Type="@LoaderType.Pulsing"
+            ThemeColor="@(ThemeConstants.Button.ThemeColor.Inverse)"
+            Size="@(ThemeConstants.Loader.Size.Small)"
+            Visible="isRecording" />
+            <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
+            Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
+        </TelerikButton>
+    }
+    else
+    {
+        <TelerikButton Title="Record" OnClick="OnRecord"
+        ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
+        FillMode="@(ThemeConstants.Button.FillMode.Outline)">
+            <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
+            Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
+        </TelerikButton>
+    }
+</div>
 
 @code {
 
@@ -30,16 +33,28 @@ else
     bool isRecording;
 
     [Parameter]
+    public string? Id { get; set; }
+
+    [Parameter]
     public EventCallback<string> OnRecongizededText { get; set; }
 
+    [Parameter]
+    public EventCallback<SpeechRecognitionErrorEvent> OnError { get; set; }
+
+    /// <summary>
+    /// Defaults to CultureInfo.CurrentCulture.TwoLetterISOLanguageName
+    /// </summary>
+    [Parameter]
+    public string Culture { get; set; } = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
+
     Task OnRecognized(string recognizedText) => OnRecongizededText.InvokeAsync(recognizedText);
-    
+
     async Task OnRecord()
     {
         if (isRecording) await SpeechRecognition.CancelSpeechRecognitionAsync(true);
         _recognitionSubscription?.Dispose();
-        _recognitionSubscription = await SpeechRecognition.RecognizeSpeechAsync("en",
-           onError: OnError,
+        _recognitionSubscription = await SpeechRecognition.RecognizeSpeechAsync(Culture,
+           onError: OnSpeechRecognitionError,
            onRecognized: OnRecognized,
            onStarted: OnStarted,
            onEnded: OnEnded);
@@ -61,7 +76,16 @@ else
         return Task.CompletedTask;
     }
 
-    Task OnError(SpeechRecognitionErrorEvent args)
+    Task OnSpeechRecognitionError(SpeechRecognitionErrorEvent args)
+    {
+        if (OnError.HasDelegate)
+        {
+            return OnError.InvokeAsync(args);
+        }
+        return DefaultErrorHandler(args);
+    }
+
+    Task DefaultErrorHandler(SpeechRecognitionErrorEvent args)
     {
         switch (args.Error)
         {
@@ -80,6 +104,6 @@ else
         return Task.CompletedTask;
     }
 
-   public void Dispose() => _recognitionSubscription?.Dispose();
+    public void Dispose() => _recognitionSubscription?.Dispose();
 
 }
