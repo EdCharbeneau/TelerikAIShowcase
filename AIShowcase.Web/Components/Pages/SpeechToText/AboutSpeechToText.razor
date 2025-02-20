@@ -3,32 +3,29 @@
 
 <TelerikCard>
     <CardBody>
-        <div class="k-d-flex k-flex-col k-w-full k-gap-4 k-align-items-center k-box-sizing-border k-p-4 ">
-            <div class="k-d-grid k-grid-cols-1 k-gap-4">
-                <div class="k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
-                    <label>Your output will appear here:</label>
-                    <hr />
-                    <p>@recognizedTextDisplay</p>
-                </div>
-                <div class="k-d-flex k-border k-border-solid k-border-border k-bg-surface-alt k-align-items-center k-text-start k-p-3 k-gap-2 k-rounded-md">
-                    <span class="k-font-size-sm k-line-height-lg k-color-subtle">Press the record button to beign using your microphone.</span>
+        <div class="k-d-grid k-grid-cols-1 k-gap-4">
+            <ContentPanel>
+                <label>Your captured text will appear below this line:</label>
+                <hr />
+                <p>@recognizedTextDisplay</p>
+            </ContentPanel>
+            <ContentPanel CssClass="k-d-flex">
+                <span>Press the record button to beign using your microphone<TelerikSvgIcon Icon="@SvgIcon.ArrowRight" /></span>
+                <SpeechToTextButton Id="record-button"
+                                    OnRecongizededText="OnRecognizedText" />
 
-                    <SpeechToTextButton Id="record-button"
-                    OnRecongizededText="OnRecognizedText" />
-                </div>
-            </div>
+            </ContentPanel>
         </div>
-
     </CardBody>
 </TelerikCard>
 
 <TelerikPopover @ref="@InfoPopover"
-AnimationType="@AnimationType.Fade"
-AnchorSelector="#record-button"
-Collision="@PopoverCollision.Flip"
-Offset="20"
-Position="@PopoverPosition.Bottom"
-Width="300px">
+                AnimationType="@AnimationType.Fade"
+                AnchorSelector="#record-button"
+                Collision="@PopoverCollision.Flip"
+                Offset="20"
+                Position="@PopoverPosition.Bottom"
+                Width="300px">
     <PopoverHeader>
         Try me!
     </PopoverHeader>
