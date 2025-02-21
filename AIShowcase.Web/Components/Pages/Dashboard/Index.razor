@@ -40,11 +40,13 @@
                         <span class="k-font-size-sm k-line-height-lg k-color-subtle">Generate code to setup Kendo Grid with filter and bind to data</span>
                     </div>
                 </div>
-                <TelerikTextArea @bind-Value="@prompt" AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
+                <TelerikTextArea @bind-Value="@prompt" 
+                                 AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
+                                 ShowPrefixSeparator="false"
+                                 ShowSuffixSeparator="false"
                                  ResizeMode="@TextAreaResizeMode.None"
                                  Placeholder="Message  AskAI ..."
-                                 AriaLabel="Ask AI"
-                                 Rows="3">
+                                 AriaLabel="Ask AI">
                     <TextAreaPrefixTemplate>
                         <TelerikButton Id="floating-action-button" Icon="@SvgIcon.MoreVertical" OnClick="OnClick"></TelerikButton>
                     </TextAreaPrefixTemplate>
