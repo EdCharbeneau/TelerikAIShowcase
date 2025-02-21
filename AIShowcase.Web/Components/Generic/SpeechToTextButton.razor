@@ -36,7 +36,13 @@
     public string? Id { get; set; }
 
     [Parameter]
-    public EventCallback<string> OnRecongizededText { get; set; }
+    public EventCallback<string> OnRecongizeded { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnStarted { get; set; }
+
+    [Parameter]
+    public EventCallback<string> OnEnded { get; set; }
 
     [Parameter]
     public EventCallback<SpeechRecognitionErrorEvent> OnError { get; set; }
@@ -47,36 +53,36 @@
     [Parameter]
     public string Culture { get; set; } = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
 
-    Task OnRecognized(string recognizedText) => OnRecongizededText.InvokeAsync(recognizedText);
+    Task OnRecognizedHandler(string recognizedText) => OnRecongizeded.InvokeAsync(recognizedText);
 
     async Task OnRecord()
     {
         if (isRecording) await SpeechRecognition.CancelSpeechRecognitionAsync(true);
         _recognitionSubscription?.Dispose();
         _recognitionSubscription = await SpeechRecognition.RecognizeSpeechAsync(Culture,
-           onError: OnSpeechRecognitionError,
-           onRecognized: OnRecognized,
-           onStarted: OnStarted,
-           onEnded: OnEnded);
+           onError: OnErrorHandler,
+           onRecognized: OnRecognizedHandler,
+           onStarted: OnStartedHandler,
+           onEnded: OnEndedHandler);
     }
 
     async Task OnStopRecording() => await SpeechRecognition.CancelSpeechRecognitionAsync(true);
 
-    Task OnEnded()
+    async Task OnEndedHandler()
     {
+        await OnEnded.InvokeAsync();
         isRecording = false;
         StateHasChanged();
-        return Task.CompletedTask;
     }
 
-    Task OnStarted()
+    async Task OnStartedHandler()
     {
+        await OnStarted.InvokeAsync();
         isRecording = true;
         StateHasChanged();
-        return Task.CompletedTask;
     }
 
-    Task OnSpeechRecognitionError(SpeechRecognitionErrorEvent args)
+    Task OnErrorHandler(SpeechRecognitionErrorEvent args)
     {
         if (OnError.HasDelegate)
         {
