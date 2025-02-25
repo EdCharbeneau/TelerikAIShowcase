@@ -2,7 +2,6 @@
 @using AIShowcase.WebApp.Components.TextToSpeechServices
 @using System.Globalization
 @inject ITextToSpeechService tts
-@inject IJSRuntime js
 
 <TelerikDropDownList Data="voices"
                      @bind-Value="SelectedVoiceId"
@@ -15,22 +14,20 @@
 
 <TelerikButton OnClick="@(()=> AudioAPI.Pause())">Pause</TelerikButton>
 <TelerikButton OnClick="@(()=> AudioAPI.Play())">Play</TelerikButton>
-Ended : @hasEnded
 
 @code {
 
     AudioPlayer? AudioAPI { get; set; }
-    bool isPlaying = false;
-    bool hasEnded = false;
-    string? audioToSpeak;
-    string text = "Text-to-speech, or TTS, is all about converting written text into spoken words using artificial intelligence. It's a game-changer for accessibility and more.";
-    Voice[] voices = [];
     string? SelectedVoiceId { get; set; }
+
+    Voice[] voices = [];
+    string text = "Text-to-speech, or TTS, is all about converting written text into spoken words using artificial intelligence. It's a game-changer for accessibility and more.";
+    string? Base64SpeechAudio;
 
     protected override async Task OnInitializedAsync()
     {
         voices = await tts.GetVoices();
-        if (voices is not null && voices.Length > 0)
+        if (voices.Length > 0)
         {
             var random = new Random();
             SelectedVoiceId = voices[random.Next(voices.Length)].Id;
@@ -43,16 +40,13 @@ Ended : @hasEnded
         {
             throw new InvalidOperationException("Voices were not loaded or selected");
         }
-        audioToSpeak = await tts.GetSpeechAsBase64String(text, SelectedVoiceId, CultureInfo.CurrentCulture.Name);
-        await AudioAPI.Load(audioToSpeak);
-        await AudioAPI.Play();
+        if (AudioAPI is not null)
+        {
+            Base64SpeechAudio = await tts.GetSpeechAsBase64String(text, SelectedVoiceId, CultureInfo.CurrentCulture.Name);
+            await AudioAPI.Load(Base64SpeechAudio);
+            await AudioAPI.Play();
+        }
 
     }
-
-    void OnEnded()
-    {
-        isPlaying = false;
-    }
-
 
 }
