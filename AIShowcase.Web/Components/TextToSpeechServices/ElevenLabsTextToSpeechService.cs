@@ -11,7 +11,6 @@ public class ElevenLabsTextToSpeechService : ITextToSpeechService
 	bool isConfigured;
 	public bool IsConfigured => isConfigured;
 
-
 	public ElevenLabsTextToSpeechService(IConfiguration config)
 	{
 		try
@@ -24,7 +23,7 @@ public class ElevenLabsTextToSpeechService : ITextToSpeechService
 		}
 	}
 
-	public async Task<byte[]> GetSpeech(string text, string voiceId, string culture = "en-US")
+	public async Task<byte[]> GetSpeech(string text, string voiceId, string? culture = null)
 	{
 		if (api is null) throw new InvalidOperationException("ElevenLabsApiKey is null, services is not configured");
 		var voice = await api.VoicesEndpoint.GetVoiceAsync(voiceId);
@@ -33,7 +32,7 @@ public class ElevenLabsTextToSpeechService : ITextToSpeechService
 		return voiceClip.ClipData.ToArray();
 	}
 
-	public async Task<string> GetSpeechAsBase64String(string text, string voiceId, string culture = "en-US")
+	public async Task<string> GetSpeechAsBase64String(string text, string voiceId, string? culture = null)
 		=> AsString(await GetSpeech(text, voiceId));
 
 	private static string AsString(byte[] audioAsBytes)
@@ -44,7 +43,7 @@ public class ElevenLabsTextToSpeechService : ITextToSpeechService
 		return audio;
 	}
 
-	public async Task<Voice[]> GetVoices(string culture = "en-US")
+	public async Task<Voice[]> GetVoices(string? culture = null)
 	{
 		if (api is null) throw new InvalidOperationException("ElevenLabsApiKey is null, services is not configured");
 		var voices = await api.VoicesEndpoint.GetAllVoicesAsync();

@@ -1,0 +1,79 @@
+﻿@inject AudioPlayerInterop ap
+
+<audio @ref="@audioTagRef" 
+autoplay="@autoplay"
+preload="none"
+muted="@Muted"
+controls="@ShowControls">
+    <source   />
+    @ChildContent
+</audio>
+
+@code {
+    bool autoplay;
+
+    ElementReference audioTagRef;
+
+    [Parameter]
+    public bool ShowControls { get; set; }
+
+    [Parameter]
+    public bool Muted { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public EventCallback OnSourceChanged { get; set; }
+
+    private void OnSourceChangedHandler() {
+        OnSourceChanged.InvokeAsync();
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await ap.InitializeAsync(audioTagRef);
+            ap.OnSourceChanged += OnSourceChangedHandler;
+        }
+    }
+
+    public async Task Stop()
+    {
+        await ap.Stop();
+        StateHasChanged();
+    }
+
+    public async Task Load(string dataUri)
+    {
+        await ap.Load(dataUri);
+    }
+
+    public async Task Play()
+    {
+        autoplay = true;
+        await ap.Play();
+        StateHasChanged();
+    }
+
+    public async Task Pause()
+    {
+        await ap.Pause();
+        StateHasChanged();
+    }
+
+    public async Task SetVolume(double volume)
+    {
+        await ap.SetVolume(volume);
+        StateHasChanged();
+    }
+
+    public async Task Mute(bool isMuted)
+    {
+        await ap.Mute(isMuted);
+        StateHasChanged();
+    }
+
+}

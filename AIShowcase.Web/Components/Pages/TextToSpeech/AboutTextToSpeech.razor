@@ -1,34 +1,25 @@
 ﻿@page "/speech"
 @using AIShowcase.WebApp.Components.TextToSpeechServices
 @using System.Globalization
-@inject IServiceProvider services
-
-<TelerikDropDownList Data="speechServices"
-@bind-Value="selectedSpeechServiceName"
-TextField="@nameof(ITextToSpeechService.Name)"
-ValueField="@nameof(ITextToSpeechService.Name)" />
+@inject ITextToSpeechService tts
+@inject IJSRuntime js
 
 <TelerikDropDownList Data="voices"
-Value="SelectedVoiceId"
-TextField="@nameof(Voice.DisplayName)"
-ValueField="@nameof(Voice.Id)" />
+                     @bind-Value="SelectedVoiceId"
+                     TextField="@nameof(Voice.DisplayName)"
+                     ValueField="@nameof(Voice.Id)" />
 
-<TelerikButton OnClick="Speak">Introduction</TelerikButton>
+<TelerikButton OnClick="GenerateAndSpeak">Introduction</TelerikButton>
 
-@if (isPlaying)
-{
-    <audio autoplay preload="none" controls @onended="OnEnded">
-        <source src="@audioToSpeak" />
-    </audio>
-}
+<AudioPlayer @ref="AudioAPI" ShowControls="false"></AudioPlayer>
 
+<TelerikButton OnClick="@(()=> AudioAPI.Pause())">Pause</TelerikButton>
+<TelerikButton OnClick="@(()=> AudioAPI.Play())">Play</TelerikButton>
 Ended : @hasEnded
-@selectedSpeechServiceName
 
 @code {
-    ITextToSpeechService[] speechServices = [];
-    string? selectedSpeechServiceName;
-    ITextToSpeechService? selectedSpeechService => speechServices.First(s => s.Name == selectedSpeechServiceName);
+
+    AudioPlayer? AudioAPI { get; set; }
     bool isPlaying = false;
     bool hasEnded = false;
     string? audioToSpeak;
@@ -38,10 +29,7 @@ Ended : @hasEnded
 
     protected override async Task OnInitializedAsync()
     {
-        speechServices = services.GetServices<ITextToSpeechService>().ToArray();
-        selectedSpeechServiceName = speechServices.First().Name;
-
-        voices = await selectedSpeechService.GetVoices(CultureInfo.CurrentCulture.Name);
+        voices = await tts.GetVoices();
         if (voices is not null && voices.Length > 0)
         {
             var random = new Random();
@@ -49,19 +37,22 @@ Ended : @hasEnded
         }
     }
 
-    async Task Speak()
+    async Task GenerateAndSpeak()
     {
         if (SelectedVoiceId is null)
         {
             throw new InvalidOperationException("Voices were not loaded or selected");
         }
-        audioToSpeak = await selectedSpeechService.GetSpeechAsBase64String(text, SelectedVoiceId, CultureInfo.CurrentCulture.Name);
-        isPlaying = true;
+        audioToSpeak = await tts.GetSpeechAsBase64String(text, SelectedVoiceId, CultureInfo.CurrentCulture.Name);
+        await AudioAPI.Load(audioToSpeak);
+        await AudioAPI.Play();
+
     }
 
     void OnEnded()
     {
         isPlaying = false;
     }
+
 
 }

@@ -22,7 +22,7 @@ public class AzureTextToSpeechService : ITextToSpeechService
 		isConfigured = !(string.IsNullOrWhiteSpace(speechApiKey) && string.IsNullOrWhiteSpace(serviceRegion));
 	}
 
-	public async Task<byte[]> GetSpeech(string text, string voiceId, string culture = "en-US")
+	public async Task<byte[]> GetSpeech(string text, string voiceId, string? culture = "en-US")
 	{
 		if (!isConfigured) throw new InvalidOperationException("AzureTextToSpeechService was not configured.");
 		var speechConfig = SpeechConfig.FromSubscription(speechApiKey, serviceRegion);
@@ -47,7 +47,7 @@ public class AzureTextToSpeechService : ITextToSpeechService
 
 	}
 
-	public async Task<string> GetSpeechAsBase64String(string text, string voiceId, string culture = "en-US")
+	public async Task<string> GetSpeechAsBase64String(string text, string voiceId, string? culture = "en-US")
 		=> AsString(await GetSpeech(text, voiceId));
 
 	private static string AsString(byte[] audioAsBytes)
@@ -58,8 +58,9 @@ public class AzureTextToSpeechService : ITextToSpeechService
 		return audio;
 	}
 
-	public async Task<Voice[]> GetVoices(string culture = "")
+	public async Task<Voice[]> GetVoices(string? culture)
 	{
+		culture ??= "en-US";
 		if (!isConfigured) throw new InvalidOperationException("AzureTextToSpeechService was not configured.");
 
 		var speechConfig = SpeechConfig.FromSubscription(speechApiKey, serviceRegion);
