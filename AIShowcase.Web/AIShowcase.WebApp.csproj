@@ -4,11 +4,15 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>7011ad22-58b5-4c2c-bb72-9af807c6e6aa</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
 	  <!-- Required for speech recognition button -->
 	  <PackageReference Include="Blazor.SpeechRecognition" Version="9.0.1" />
+	  <PackageReference Include="Blazor.SpeechSynthesis" Version="9.0.1" />
+	  <PackageReference Include="ElevenLabs-DotNet" Version="3.4.2" />
+	  <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.42.0" />
 	  <!-- Telerik UI for Blazor requires a license see terms for details -->
 	  <PackageReference Include="Telerik.UI.for.Blazor" Version="8.0.0" />
   </ItemGroup>

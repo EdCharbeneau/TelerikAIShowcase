@@ -1,0 +1,67 @@
+﻿@page "/speech"
+@using AIShowcase.WebApp.Components.TextToSpeechServices
+@using System.Globalization
+@inject IServiceProvider services
+
+<TelerikDropDownList Data="speechServices"
+@bind-Value="selectedSpeechServiceName"
+TextField="@nameof(ITextToSpeechService.Name)"
+ValueField="@nameof(ITextToSpeechService.Name)" />
+
+<TelerikDropDownList Data="voices"
+Value="SelectedVoiceId"
+TextField="@nameof(Voice.DisplayName)"
+ValueField="@nameof(Voice.Id)" />
+
+<TelerikButton OnClick="Speak">Introduction</TelerikButton>
+
+@if (isPlaying)
+{
+    <audio autoplay preload="none" controls @onended="OnEnded">
+        <source src="@audioToSpeak" />
+    </audio>
+}
+
+Ended : @hasEnded
+@selectedSpeechServiceName
+
+@code {
+    ITextToSpeechService[] speechServices = [];
+    string? selectedSpeechServiceName;
+    ITextToSpeechService? selectedSpeechService => speechServices.First(s => s.Name == selectedSpeechServiceName);
+    bool isPlaying = false;
+    bool hasEnded = false;
+    string? audioToSpeak;
+    string text = "Text-to-speech, or TTS, is all about converting written text into spoken words using artificial intelligence. It's a game-changer for accessibility and more.";
+    Voice[] voices = [];
+    string? SelectedVoiceId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        speechServices = services.GetServices<ITextToSpeechService>().ToArray();
+        selectedSpeechServiceName = speechServices.First().Name;
+
+        voices = await selectedSpeechService.GetVoices(CultureInfo.CurrentCulture.Name);
+        if (voices is not null && voices.Length > 0)
+        {
+            var random = new Random();
+            SelectedVoiceId = voices[random.Next(voices.Length)].Id;
+        }
+    }
+
+    async Task Speak()
+    {
+        if (SelectedVoiceId is null)
+        {
+            throw new InvalidOperationException("Voices were not loaded or selected");
+        }
+        audioToSpeak = await selectedSpeechService.GetSpeechAsBase64String(text, SelectedVoiceId, CultureInfo.CurrentCulture.Name);
+        isPlaying = true;
+    }
+
+    void OnEnded()
+    {
+        isPlaying = false;
+    }
+
+}

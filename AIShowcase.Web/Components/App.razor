@@ -12,11 +12,11 @@
     <script src="_content/Telerik.UI.for.Blazor/js/telerik-blazor.js" defer></script>
     <link rel="stylesheet" href="/common/style.css" />
     <link rel="stylesheet" href="AIShowcase.WebApp.styles.css" />
-    <HeadOutlet @rendermode="InteractiveServer" />
+    <HeadOutlet @rendermode="new InteractiveServerRenderMode(prerender:false)" />
 </head>
 
 <body class="k-body">
-    <Routes @rendermode="InteractiveServer" />
+    <Routes @rendermode="new InteractiveServerRenderMode(prerender:false)" />
     <script src="_framework/blazor.web.js"></script>
 </body>
 
