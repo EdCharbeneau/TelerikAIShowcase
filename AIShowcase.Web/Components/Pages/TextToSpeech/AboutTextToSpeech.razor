@@ -30,7 +30,11 @@
                                 <TelerikDropDownList Data="Voices" Id="voices"
                                                      @bind-Value="SelectedVoiceId"
                                                      TextField="@nameof(Voice.DisplayName)"
-                                                     ValueField="@nameof(Voice.Id)" />
+                                                     ValueField="@nameof(Voice.Id)">
+                                                     <NoDataTemplate>
+                                                         Voices could not be loaded, or are currently loading.
+                                                     </NoDataTemplate>
+                                                 </TelerikDropDownList>
                             </div>
                         </div>
                     </div>
