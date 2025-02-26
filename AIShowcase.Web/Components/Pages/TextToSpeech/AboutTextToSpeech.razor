@@ -1,52 +1,100 @@
-﻿@page "/speech"
+﻿@page "/text-to-speech"
 @using AIShowcase.WebApp.Components.TextToSpeechServices
 @using System.Globalization
 @inject ITextToSpeechService tts
 
-<TelerikDropDownList Data="voices"
-                     @bind-Value="SelectedVoiceId"
-                     TextField="@nameof(Voice.DisplayName)"
-                     ValueField="@nameof(Voice.Id)" />
 
-<TelerikButton OnClick="GenerateAndSpeak">Introduction</TelerikButton>
+<div class="k-d-flex k-flex-col k-gap-14 k-align-items-center k-mx-auto">
+    <div class="k-d-flex k-flex-col k-align-items-center k-gap-4">
+        <h2 class="k-h2 !k-m-0">About Text-to-Speech</h2>
+        <p class="k-font-size-xl k-text-center k-color-subtle !k-m-0">Just the basics to get started</p>
+    </div>
+    <div class="k-d-grid k-grid-cols-1 k-grid-cols-sm-2 k-grid-cols-md-3 k-gap-4 k-gap-md-6 k-px-4.5 k-px-sm-6 k-px-md-4 k-px-lg-7.5 k-px-xl-10">
+        <TelerikCard>
+            <CardBody>
+                <CardTitle>About Text to Speech</CardTitle>
+                    <p>@text</p>
+                    <TelerikButton OnClick="@(()=> AudioAPI.Play())">Speak</TelerikButton>
+            </CardBody>
+        </TelerikCard>
 
-<AudioPlayer @ref="AudioAPI" ShowControls="false"></AudioPlayer>
+        <TelerikCard>
+            <CardBody>
+            <CardTitle>Configure</CardTitle>
+                    <p>This page is currently using @tts.Name as the text-to-speech service.</p>
+                    <p>Most modern text-to-speech services are multilingual and offer a wide variety of voices.</p>
+                    <div class="k-form telerik-blazor k-form-md">
+                        <div class="k-form-field">
+                            <div class="k-form-field-wrap">
+                                <label for="voices" class="k-label k-form-label">Voices:</label>
+                                <TelerikDropDownList Data="Voices" Id="voices"
+                                                     @bind-Value="SelectedVoiceId"
+                                                     TextField="@nameof(Voice.DisplayName)"
+                                                     ValueField="@nameof(Voice.Id)" />
+                            </div>
+                        </div>
+                    </div>
+            </CardBody>
+        </TelerikCard>
 
-<TelerikButton OnClick="@(()=> AudioAPI.Pause())">Pause</TelerikButton>
-<TelerikButton OnClick="@(()=> AudioAPI.Play())">Play</TelerikButton>
+        <TelerikCard>
+            <CardBody>
+                <CardTitle>Playing Audio</CardTitle>
+                    <p>Text-to-speech services provide an audio file that needs to be played by the browser. This is done with the HTML5 audio tag. An interop can be used for custom audio controls.</p>
+                    <div class="k-form telerik-blazor k-form-md">
+                        <div class="k-form-field">
+                            <label for="show-audio" class="k-checkbox-label">Show Custom Audio Controls:</label>
+                            <TelerikCheckBox Id="show-audio" @bind-Value="@ShowCustomAudioControls" />
+                        </div>
+                        <div class="k-form-buttons k-form-field">
+                            @if (ShowCustomAudioControls)
+                            {
+                                @* Custom Audio Controls *@
+                                <div class="k-d-flex k-gap-4">
+                                    <TelerikButton OnClick="@(()=> AudioAPI.Play())">Play</TelerikButton>
+                                    <TelerikButton OnClick="@(()=> AudioAPI.Pause())">Pause</TelerikButton>
+                                </div>
+                            }
+                            <AudioPlayer @ref="AudioAPI" ShowControls="!ShowCustomAudioControls"></AudioPlayer>
+                        </div>
+                </div>
+            </CardBody>
+        </TelerikCard>
+    </div>
+</div>
 
 @code {
-
+    public bool ShowCustomAudioControls { get; set; } = true;
+    public Voice[] Voices { get; set; } = [];
+    public string? SelectedVoiceId { get; set; }
     AudioPlayer? AudioAPI { get; set; }
-    string? SelectedVoiceId { get; set; }
 
-    Voice[] voices = [];
     string text = "Text-to-speech, or TTS, is all about converting written text into spoken words using artificial intelligence. It's a game-changer for accessibility and more.";
     string? Base64SpeechAudio;
 
     protected override async Task OnInitializedAsync()
     {
-        voices = await tts.GetVoices();
-        if (voices.Length > 0)
+        Voices = await tts.GetVoices();
+        if (Voices.Length == 0)
         {
-            var random = new Random();
-            SelectedVoiceId = voices[random.Next(voices.Length)].Id;
+            throw new InvalidOperationException("Voices were not loaded or selected");
         }
+        var random = new Random();
+        SelectedVoiceId = Voices[random.Next(Voices.Length)].Id;
+        await GenerateAndSpeak();
     }
 
     async Task GenerateAndSpeak()
     {
-        if (SelectedVoiceId is null)
-        {
-            throw new InvalidOperationException("Voices were not loaded or selected");
-        }
+
         if (AudioAPI is not null)
         {
             Base64SpeechAudio = await tts.GetSpeechAsBase64String(text, SelectedVoiceId, CultureInfo.CurrentCulture.Name);
             await AudioAPI.Load(Base64SpeechAudio);
-            await AudioAPI.Play();
+            // await AudioAPI.Play();
         }
 
     }
+
 
 }

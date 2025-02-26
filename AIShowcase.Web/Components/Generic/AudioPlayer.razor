@@ -3,9 +3,7 @@
 <audio @ref="@audioTagRef" 
 autoplay="@autoplay"
 preload="none"
-muted="@Muted"
 controls="@ShowControls">
-    <source   />
     @ChildContent
 </audio>
 
@@ -16,9 +14,6 @@ controls="@ShowControls">
 
     [Parameter]
     public bool ShowControls { get; set; }
-
-    [Parameter]
-    public bool Muted { get; set; }
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }

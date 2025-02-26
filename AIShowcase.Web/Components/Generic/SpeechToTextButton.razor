@@ -2,10 +2,9 @@
 @inject ISpeechRecognitionService SpeechRecognition
 @implements IDisposable
 
-<div id="@Id">
     @if (isRecording)
     {
-        <TelerikButton Title="Stop Recording" OnClick="OnStopRecording"
+        <TelerikButton Id="@Id" Title="Stop Recording" OnClick="OnStopRecording"
         ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
         FillMode="@(ThemeConstants.Button.FillMode.Solid)">
             <TelerikLoader Type="@LoaderType.Pulsing"
@@ -18,14 +17,13 @@
     }
     else
     {
-        <TelerikButton Title="Record" OnClick="OnRecord"
+    <TelerikButton Id="@Id" Title="Record" OnClick="OnRecord"
         ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
         FillMode="@(ThemeConstants.Button.FillMode.Outline)">
             <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
             Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
         </TelerikButton>
     }
-</div>
 
 @code {
 

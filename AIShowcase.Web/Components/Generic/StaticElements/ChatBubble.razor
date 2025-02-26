@@ -1,0 +1,12 @@
+﻿@namespace AIShowcase.WebApp.Components.Generic
+<div class="@CssClass k-border k-border-solid k-border-border k-bg-primary k-text-on-primary k-p-3 k-gap-2 k-rounded-md">
+    @ChildContent
+</div>
+@code {
+
+    [Parameter]
+    public string? CssClass { get; set; }
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+}

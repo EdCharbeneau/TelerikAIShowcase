@@ -1,35 +1,65 @@
 ﻿@page "/speech-to-text"
 <PageTitle>Telerik UI for Blazor | AI Showcase </PageTitle>
 
-<TelerikCard>
-    <CardBody>
-        <div class="k-d-grid k-grid-cols-1 k-gap-4">
-            <ContentPanel>
+<div class="k-d-flex k-flex-col k-gap-14 k-align-items-center k-mx-auto">
+    <div class="k-d-flex k-flex-col k-align-items-center k-gap-4">
+        <h2 class="k-h2 !k-m-0">About Speech-to-Text</h2>
+        <p class="k-font-size-xl k-text-center k-color-subtle !k-m-0">Just the basics to get started</p>
+    </div>
+    <div class="k-d-grid k-grid-cols-1 k-grid-cols-sm-2 k-grid-cols-md-3 k-gap-4 k-gap-md-6 k-px-4.5 k-px-sm-6 k-px-md-4 k-px-lg-7.5 k-px-xl-10">
+
+        <TelerikCard>
+            <CardBody>
+                <CardTitle>Try it out!</CardTitle>
                 <label>Your captured text will appear below this line:</label>
                 <hr />
-                <p>@recognizedTextDisplay</p>
-            </ContentPanel>
-            <ContentPanel CssClass="k-d-flex">
-                <span>Press the record button to beign using your microphone<TelerikSvgIcon Icon="@SvgIcon.ArrowRight" /></span>
-                <SpeechToTextButton Id="record-button"
-                OnStarted="OnStarted"
-                OnRecongizeded="OnRecognizedText" />
-                <TelerikButton OnClick="ShowInfo" Title="Info" Icon="SvgIcon.InfoCircle"/>
+                <div class="k-d-flex k-flex-col k-gap-4">
+                    <ChatBubble>@recognizedTextDisplay</ChatBubble>
+                </div>
+                <div class="k-d-flex k-gap-4 k-my-4">
+                    <span>Press the record button to beign using your microphone</span>
 
-            </ContentPanel>
-        </div>
-    </CardBody>
-</TelerikCard>
+                    <SpeechToTextButton Id="record-button"
+                                        OnStarted="OnStarted"
+                                        OnRecongizeded="OnRecognizedText" />
+                    <TelerikButton OnClick="ShowInfo" Title="Info" Icon="SvgIcon.InfoCircle" />
+
+                </div>
+            </CardBody>
+        </TelerikCard>
+        <TelerikCard>
+            <CardBody>
+                <CardTitle>Speech-to-Text API</CardTitle>
+                <p>
+                    The Browser's Speech-to-Text API, also known as the Web Speech API, allows web developers to incorporate speech recognition and speech synthesis capabilities into their web applications. It consists of two main interfaces:
+
+                    <b>SpeechRecognition</b>: This interface enables the conversion of spoken language into text. It allows users to speak into their device's microphone, and their speech is recognized and transcribed into text in real-time.
+
+                    <b>SpeechSynthesis</b>: This interface enables text-to-speech functionality, allowing applications to convert text into spoken words. It can be used to create voice responses, read out loud, and enhance accessibility.
+                </p>
+            </CardBody>
+        </TelerikCard>
+        <TelerikCard>
+            <CardBody>
+                <CardTitle>Blazor.SpeechRecognition</CardTitle>
+                <p>This example uses the Browser's speech-to-text API via the Blazorators speech recognition NuGet package.
+                    The Blazorators project converts TypeScript type declarations into C# representations, and use C# source generators to expose automatic JavaScript interop functionality.
+                </p>
+                <p>The SpeechToTextButton found in this project embeds a simple abstraction of ISpeechRecognitionService into a component for ease-of-use.</p>
+            </CardBody>
+        </TelerikCard>
+    </div>
+</div>
 
 
 @* Off canvas elements *@
 <TelerikPopover @ref="@InfoPopover"
-AnimationType="@AnimationType.Fade"
-AnchorSelector="#record-button"
-Collision="@PopoverCollision.Flip"
-Offset="20"
-Position="@PopoverPosition.Bottom"
-Width="300px">
+                AnimationType="@AnimationType.Fade"
+                AnchorSelector="#record-button"
+                Collision="@PopoverCollision.Flip"
+                Offset="20"
+                Position="@PopoverPosition.Bottom"
+                Width="300px">
     <PopoverHeader>
         Try me!
     </PopoverHeader>
@@ -74,7 +104,8 @@ Width="300px">
         InfoPopover?.Hide();
     }
 
-    void ShowInfo() {
+    void ShowInfo()
+    {
         InfoPopover?.Show();
         hasUserInteracted = true;
     }

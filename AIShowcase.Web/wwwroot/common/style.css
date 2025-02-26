@@ -5,6 +5,9 @@
     background: linear-gradient(-15deg, rgba(239, 240, 245, .12) 18%, rgba(193, 197, 217, .18) 47%, rgba(142, 149, 185, 0.4) 100%);
     backdrop-filter: blur(16px) saturate(180%);
 }
+.k-text-on-primary {
+    color: var(--kendo-color-on-primary);
+}
 
     : root {
     /* app bar */
