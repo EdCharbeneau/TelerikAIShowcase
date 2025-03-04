@@ -1,6 +1,7 @@
 using AIShowcase.WebApp;
 using AIShowcase.WebApp.Components;
 using System.Globalization;
+using CommunityToolkit.Aspire.OllamaSharp;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSpeechRecognitionServices();
 builder.Services.AddAllSpeechServices();
-
+builder.AddOllamaApiClient("phi4").AddChatClient();
 builder.Services.AddTelerikBlazor();
 
 // Register HttpClient

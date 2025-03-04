@@ -23,7 +23,7 @@ public partial class MainLayout
 			new DrawerItemModel() { Text = "Dashboard", Icon = SvgIcon.Star, Url = "/" },
 			new DrawerItemModel() { Text = "Voice Input", Icon = SvgIcon.RadiobuttonChecked, Url = "/speech-to-text" },
 			new DrawerItemModel() { Text = "Voice Output", Icon = SvgIcon.VolumeUp, Url = "/text-to-speech" },
-			//new DrawerItemModel() { Separator = true },
+			new DrawerItemModel() { Text = "Basic Chat", Icon = SvgIcon.Textbox, Url = "/basic-chat" },
 			//new DrawerItemModel() { Text = "Settings", Icon = SvgIcon.Gear },
 			//new DrawerItemModel() { Text = "Support", Icon = SvgIcon.QuestionCircle }
 		};

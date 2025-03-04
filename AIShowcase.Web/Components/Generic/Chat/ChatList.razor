@@ -1,0 +1,51 @@
+﻿@namespace AIShowcase.WebApp.Components.Generic
+@using Microsoft.Extensions.AI
+
+<div class="k-chat @Class">
+    <div class="k-message-list k-avatars auto-scroll" role="log" aria-label="Message list" aria-live="polite">
+        <div class="k-message-list-content">
+
+            @foreach (ChatMessage m in FilteredMessages)
+            {
+                if (m.Role == ChatRole.Assistant)
+                {
+                    <ChatBubble UserName="@m.AuthorName" Message="@m.Text"></ChatBubble>
+                }
+                else
+                {
+                    <ChatBubble Class="k-alt" UserName="@m.AuthorName" Message="@m.Text"></ChatBubble>
+                }
+            }
+            @if (IsThinking)
+            {
+                <div class="k-message-group">
+                    <TelerikSkeleton class="k-avatar" ShapeType="SkeletonShapeType.Circle" Width="32px" Height="32px" />
+                    <div class="k-message k-only">
+                        <div class="k-chat-bubble k-d-flex k-flex-col">
+                            <TelerikSkeleton ShapeType="SkeletonShapeType.Text" Width="10vw" Height="20px" />
+                            <TelerikSkeleton ShapeType="SkeletonShapeType.Text" Width="10vw" Height="20px" />
+                            <TelerikSkeleton ShapeType="SkeletonShapeType.Text" Width="10vw" Height="20px" />
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+
+    private IEnumerable<ChatMessage> FilteredMessages => Messages.Where(m => m.Role == ChatRole.User || m.Role == ChatRole.Assistant);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public List<ChatMessage> Messages { get; set; } = new();
+
+    [Parameter]
+    public bool IsThinking { get; set; }
+}

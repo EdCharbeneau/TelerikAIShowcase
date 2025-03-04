@@ -1,0 +1,63 @@
+﻿@namespace AIShowcase.WebApp.Components.Generic
+
+<div class="k-message-group @Class">
+    <p class="k-author">@UserName</p>
+    <TelerikAvatar Type="avatarType">
+        @switch (avatarType)
+        {
+            case AvatarType.Image:
+                <img src="@AvatarUrl" alt="A profile picture of @UserName">
+                break;
+            case AvatarType.Text:
+                <span>@GetInitials(UserName)</span>
+                break;
+            default:
+                <TelerikSvgIcon Icon="@SvgIcon.User"></TelerikSvgIcon>
+                break;
+        }
+    </TelerikAvatar>
+    <div class="k-message k-only @selectedCss">
+        <time class="k-message-time">@MessageTime</time>
+        <div class="k-chat-bubble">@Message</div>
+        <span class="k-message-status">@MessageStatus</span>
+    </div>
+</div>
+@code {
+    string? selectedCss => Selected ? "k-focused k-selected" : null;
+    bool hasAvatarUrl => !string.IsNullOrWhiteSpace(AvatarUrl);
+    bool hasAvatarName => !string.IsNullOrWhiteSpace(UserName);
+    AvatarType avatarType => hasAvatarUrl ? AvatarType.Image : hasAvatarName ? AvatarType.Text : AvatarType.Icon;
+
+    [Parameter]
+    public string? Class { get; set; }
+    
+    [Parameter]
+    public string? AvatarUrl { get; set; }
+
+    [Parameter]
+    public string? UserName { get; set; }
+
+    [Parameter]
+    public string? Message { get; set; }
+
+    [Parameter]
+    public string? MessageTime { get; set; }
+
+    [Parameter]
+    public string? MessageStatus { get; set; }
+
+    [Parameter]
+    public bool Selected { get; set; }
+
+    private string GetInitials(string? userName)
+    {
+        if (string.IsNullOrWhiteSpace(userName))
+            return string.Empty;
+
+        var words = userName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (words.Length == 0)
+            return string.Empty;
+
+        return string.Concat(words.Select(w => w[0])).ToUpper();
+    }
+}

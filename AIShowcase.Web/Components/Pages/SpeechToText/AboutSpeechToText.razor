@@ -7,14 +7,17 @@
         <p class="k-font-size-xl k-text-center k-color-subtle !k-m-0">Just the basics to get started</p>
     </div>
     <div class="k-d-grid k-grid-cols-1 k-grid-cols-sm-2 k-grid-cols-md-3 k-gap-4 k-gap-md-6 k-px-4.5 k-px-sm-6 k-px-md-4 k-px-lg-7.5 k-px-xl-10">
-
         <TelerikCard>
             <CardBody>
                 <CardTitle>Try it out!</CardTitle>
                 <label>Your captured text will appear below this line:</label>
                 <hr />
-                <div class="k-d-flex k-flex-col k-gap-4">
-                    <ChatBubble>@recognizedTextDisplay</ChatBubble>
+                <div class="k-chat">
+                    <div class="k-message-list k-avatars" role="log" aria-label="Message list" aria-live="polite">
+                        <div class="k-message-list-content">
+                            <ChatBubble Message="@recognizedTextDisplay" />
+                        </div>
+                    </div>
                 </div>
                 <div class="k-d-flex k-gap-4 k-my-4">
                     <span>Press the record button to beign using your microphone</span>
@@ -42,7 +45,8 @@
         <TelerikCard>
             <CardBody>
                 <CardTitle>Blazor.SpeechRecognition</CardTitle>
-                <p>This example uses the Browser's speech-to-text API via the Blazorators speech recognition NuGet package.
+                <p>
+                    This example uses the Browser's speech-to-text API via the Blazorators speech recognition NuGet package.
                     The Blazorators project converts TypeScript type declarations into C# representations, and use C# source generators to expose automatic JavaScript interop functionality.
                 </p>
                 <p>The SpeechToTextButton found in this project embeds a simple abstraction of ISpeechRecognitionService into a component for ease-of-use.</p>

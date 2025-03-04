@@ -27,7 +27,7 @@ public class ElevenLabsTextToSpeechService : ITextToSpeechService
 	{
 		if (api is null) throw new InvalidOperationException("ElevenLabsApiKey is null, services is not configured");
 		var voice = await api.VoicesEndpoint.GetVoiceAsync(voiceId);
-		TextToSpeechRequest request = new TextToSpeechRequest(voice, text, model: new("eleven_multilingual_v2"), languageCode: culture);
+		TextToSpeechRequest request = new TextToSpeechRequest(voice, text);
 		VoiceClip voiceClip = await api.TextToSpeechEndpoint.TextToSpeechAsync(request);
 		return voiceClip.ClipData.ToArray();
 	}
