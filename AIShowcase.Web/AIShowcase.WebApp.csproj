@@ -13,6 +13,7 @@
 	  <PackageReference Include="Blazor.SpeechSynthesis" Version="9.0.1" />
 	  <PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" Version="9.2.1-beta.205" />
 	  <PackageReference Include="ElevenLabs-DotNet" Version="3.4.2" />
+	  <PackageReference Include="Markdig" Version="0.40.0" />
 	  <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.42.0" />
 	  <PackageReference Include="Microsoft.Extensions.AI" Version="9.3.0-preview.1.25114.11" />
 	  <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.3.0-preview.1.25114.11" />

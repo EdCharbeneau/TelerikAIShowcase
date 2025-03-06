@@ -1,0 +1,49 @@
+﻿@using Markdig
+@using Microsoft.Extensions.AI
+@namespace AIShowcase.WebApp.Components.Generic
+
+<div class="k-d-flex k-flex-col">
+    <div role="log" aria-label="Message list" aria-live="polite">
+        <div >
+            @foreach (ChatMessage m in FilteredMessages)
+            {
+                if (m.Role == ChatRole.Assistant)
+                {
+                    <div class="k-w-full k-mb-8">
+                        @if (m.Text is not null)
+                            @((MarkupString)Markdown.ToHtml(m.Text))
+
+
+
+                    </div>
+                }
+                else
+                {
+                    <div class="k-d-flex k-justify-content-end k-w-full k-mb-8 k-font-weight-semibold">
+                        <div class="k-rounded-lg k-border-solid k-border-primary k-text-primary k-p-4 k-mb-4 k-elevation-2 k-w-3/4">
+                            @if (m.Text is not null)
+                                @((MarkupString)Markdown.ToHtml(m.Text))
+                        </div>
+                    </div>
+                }
+            }
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private IEnumerable<ChatMessage> FilteredMessages => Messages.Where(m => m.Role == ChatRole.User || m.Role == ChatRole.Assistant);
+
+    [Parameter]
+    public RenderFragment? ChildContent { get; set; }
+
+    [Parameter]
+    public string? Class { get; set; }
+
+    [Parameter]
+    public List<ChatMessage> Messages { get; set; } = new();
+
+    [Parameter]
+    public bool IsThinking { get; set; }
+}

@@ -1,5 +1,9 @@
 ﻿@import 'https://fonts.googleapis.com/css2?family=Fira+Sans:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap';
-@import 'https://fonts.googleapis.com/css2?family=Fira+Mono:wght@400;500;700&display=swap';
+@import 'https://fonts.googleapis.com/css2?family=Prompt:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Roboto:wght@400;700;900&display=swap';
+
+.k-body {
+    background: linear-gradient(to right, #0f172a, #390c3c)
+}
 
 .k-card {
     background: linear-gradient(-15deg, rgba(239, 240, 245, .12) 18%, rgba(193, 197, 217, .18) 47%, rgba(142, 149, 185, 0.4) 100%);
@@ -9,7 +13,7 @@
     width: 32px;
     height: 32px;
 }
-.k-message-list.auto-scroll {
+.k-message-list.auto-scroll, .auto-scroll {
     overflow: auto;
     display: flex;
     flex-direction: column-reverse;
@@ -21,10 +25,19 @@
 .k-text-on-secondary {
     color: var(--kendo-color-on-secondary);
 }
-    : root {
-    /* app bar */
-    --ai-showcase-appbar-height: 46px;
+
+.chat-prompt {
+    color: var(--kendo-color-on-primary, #ffffff);
+    background-color: transparent;
 }
+    .chat-prompt.k-appbar-bottom {
+        box-shadow:none;
+    }
+
+    :root {
+        /* app bar */
+        --ai-showcase-appbar-height: 48px;
+    }
 
 :root {
     /* Color System Swatches */
@@ -184,7 +197,7 @@
     --kendo-color-series-f-bolder: #A0B4D0;
     /* Typography */
 
-    --kendo-font-family: 'Assistant', serif;
+    --kendo-font-family: 'Prompt', serif;
     --kendo-font-size: 16px;
     --kendo-font-size-xs: 12px;
     --kendo-font-size-sm: 14px;
@@ -225,4 +238,53 @@
     --kendo-border-radius-full: 9999px;
     /* Card Gradient */
     --card-gradient: radial-gradient(50% 50% at 50% 50%, color-mix(in srgb, var(--kendo-color-on-app-surface) 10%, transparent) 0%, color-mix(in srgb, var(--kendo-color-surface-alt) 10%, transparent) 100%), var(--kendo-color-surface-alt);
+}
+
+h1 {  
+   font-size: var(--kendo-h1-font-size);  
+}  
+h2 {  
+   font-size: var(--kendo-h2-font-size);  
+}  
+h3 {  
+   font-size: var(--kendo-h3-font-size);  
+}  
+h4 {  
+   font-size: var(--kendo-h4-font-size);  
+}  
+h5 {  
+   font-size: var(--kendo-h5-font-size);  
+}  
+h6 {  
+   font-size: var(--kendo-h6-font-size);  
+}
+
+
+
+
+.chat-output {
+    --sb-track-color: #1f2f5c;
+    --sb-thumb-color: #CCB066;
+    --sb-size: 6px;
+}
+
+    .chat-output::-webkit-scrollbar {
+        width: var(--sb-size)
+    }
+
+    .chat-output::-webkit-scrollbar-track {
+        background: var(--sb-track-color);
+        border-radius: 10px;
+    }
+
+    .chat-output::-webkit-scrollbar-thumb {
+        background: var(--sb-thumb-color);
+        border-radius: 10px;
+        border: 1px solid #232e33;
+    }
+
+@supports not selector(::-webkit-scrollbar) {
+    .chat-output {
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+    }
 }
