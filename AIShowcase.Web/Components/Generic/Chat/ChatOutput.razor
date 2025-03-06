@@ -1,10 +1,12 @@
-﻿@using Markdig
+﻿@using AIShowcase.WebApp.Components.ChatOutputServices
+@using Markdig
 @using Microsoft.Extensions.AI
 @namespace AIShowcase.WebApp.Components.Generic
+@inject PrismInterop prism
 
 <div class="k-d-flex k-flex-col">
     <div role="log" aria-label="Message list" aria-live="polite">
-        <div >
+        <div @ref="messageListElement">
             @foreach (ChatMessage m in FilteredMessages)
             {
                 if (m.Role == ChatRole.Assistant)
@@ -12,9 +14,6 @@
                     <div class="k-w-full k-mb-8">
                         @if (m.Text is not null)
                             @((MarkupString)Markdown.ToHtml(m.Text))
-
-
-
                     </div>
                 }
                 else
@@ -27,12 +26,15 @@
                     </div>
                 }
             }
-
         </div>
     </div>
 </div>
 
 @code {
+    ElementReference? messageListElement;
+    List<ChatMessage> _messages = new();
+    bool shouldFormatSyntax;
+
     private IEnumerable<ChatMessage> FilteredMessages => Messages.Where(m => m.Role == ChatRole.User || m.Role == ChatRole.Assistant);
 
     [Parameter]
@@ -46,4 +48,25 @@
 
     [Parameter]
     public bool IsThinking { get; set; }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (shouldFormatSyntax && messageListElement.HasValue)
+        {
+            shouldFormatSyntax = false;
+            await prism.HighlightAllUnder(messageListElement.Value);
+        }
+    }
+
+    public override async Task SetParametersAsync(ParameterView parameters)
+    {
+        bool parameterExists = parameters.TryGetValue<List<ChatMessage>>(nameof(Messages), out var value);
+
+        if (parameterExists && !_messages.SequenceEqual(value!))
+        {
+            shouldFormatSyntax = true;
+            _messages = new List<ChatMessage>(value!);
+        }
+        await base.SetParametersAsync(parameters);
+    }
 }
