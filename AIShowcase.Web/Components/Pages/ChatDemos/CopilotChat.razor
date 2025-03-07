@@ -73,13 +73,16 @@ VerticalOffset="4">
 @code {
 
     private TelerikPopup PopupRef { get; set; }
+    private bool popupVisible = false;
+
     bool isThinking;
     bool canSubmit => !string.IsNullOrWhiteSpace(Prompt) && !isThinking;
-    private bool popupVisible = false;
+    
     string streamingText = "";
+    List<ChatMessage> messages = [];
 
     string? Prompt { get; set; }
-    List<ChatMessage> messages = [];
+
     private void TogglePopup()
     {
         if (popupVisible)

@@ -32,7 +32,7 @@
 
 @code {
     ElementReference? messageListElement;
-    List<ChatMessage> _messages = new();
+    List<ChatMessage> messageCache = new();
     bool shouldFormatSyntax;
 
     private IEnumerable<ChatMessage> FilteredMessages => Messages.Where(m => m.Role == ChatRole.User || m.Role == ChatRole.Assistant);
@@ -46,12 +46,9 @@
     [Parameter]
     public List<ChatMessage> Messages { get; set; } = new();
 
-    [Parameter]
-    public bool IsThinking { get; set; }
-
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (shouldFormatSyntax && messageListElement.HasValue)
+        if (shouldFormatSyntax && messageListElement is not null)
         {
             shouldFormatSyntax = false;
             await prism.HighlightAllUnder(messageListElement.Value);
@@ -62,10 +59,10 @@
     {
         bool parameterExists = parameters.TryGetValue<List<ChatMessage>>(nameof(Messages), out var value);
 
-        if (parameterExists && !_messages.SequenceEqual(value!))
+        if (parameterExists && !messageCache.SequenceEqual(value!))
         {
             shouldFormatSyntax = true;
-            _messages = new List<ChatMessage>(value!);
+            messageCache = new List<ChatMessage>(value!);
         }
         await base.SetParametersAsync(parameters);
     }

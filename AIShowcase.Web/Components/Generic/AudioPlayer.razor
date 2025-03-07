@@ -41,9 +41,9 @@ controls="@ShowControls">
         StateHasChanged();
     }
 
-    public async Task Load(string dataUri)
+    public async Task Load(string dataUri, ElementReference? targetCanvas = null)
     {
-        await ap.Load(dataUri);
+        await ap.Load(dataUri, targetCanvas);
     }
 
     public async Task Play()

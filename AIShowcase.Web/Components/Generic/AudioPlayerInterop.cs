@@ -1,6 +1,7 @@
 ﻿using ElevenLabs.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Reflection.Metadata;
 
 namespace AIShowcase.WebApp.Components.Generic;
 public class AudioPlayerInterop
@@ -41,10 +42,10 @@ public class AudioPlayerInterop
 		var module = await moduleTask.Value;
 		await module.InvokeVoidAsync("setVolume", volume);
 	}
-	public async Task Load(string dataUri)
+	public async Task Load(string dataUri, ElementReference? targetCanvas)
 	{
 		var module = await moduleTask.Value;
-		await module.InvokeVoidAsync("load", dataUri);
+		await module.InvokeVoidAsync("load", dataUri, targetCanvas);
 	}
 
 	public async Task Mute(bool isMuted)
@@ -62,3 +63,4 @@ public class AudioPlayerInterop
 		return Task.CompletedTask;
 	}
 }
+
