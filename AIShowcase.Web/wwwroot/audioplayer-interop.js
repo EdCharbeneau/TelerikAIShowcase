@@ -1,11 +1,16 @@
 ﻿var dotnetInstance;
 var audioPlayer;
+let visualizerInstance;
 
-export async function init(audioTagRef, dotnet) {
+export async function init(audioTagRef, targetCanvas, dotnet) {
     dotnetInstance = dotnet;
     audioPlayer = audioTagRef;
     audioPlayer.canplay = () => dotnetInstance.invokeMethodAsync("OnSourceChangedHandler");
     console.log(audioTagRef);
+
+    if (targetCanvas && targetCanvas !== '') {
+        visualizerInstance = new AudioVisualizer(audioPlayer, targetCanvas);
+    }
 }
 
 export async function play() {
@@ -29,63 +34,75 @@ export async function muted(isMuted) {
     audioPlayer.muted = isMuted;
 }
 
-export async function load(dataUri, visualizer) {
+export async function load(dataUri) {
     audioPlayer.src = dataUri;
-    loadVisualizer(visualizer);
 }
 
-function loadVisualizer(visualizer) {
-    const canvas = visualizer;
-    const ctx = canvas.getContext('2d');
-    const styles = getComputedStyle(visualizer);
-    const barColor = styles.getPropertyValue('--kendo-color-primary');
+class AudioVisualizer {
+    constructor(audioPlayer, canvasId) {
+        this.audioPlayer = audioPlayer;
+        this.canvas = document.getElementById(canvasId);
+        this.ctx = this.canvas.getContext('2d');
+        const styles = getComputedStyle(this.canvas);
+        this.barColor = styles.getPropertyValue('--kendo-color-primary');
 
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const analyser = audioContext.createAnalyser();
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.analyser = this.audioContext.createAnalyser();
 
-    // Connect audio element to the analyser
-    const source = audioContext.createMediaElementSource(audioPlayer);
-    source.connect(analyser);
-    analyser.connect(audioContext.destination);
+        // Connect audio element to the analyser
+        this.source = this.audioContext.createMediaElementSource(this.audioPlayer);
+        this.source.connect(this.analyser);
+        this.analyser.connect(this.audioContext.destination);
 
-    // Configure analyser
-    analyser.fftSize = 2048;
-    const bufferLength = analyser.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
+        // Configure analyser
+        this.analyser.fftSize = 2048;
+        this.bufferLength = this.analyser.frequencyBinCount;
+        this.dataArray = new Uint8Array(this.bufferLength);
 
-    // Drawing function
-    function draw() {
-        requestAnimationFrame(draw);
-        if (audioPlayer.ended) {
+        this.audioPlayer.addEventListener('play', () => {
+            if (this.audioContext.state === 'suspended') {
+                this.audioContext.resume();
+            }
+            this.draw();
+        });
+
+        this.audioPlayer.addEventListener('ended', () => {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        });
+    }
+
+    draw() {
+        requestAnimationFrame(() => this.draw());
+        if (this.audioPlayer.ended) {
             return;
         }
 
-        analyser.getByteTimeDomainData(dataArray);
+        this.analyser.getByteTimeDomainData(this.dataArray);
 
         // Clear canvas
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = barColor;
-        ctx.fillStyle = 'rgb(72 42 95)';
-        //ctx.fillStyle = 'rgba(168, 21, 97, 0.8)';
+        this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+        this.ctx.strokeStyle = this.barColor;
+        this.ctx.fillStyle = 'rgb(72 42 95)';
 
-        for (let i = 0; i < bufferLength; i++) {
-            const v = dataArray[i]/ 16.0;
-
-            ctx.lineWidth = 4;
-
-            ctx.strokeRect(v, v, canvas.width - v * 2 , canvas.height - v * 2);
+        for (let i = 0; i < this.bufferLength; i++) {
+            const v = this.dataArray[i] / 16.0;
+            this.ctx.lineWidth = 4;
+            this.ctx.strokeRect(v, v, this.canvas.width - v * 2, this.canvas.height - v * 2);
         }
     }
 
-    // Start visualization when audio plays
-    audioPlayer.addEventListener('play', () => {
-        if (audioContext.state === 'suspended') {
-            audioContext.resume();
+    dispose() {
+        if (this.source) {
+            this.source.disconnect();
+            this.source = null;
         }
-        draw();
-    });
-
-    audioPlayer.addEventListener('ended', () => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-    });
-}; 
+        if (this.analyser) {
+            this.analyser.disconnect();
+            this.analyser = null;
+        }
+        if (this.audioContext) {
+            this.audioContext.close();
+            this.audioContext = null;
+        }
+    }
+}

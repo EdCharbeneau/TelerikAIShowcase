@@ -11,13 +11,13 @@
     </div>
     <div class="k-d-grid k-grid-cols-1 k-grid-cols-sm-2 k-grid-cols-md-3 k-gap-4 k-gap-md-6 k-px-4.5 k-px-sm-6 k-px-md-4 k-px-lg-7.5 k-px-xl-10">
 
-                    <TelerikCard>
-                            <CardBody>
-                                <CardTitle>About Text to Speech</CardTitle>
-                                <p>@text</p>
-                                <TelerikButton OnClick="@(()=> AudioAPI.Play())">Speak</TelerikButton>
-                            </CardBody>
-                    </TelerikCard>
+        <TelerikCard>
+            <CardBody>
+                <CardTitle>About Text to Speech</CardTitle>
+                <p>@text</p>
+                <TelerikButton OnClick="@(()=> AudioAPI.Play())">Speak</TelerikButton>
+            </CardBody>
+        </TelerikCard>
 
 
         <TelerikCard>
@@ -29,53 +29,56 @@
                     <div class="k-form-field">
                         <div class="k-form-field-wrap">
                             <label for="voices" class="k-label k-form-label">Voices:</label>
-                            <TelerikDropDownList Data="Voices" Id="voices"
-                                                 @bind-Value="SelectedVoiceId"
-                                                 TextField="@nameof(Voice.DisplayName)"
-                                                 ValueField="@nameof(Voice.Id)">
-                                <NoDataTemplate>
-                                    Voices could not be loaded, or are currently loading.
-                                </NoDataTemplate>
-                            </TelerikDropDownList>
+                            <div class="k-d-flex k-gap-2">
+
+                                <TelerikDropDownList Data="Voices" Id="voices"
+                                @bind-Value="SelectedVoiceId"
+                                TextField="@nameof(Voice.DisplayName)"
+                                ValueField="@nameof(Voice.Id)">
+                                    <NoDataTemplate>
+                                        Voices could not be loaded, or are currently loading.
+                                    </NoDataTemplate>
+                                </TelerikDropDownList>
+                                <TelerikButton Icon="SvgIcon.Download" Title="Save Voice" OnClick="SaveVoiceConfiguration"/>
+                            </div>
                         </div>
                     </div>
                 </div>
             </CardBody>
         </TelerikCard>
 
-                <div style="display:grid;">
-                <div style="grid-area: 1 / 1">
-        <TelerikCard Class="k-h-full">
-            <CardBody>
-                <CardTitle>Playing Audio</CardTitle>
-                <p>Text-to-speech services provide an audio file that needs to be played by the browser. This is done with the HTML5 audio tag. An interop can be used for custom audio controls.</p>
-                <div class="k-form telerik-blazor k-form-md">
-                    <div class="k-form-field">
-                        <label for="show-audio" class="k-checkbox-label">Show Custom Audio Controls:</label>
-                        <TelerikCheckBox Id="show-audio" @bind-Value="@ShowCustomAudioControls" />
-                    </div>
-                    <div class="k-form-buttons k-form-field">
-                        @if (ShowCustomAudioControls)
-                        {
-                            @* Custom Audio Controls *@
-                            <div class="k-d-flex k-gap-4">
-                                <TelerikButton OnClick="@(()=> AudioAPI.Play())">Play</TelerikButton>
-                                <TelerikButton OnClick="@(()=> AudioAPI.Pause())">Pause</TelerikButton>
+        <div class="k-d-grid">
+            <div class="grid-overlay">
+                <TelerikCard Class="k-h-full">
+                    <CardBody>
+                        <CardTitle>Playing Audio</CardTitle>
+                        <p>Text-to-speech services provide an audio file that needs to be played by the browser. This is done with the HTML5 audio tag. An interop can be used for custom audio controls.</p>
+                        <div class="k-form telerik-blazor k-form-md">
+                            <div class="k-form-field">
+                                <label for="show-audio" class="k-checkbox-label">Show Custom Audio Controls:</label>
+                                <TelerikCheckBox Id="show-audio" @bind-Value="@ShowCustomAudioControls" />
                             </div>
-                        }
-                        <AudioPlayer @ref="AudioAPI" ShowControls="!ShowCustomAudioControls"></AudioPlayer>
-                    </div>
-                </div>
-            </CardBody>
-        </TelerikCard>                
-        </div>
-                <canvas class="k-w-full" style="grid-area: 1 / 1" @ref="targetCanvas"></canvas>
+                            <div class="k-form-buttons k-form-field">
+                                @if (ShowCustomAudioControls)
+                                {
+                                    @* Custom Audio Controls *@
+                                    <div class="k-d-flex k-gap-4">
+                                        <TelerikButton OnClick="@(()=> AudioAPI.Play())">Play</TelerikButton>
+                                        <TelerikButton OnClick="@(()=> AudioAPI.Pause())">Pause</TelerikButton>
+                                    </div>
+                                }
+                                <AudioPlayer @ref="AudioAPI" ShowControls="!ShowCustomAudioControls" TargetVisualizerId="targetCanvas"></AudioPlayer>
+                            </div>
+                        </div>
+                    </CardBody>
+                </TelerikCard>                
+            </div>
+            <canvas class="k-w-full k-h-full grid-overlay" id="targetCanvas"></canvas>
         </div>
     </div>
 </div>
 
 @code {
-    ElementReference targetCanvas;
 
     public bool ShowCustomAudioControls { get; set; } = true;
     public Voice[] Voices { get; set; } = [];
@@ -97,14 +100,20 @@
         await GenerateAndSpeak();
     }
 
+    async Task SaveVoiceConfiguration()
+    {
+        await AudioAPI.Stop();
+        await GenerateAndSpeak();
+    }
+
     async Task GenerateAndSpeak()
     {
 
         if (AudioAPI is not null)
         {
             Base64SpeechAudio = await tts.GetSpeechAsBase64String(text, SelectedVoiceId, CultureInfo.CurrentCulture.Name);
-            await AudioAPI.Load(Base64SpeechAudio, targetCanvas);
-            // await AudioAPI.Play();
+            await AudioAPI.Load(Base64SpeechAudio);
+            await AudioAPI.Play();
         }
 
     }

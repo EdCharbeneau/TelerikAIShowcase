@@ -15,10 +15,16 @@ public class AudioPlayerInterop
 		"import", $"{ModulePath}").AsTask());
 	}
 
-	public async Task InitializeAsync(ElementReference audioTagRef)
+	public async Task InitializeAsync(ElementReference audioTagRef, string? targetVisualizer)
 	{
 		var module = await moduleTask.Value;
-		await module.InvokeVoidAsync("init", audioTagRef, DotNetObjectReference.Create(this));
+		await module.InvokeVoidAsync("init", audioTagRef, targetVisualizer, DotNetObjectReference.Create(this));
+	}
+
+	public async Task AddVisualizer(string targetCanvas)
+	{
+		var module = await moduleTask.Value;
+		await module.InvokeVoidAsync("addVisualizer", targetCanvas);
 	}
 
 	public async Task Play()
@@ -42,10 +48,10 @@ public class AudioPlayerInterop
 		var module = await moduleTask.Value;
 		await module.InvokeVoidAsync("setVolume", volume);
 	}
-	public async Task Load(string dataUri, ElementReference? targetCanvas)
+	public async Task Load(string dataUri)
 	{
 		var module = await moduleTask.Value;
-		await module.InvokeVoidAsync("load", dataUri, targetCanvas);
+		await module.InvokeVoidAsync("load", dataUri);
 	}
 
 	public async Task Mute(bool isMuted)

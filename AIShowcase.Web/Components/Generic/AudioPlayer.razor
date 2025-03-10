@@ -1,9 +1,9 @@
 ﻿@inject AudioPlayerInterop ap
 
-<audio @ref="@audioTagRef" 
-autoplay="@autoplay"
-preload="none"
-controls="@ShowControls">
+<audio @ref="@audioTagRef"
+       autoplay="@autoplay"
+       preload="none"
+       controls="@ShowControls">
     @ChildContent
 </audio>
 
@@ -21,7 +21,11 @@ controls="@ShowControls">
     [Parameter]
     public EventCallback OnSourceChanged { get; set; }
 
-    private void OnSourceChangedHandler() {
+    [Parameter]
+    public string? TargetVisualizerId { get; set; }
+
+    private void OnSourceChangedHandler()
+    {
         OnSourceChanged.InvokeAsync();
         StateHasChanged();
     }
@@ -30,7 +34,7 @@ controls="@ShowControls">
     {
         if (firstRender)
         {
-            await ap.InitializeAsync(audioTagRef);
+            await ap.InitializeAsync(audioTagRef, TargetVisualizerId);
             ap.OnSourceChanged += OnSourceChangedHandler;
         }
     }
@@ -41,9 +45,10 @@ controls="@ShowControls">
         StateHasChanged();
     }
 
-    public async Task Load(string dataUri, ElementReference? targetCanvas = null)
+    public async Task Load(string dataUri)
     {
-        await ap.Load(dataUri, targetCanvas);
+        await ap.Load(dataUri);
+        StateHasChanged();
     }
 
     public async Task Play()
@@ -70,5 +75,4 @@ controls="@ShowControls">
         await ap.Mute(isMuted);
         StateHasChanged();
     }
-
 }

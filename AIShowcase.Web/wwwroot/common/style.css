@@ -26,6 +26,10 @@
     color: var(--kendo-color-on-secondary);
 }
 
+.grid-overlay {
+    grid-area: 1 / 1;
+}
+
 .chat-prompt {
     color: var(--kendo-color-on-primary, #ffffff);
     background-color: transparent;
