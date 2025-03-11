@@ -2,28 +2,28 @@
 @inject ISpeechRecognitionService SpeechRecognition
 @implements IDisposable
 
-    @if (isRecording)
-    {
-        <TelerikButton Id="@Id" Title="Stop Recording" OnClick="OnStopRecording"
-        ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
-        FillMode="@(ThemeConstants.Button.FillMode.Solid)">
-            <TelerikLoader Type="@LoaderType.Pulsing"
-            ThemeColor="@(ThemeConstants.Button.ThemeColor.Inverse)"
-            Size="@(ThemeConstants.Loader.Size.Small)"
-            Visible="isRecording" />
-            <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
-            Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
-        </TelerikButton>
-    }
-    else
-    {
-    <TelerikButton Id="@Id" Title="Record" OnClick="OnRecord"
-        ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
-        FillMode="@(ThemeConstants.Button.FillMode.Outline)">
-            <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
-            Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
-        </TelerikButton>
-    }
+@if (isRecording)
+{
+    <TelerikButton Id="@Id" Title="Stop Recording" OnClick="OnStopRecording"
+    ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
+    FillMode="@(ThemeConstants.Button.FillMode.Solid)">
+        <TelerikLoader Type="@LoaderType.Pulsing"
+        ThemeColor="@(ThemeConstants.Button.ThemeColor.Inverse)"
+        Size="@(ThemeConstants.Loader.Size.Small)"
+        Visible="isRecording" />
+        <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
+        Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
+    </TelerikButton>
+}
+else
+{
+    <TelerikButton Id="@Id" Title="Record" OnClick="OnRecordClicked"
+    ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
+    FillMode="@(ThemeConstants.Button.FillMode.Outline)">
+        <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
+        Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />
+    </TelerikButton>
+}
 
 @code {
 
@@ -45,6 +45,20 @@
     [Parameter]
     public EventCallback<SpeechRecognitionErrorEvent> OnError { get; set; }
 
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnRecordClick { get; set; }
+
+    private Task OnRecordClicked(MouseEventArgs args)
+    {
+        if (OnRecordClick.HasDelegate)
+        {
+            return OnRecordClick.InvokeAsync();
+        } else
+        {
+            return OnRecord();
+        }
+    }
+
     /// <summary>
     /// Defaults to CultureInfo.CurrentCulture.TwoLetterISOLanguageName
     /// </summary>
@@ -52,6 +66,8 @@
     public string Culture { get; set; } = CultureInfo.CurrentCulture.TwoLetterISOLanguageName;
 
     Task OnRecognizedHandler(string recognizedText) => OnRecongizeded.InvokeAsync(recognizedText);
+
+    public Task StartRecording() => OnRecord();
 
     async Task OnRecord()
     {

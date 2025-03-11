@@ -37,7 +37,7 @@
                         <TextAreaSuffixTemplate>
                             @if (string.IsNullOrWhiteSpace(Prompt))
                             {
-                                <SpeechToTextButton OnRecongizeded="OnRecognizedText" />
+                                <SpeechToTextButton OnRecordClick="" OnRecongizeded="OnRecognizedText" />
                             }
                             else
                             {
@@ -52,154 +52,21 @@
     </AppBarSection>
 </TelerikAppBar>
 <TelerikPopup @ref="@PopupRef"
-Width="100"
-AnchorSelector="#floating-action-button"
-AnimationType="@AnimationType.SlideUp"
-AnimationDuration="100"
-HorizontalAlign="@PopupHorizontalAlign.Left"
-VerticalAlign="@PopupVerticalAlign.Bottom"
-AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
-AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
-VerticalOffset="4">
-    <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
-        <TelerikButton Icon="@SvgIcon.FileAdd"
-        OnClick="RestartChat"
-        Rounded="@ThemeConstants.Button.Rounded.Medium"
-        FillMode="@ThemeConstants.Button.FillMode.Flat"
-        Size="@ThemeConstants.Button.Size.Large"
-        Title="New">New</TelerikButton>
-    </div>
+    Width="100"
+    AnchorSelector="#floating-action-button"
+    AnimationType="@AnimationType.SlideUp"
+    AnimationDuration="100"
+    HorizontalAlign="@PopupHorizontalAlign.Left"
+    VerticalAlign="@PopupVerticalAlign.Bottom"
+    AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
+    AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
+    VerticalOffset="4">
+        <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
+            <TelerikButton Icon="@SvgIcon.FileAdd"
+            OnClick="RestartChat"
+            Rounded="@ThemeConstants.Button.Rounded.Medium"
+            FillMode="@ThemeConstants.Button.FillMode.Flat"
+            Size="@ThemeConstants.Button.Size.Large"
+            Title="New">New</TelerikButton>
+        </div>
 </TelerikPopup>
-@code {
-
-    private TelerikPopup PopupRef { get; set; }
-    private bool popupVisible = false;
-
-    bool isThinking;
-    bool canSubmit => !string.IsNullOrWhiteSpace(Prompt) && !isThinking;
-    
-    string streamingText = "";
-    List<ChatMessage> messages = [];
-
-    string? Prompt { get; set; }
-
-    private void TogglePopup()
-    {
-        if (popupVisible)
-        {
-            HidePopup();
-        }
-        else
-        {
-            ShowPopup();
-        }
-    }
-
-    private void HidePopup()
-    {
-        PopupRef.Hide();
-        popupVisible = false;
-    }
-
-    private void ShowPopup()
-    {
-        PopupRef.Show();
-        popupVisible = true;
-    }
-
-    async Task RestartChat()
-    {
-        messages = [];
-        HidePopup();
-        await NewChat();
-    }
-
-    async Task NewChat()
-    {
-        var system = new ChatMessage
-            {
-                Role = ChatRole.System,
-                Text = "Greet the user in a friendly way, make them feel welcome."
-            };
-
-        await BeginThinking(async () =>
-        {
-            ChatResponse response = await ai.GetResponseAsync(system);
-
-            messages.Add(response.Message);
-        });
-    }
-
-    protected override async Task OnInitializedAsync()
-    {
-        await NewChat();
-    }
-
-    async Task AddMessage()
-    {
-        ChatMessage userMessage = new()
-            {
-                Role = ChatRole.User,
-                Text = Prompt,
-                AuthorName = "You"
-            };
-
-        messages.Add(userMessage);
-        Prompt = "";
-
-        await BeginThinking(async () =>
-        {
-            var responseStream = ai.GetStreamingResponseAsync(messages);
-
-            await foreach (var message in responseStream)
-            {
-                streamingText = streamingText + message.Text;
-                StateHasChanged();
-            }
-            messages.Add(new ChatMessage
-            {
-                Role = ChatRole.Assistant,
-                Text = streamingText
-            });
-            streamingText = null;
-        });
-    }
-
-    /// <summary>
-    /// Sets the isThinking flag to true, executes the provided action, and then sets the isThinking flag to false.
-    /// </summary>
-    /// <param name="action">The asynchronous action to be executed while thinking.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    async Task BeginThinking(Func<Task> action)
-    {
-        isThinking = true;
-        try
-        {
-            await action();
-        }
-        finally
-        {
-            isThinking = false;
-        }
-    }
-
-
-    /// <summary>
-    /// Captures the Enter key press event and triggers the AddMessage method if the Enter key is pressed without the Shift key.
-    /// </summary>
-    /// <param name="args">The keyboard event arguments.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    Task SubmitOnEnter(KeyboardEventArgs args)
-    {
-        // Captures enter but not shift + enter
-        if (args.Key == "Enter" && !args.ShiftKey)
-        {
-            if (canSubmit)
-                return AddMessage();
-        }
-        return Task.CompletedTask;
-    }
-
-    void OnRecognizedText(string value) => Prompt = value;
-
-}
