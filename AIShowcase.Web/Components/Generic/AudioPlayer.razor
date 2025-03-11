@@ -1,9 +1,11 @@
 ﻿@inject AudioPlayerInterop ap
 
 <audio @ref="@audioTagRef"
-       autoplay="@autoplay"
-       preload="none"
-       controls="@ShowControls">
+autoplay="@autoplay"
+preload="none"
+controls="@ShowControls"
+@onended="@OnEndedHandler"
+>
     @ChildContent
 </audio>
 
@@ -23,6 +25,11 @@
 
     [Parameter]
     public string? TargetVisualizerId { get; set; }
+
+    [Parameter]
+    public EventCallback OnEnded { get; set; }
+
+    Task OnEndedHandler() => OnEnded.InvokeAsync();
 
     private void OnSourceChangedHandler()
     {

@@ -22,8 +22,7 @@ export async function pause() {
 }
 
 export async function stop() {
-    audioPlayer.pause();
-    audioPlayer.currentTime = 0;
+    audioPlayer.currentTime = audioPlayer.duration;
 }
 
 export async function setVolume(volume) {
@@ -42,6 +41,7 @@ class AudioVisualizer {
     constructor(audioPlayer, canvasId) {
         this.audioPlayer = audioPlayer;
         this.canvas = document.getElementById(canvasId);
+        this.parent = this.canvas.parentElement;
         this.ctx = this.canvas.getContext('2d');
         const styles = getComputedStyle(this.canvas);
         this.barColor = styles.getPropertyValue('--kendo-color-primary');
@@ -58,6 +58,9 @@ class AudioVisualizer {
         this.analyser.fftSize = 2048;
         this.bufferLength = this.analyser.frequencyBinCount;
         this.dataArray = new Uint8Array(this.bufferLength);
+
+        this.canvas.width = this.parent.clientWidth;
+        this.canvas.height = this.parent.clientHeight;
 
         this.audioPlayer.addEventListener('play', () => {
             if (this.audioContext.state === 'suspended') {

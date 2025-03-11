@@ -1,8 +1,10 @@
 ﻿@page "/"
 @page "/copilot-chat"
+@using AIShowcase.WebApp.Components.TextToSpeechServices
 @using Microsoft.Extensions.AI
 @inject IChatClient ai
-@inject IJSRuntime js
+@inject ITextToSpeechService tts
+
 
 @* Debounce must be 0 or prompt may be truncated. *@
 
@@ -11,62 +13,81 @@
         <div class="k-d-flex k-justify-content-center k-w-full">
             <div class="k-w-1/2">
                 <ChatOutput Messages="messages" />
-                <span>@streamingText
-                    <TelerikSkeleton Visible="isThinking" ShapeType="SkeletonShapeType.Text" Width="10vw" Height="20px" /></span>
+                <span>
+                    @streamingText
+                    <TelerikSkeleton Visible="isThinking" ShapeType="SkeletonShapeType.Text" Width="10vw" Height="20px" />
+                </span>
             </div>
         </div>
     </div>
 </div>
 <TelerikAppBar Class="chat-prompt" Position="AppBarPosition.Bottom" PositionMode="AppBarPositionMode.Sticky">
     <AppBarSection Class="k-d-flex k-justify-content-center k-w-full">
-        <TelerikCard Class="k-w-1/2">
-            <CardBody>
-                <span @onkeypress="SubmitOnEnter">
-                    <TelerikTextArea @bind-Value="@Prompt"
-                    Width="100%"
-                    DebounceDelay="0"
-                    AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
-                    ShowPrefixSeparator="false"
-                    ShowSuffixSeparator="false"
-                    ResizeMode="@TextAreaResizeMode.None"
-                    Placeholder="Message  AskAI ..."
-                    AriaLabel="Ask AI">
-                        <TextAreaPrefixTemplate>
-                            <TelerikButton Id="floating-action-button" Icon="@SvgIcon.MoreVertical" OnClick="TogglePopup"></TelerikButton>
-                        </TextAreaPrefixTemplate>
-                        <TextAreaSuffixTemplate>
-                            @if (string.IsNullOrWhiteSpace(Prompt))
-                            {
-                                <SpeechToTextButton OnRecordClick="" OnRecongizeded="OnRecognizedText" />
-                            }
-                            else
-                            {
-                                <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="AddMessage" Enabled="canSubmit"></TelerikButton>
-                            }
-                        </TextAreaSuffixTemplate>
-                    </TelerikTextArea>
-                </span>
-            </CardBody>
-        </TelerikCard>
+        <div class="k-d-grid k-w-1/2">
+            <div class="grid-overlay">
+                <TelerikCard Class="">
+                    <CardBody>
+                        <span @onkeypress="SubmitOnEnter">
+                            <TelerikTextArea @bind-Value="@Prompt"
+                                             Width="100%"
+                                             DebounceDelay="0"
+                                             AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
+                                             ShowPrefixSeparator="false"
+                                             ShowSuffixSeparator="false"
+                                             ResizeMode="@TextAreaResizeMode.None"
+                                             Placeholder="Message  AskAI ..."
+                                             AriaLabel="Ask AI">
+                                <TextAreaPrefixTemplate>
+                                    <TelerikButton Id="floating-action-button" Icon="@SvgIcon.MoreVertical" OnClick="TogglePopup"></TelerikButton>
+                                </TextAreaPrefixTemplate>
+                                <TextAreaSuffixTemplate>
+                                    @if (string.IsNullOrWhiteSpace(Prompt))
+                                    {
+                                        if (isPlaying)
+                                        {
+                                            <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking"></TelerikButton>
+                                        }
+                                        else
+                                        {
+                                            <SpeechToTextButton @ref="Recorder" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" />
+                                        }
+                                    }
+                                    else
+                                    {
+                                        <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="AddMessage" Enabled="canSubmit"></TelerikButton>
+                                    }
+                                </TextAreaSuffixTemplate>
+                            </TelerikTextArea>
+                        </span>
+                    </CardBody>
+                </TelerikCard>
+            </div>
+            <canvas width="0" height="0" class="grid-overlay" id="ttsEffect"></canvas>
+        </div>
 
     </AppBarSection>
 </TelerikAppBar>
+
+@* Off screen elements *@
+
+<AudioPlayer @ref="AudioAPI" OnEnded="OnEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>
+
 <TelerikPopup @ref="@PopupRef"
-    Width="100"
-    AnchorSelector="#floating-action-button"
-    AnimationType="@AnimationType.SlideUp"
-    AnimationDuration="100"
-    HorizontalAlign="@PopupHorizontalAlign.Left"
-    VerticalAlign="@PopupVerticalAlign.Bottom"
-    AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
-    AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
-    VerticalOffset="4">
-        <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
-            <TelerikButton Icon="@SvgIcon.FileAdd"
-            OnClick="RestartChat"
-            Rounded="@ThemeConstants.Button.Rounded.Medium"
-            FillMode="@ThemeConstants.Button.FillMode.Flat"
-            Size="@ThemeConstants.Button.Size.Large"
-            Title="New">New</TelerikButton>
-        </div>
+              Width="100"
+              AnchorSelector="#floating-action-button"
+              AnimationType="@AnimationType.SlideUp"
+              AnimationDuration="100"
+              HorizontalAlign="@PopupHorizontalAlign.Left"
+              VerticalAlign="@PopupVerticalAlign.Bottom"
+              AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
+              AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
+              VerticalOffset="4">
+    <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
+        <TelerikButton Icon="@SvgIcon.FileAdd"
+                       OnClick="RestartChat"
+                       Rounded="@ThemeConstants.Button.Rounded.Medium"
+                       FillMode="@ThemeConstants.Button.FillMode.Flat"
+                       Size="@ThemeConstants.Button.Size.Large"
+                       Title="New">New</TelerikButton>
+    </div>
 </TelerikPopup>

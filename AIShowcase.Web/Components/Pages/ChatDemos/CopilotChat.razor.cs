@@ -1,3 +1,4 @@
+using AIShowcase.WebApp.Components.Generic;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.AI;
 using Telerik.Blazor.Components;
@@ -8,10 +9,22 @@ public partial class CopilotChat
 	// Lifecycle
 	protected override async Task OnInitializedAsync()
 	{
+		var voices = await tts.GetVoices();
+		if (voices.Length == 0)
+		{
+			throw new InvalidOperationException("Voices were not loaded or selected");
+		}
+		var random = new Random();
+		selectedVoiceId = voices[random.Next(voices.Length)].Id;
+
 		await NewChat();
 	}
 
 	#region Prompt
+	public bool isPlaying;
+	public string? selectedVoiceId;
+	SpeechToTextButton? Recorder;
+	AudioPlayer? AudioAPI;
 	string? Prompt { get; set; }
 	bool canSubmit => !string.IsNullOrWhiteSpace(Prompt) && !isThinking;
 
@@ -31,10 +44,106 @@ public partial class CopilotChat
 		return Task.CompletedTask;
 	}
 
+	async Task CreateListeningMessage()
+	{
+		if (selectedVoiceId is null || AudioAPI is null) return;
+		var helloMessage = await ai.GetResponseAsync(new ChatMessage
+		{
+			Role = ChatRole.System,
+			Text = """
+   You are an AI assistant. 
+   Let the user know you're listening with a single text only sentence.
+   Here are some examples:
+   <example>Hello, how are you today?</example>
+   <example>What's on your mind?</example>
+   <example>What can I help with?</example>
+   <example>I'm here to help.</example>
+   """
+		});
+		if (helloMessage.Message.Text is null) return;
+		var speech = await tts.GetSpeechAsBase64String(helloMessage.Message.Text, selectedVoiceId);
+		await AudioAPI.Load(speech);
+		isPlaying = true;
+		await AudioAPI.Play();
+	}
+
+	async Task OnRecordClick()
+	{
+		// Speak > "Hello, I'm listening"
+		await CreateListeningMessage();
+	}
+
 	Task OnRecognizedText(string value)
 	{
 		Prompt = value;
-		return AddMessage();
+		return RespondWithSpeech();
+	}
+
+	Task OnStopAudio()
+	{
+		isPlaying = false;
+		// If audio is playing AudioAPI cannot be null
+		return AudioAPI!.Stop();
+
+	}
+
+	//Create a shorter response to allow for better conversation
+	async Task RespondWithSpeech()
+	{
+		ChatMessage userMessage = new()
+		{
+			Role = ChatRole.User,
+			Text = Prompt,
+		};
+
+		Prompt = "";
+
+		await BeginThinking(async () =>
+		{
+			string newPrompt = $"""
+			The user asked a question using their voice
+			<question>{userMessage.Text}</question>.
+			Please respond in a concise single paragraph using plain text.
+			""";
+			ChatMessage augmentedPrompt = new()
+			{
+				Role = ChatRole.User,
+				Text = newPrompt
+			};
+
+			//todo: make this use streaming
+			//for streaming we'll need to chunk the responses into completed paragraphs
+			//then generate a wav for each chunk
+			//the files will need to be played in order and the playlist will need to be updated as items play
+
+			var response = await ai.GetResponseAsync([.. messages, augmentedPrompt]);
+
+			messages.Add(userMessage);
+			messages.Add(new ChatMessage
+			{
+				Role = ChatRole.Assistant,
+				Text = response.Message.Text
+			});
+
+			if (selectedVoiceId is null || AudioAPI is null || response.Message.Text is null) return;
+			{
+				var speech = await tts.GetSpeechAsBase64String(response.Message.Text, selectedVoiceId);
+				await AudioAPI.Load(speech);
+				isPlaying = true;
+				await AudioAPI.Play();
+			}
+		});
+	}
+
+	/// <summary>
+	/// Starts recording after ever audio track is played
+	/// </summary>
+	/// <returns></returns>
+	Task OnEnded()
+	{
+		isPlaying = false;
+		if (Recorder is null) return Task.CompletedTask;
+		return Recorder.StartRecording();
 	}
 	#endregion
 
@@ -48,7 +157,6 @@ public partial class CopilotChat
 		{
 			Role = ChatRole.User,
 			Text = Prompt,
-			AuthorName = "You"
 		};
 
 		messages.Add(userMessage);
