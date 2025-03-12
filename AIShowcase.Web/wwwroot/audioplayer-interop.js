@@ -62,6 +62,13 @@ class AudioVisualizer {
         this.canvas.width = this.parent.clientWidth;
         this.canvas.height = this.parent.clientHeight;
 
+        // Add ResizeObserver to update canvas size
+        this.resizeObserver = new ResizeObserver(() => {
+            this.canvas.width = this.parent.clientWidth;
+            this.canvas.height = this.parent.clientHeight;
+        });
+        this.resizeObserver.observe(this.parent);
+
         this.audioPlayer.addEventListener('play', () => {
             if (this.audioContext.state === 'suspended') {
                 this.audioContext.resume();
@@ -72,6 +79,25 @@ class AudioVisualizer {
         this.audioPlayer.addEventListener('ended', () => {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
         });
+    }
+
+    dispose() {
+        if (this.source) {
+            this.source.disconnect();
+            this.source = null;
+        }
+        if (this.analyser) {
+            this.analyser.disconnect();
+            this.analyser = null;
+        }
+        if (this.audioContext) {
+            this.audioContext.close();
+            this.audioContext = null;
+        }
+        if (this.resizeObserver) {
+            this.resizeObserver.disconnect();
+            this.resizeObserver = null;
+        }
     }
 
     draw() {

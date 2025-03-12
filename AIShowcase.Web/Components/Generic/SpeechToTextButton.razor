@@ -5,7 +5,7 @@
 @if (isRecording)
 {
     <TelerikButton Id="@Id" Title="Stop Recording" OnClick="OnStopRecording"
-    ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
+    ThemeColor="@(ThemeConstants.Button.ThemeColor.Primary)"
     FillMode="@(ThemeConstants.Button.FillMode.Solid)">
         <TelerikLoader Type="@LoaderType.Pulsing"
         ThemeColor="@(ThemeConstants.Button.ThemeColor.Inverse)"
@@ -18,7 +18,7 @@
 else
 {
     <TelerikButton Id="@Id" Title="Record" OnClick="OnRecordClicked"
-    ThemeColor="@(ThemeConstants.Button.ThemeColor.Error)"
+    ThemeColor="@(ThemeConstants.Button.ThemeColor.Primary)"
     FillMode="@(ThemeConstants.Button.FillMode.Outline)">
         <TelerikSvgIcon Icon="SvgIcon.RadiobuttonChecked"
         Size="@(ThemeConstants.SvgIcon.Size.ExtraLarge)" />

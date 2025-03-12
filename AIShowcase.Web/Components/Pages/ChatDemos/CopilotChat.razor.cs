@@ -14,8 +14,7 @@ public partial class CopilotChat
 		{
 			throw new InvalidOperationException("Voices were not loaded or selected");
 		}
-		var random = new Random();
-		selectedVoiceId = voices[random.Next(voices.Length)].Id;
+		selectedVoiceId = "Microsoft Server Speech Text to Speech Voice (en-US, NovaTurboMultilingualNeural)";
 
 		await NewChat();
 	}
