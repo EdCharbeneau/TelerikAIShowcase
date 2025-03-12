@@ -69,6 +69,10 @@ else
 
     public Task StartRecording() => OnRecord();
 
+    public async Task StopRecording() {
+        if (isRecording) await SpeechRecognition.CancelSpeechRecognitionAsync(true);
+    }
+
     async Task OnRecord()
     {
         if (isRecording) await SpeechRecognition.CancelSpeechRecognitionAsync(true);

@@ -13,8 +13,12 @@ builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
 
 builder.Services.AddSpeechRecognitionServices();
-builder.Services.AddAllSpeechServices();
-builder.AddOllamaApiClient("phi4").AddChatClient();
+
+// If local uncomment this line
+//builder.AddOllamaApiClient("connectionName").AddChatClient();
+
+builder.AddChatServices();
+builder.Services.AddSpeechServices();
 builder.Services.AddTelerikBlazor();
 builder.Services.AddScoped<PrismInterop>();
 

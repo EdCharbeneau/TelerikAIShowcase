@@ -48,9 +48,9 @@ public partial class CopilotChat
 	{
 		if (selectedVoiceId is null || AudioAPI is null) return;
 		var helloMessage = await ai.GetResponseAsync(new ChatMessage
-		{
-			Role = ChatRole.System,
-			Text = """
+		(
+			ChatRole.System,
+			"""
    You are an AI assistant. 
    Let the user know you're listening with a single text only sentence.
    Here are some examples:
@@ -58,10 +58,8 @@ public partial class CopilotChat
    <example>What's on your mind?</example>
    <example>What can I help with?</example>
    <example>I'm here to help.</example>
-   """
-		});
-		if (helloMessage.Message.Text is null) return;
-		var speech = await tts.GetSpeechAsBase64String(helloMessage.Message.Text, selectedVoiceId);
+   """));
+		var speech = await tts.GetSpeechAsBase64String(helloMessage.Text, selectedVoiceId);
 		await AudioAPI.Load(speech);
 		isPlaying = true;
 		await AudioAPI.Play();
@@ -90,11 +88,13 @@ public partial class CopilotChat
 	//Create a shorter response to allow for better conversation
 	async Task RespondWithSpeech()
 	{
-		ChatMessage userMessage = new()
-		{
-			Role = ChatRole.User,
-			Text = Prompt,
-		};
+		// Recorder can't be null here
+		await Recorder!.StopRecording();
+
+		ChatMessage userMessage = new(
+		 ChatRole.User,
+		 Prompt
+		);
 
 		Prompt = "";
 
@@ -105,11 +105,9 @@ public partial class CopilotChat
 			<question>{userMessage.Text}</question>.
 			Please respond in a concise single paragraph using plain text.
 			""";
-			ChatMessage augmentedPrompt = new()
-			{
-				Role = ChatRole.User,
-				Text = newPrompt
-			};
+			ChatMessage augmentedPrompt = new(
+				ChatRole.User,
+				newPrompt);
 
 			//todo: make this use streaming
 			//for streaming we'll need to chunk the responses into completed paragraphs
@@ -119,15 +117,14 @@ public partial class CopilotChat
 			var response = await ai.GetResponseAsync([.. messages, augmentedPrompt]);
 
 			messages.Add(userMessage);
-			messages.Add(new ChatMessage
-			{
-				Role = ChatRole.Assistant,
-				Text = response.Message.Text
-			});
+			messages.Add(new ChatMessage(
+				ChatRole.Assistant,
+				response.Text
+			));
 
-			if (selectedVoiceId is null || AudioAPI is null || response.Message.Text is null) return;
+			if (selectedVoiceId is null || AudioAPI is null) return;
 			{
-				var speech = await tts.GetSpeechAsBase64String(response.Message.Text, selectedVoiceId);
+				var speech = await tts.GetSpeechAsBase64String(response.Text, selectedVoiceId);
 				await AudioAPI.Load(speech);
 				isPlaying = true;
 				await AudioAPI.Play();
@@ -139,11 +136,12 @@ public partial class CopilotChat
 	/// Starts recording after ever audio track is played
 	/// </summary>
 	/// <returns></returns>
-	Task OnEnded()
+	async Task OnEnded()
 	{
 		isPlaying = false;
-		if (Recorder is null) return Task.CompletedTask;
-		return Recorder.StartRecording();
+		if (Recorder is null) return;
+		await Recorder.StartRecording();
+		StateHasChanged();
 	}
 	#endregion
 
@@ -153,11 +151,10 @@ public partial class CopilotChat
 
 	async Task AddMessage()
 	{
-		ChatMessage userMessage = new()
-		{
-			Role = ChatRole.User,
-			Text = Prompt,
-		};
+		ChatMessage userMessage = new(
+			ChatRole.User,
+			Prompt
+		);
 
 		messages.Add(userMessage);
 		Prompt = "";
@@ -171,11 +168,10 @@ public partial class CopilotChat
 				streamingText = streamingText + message.Text;
 				StateHasChanged();
 			}
-			messages.Add(new ChatMessage
-			{
-				Role = ChatRole.Assistant,
-				Text = streamingText
-			});
+			messages.Add(new ChatMessage(
+				ChatRole.Assistant,
+				streamingText
+			));
 			streamingText = "";
 		});
 	}
@@ -240,17 +236,16 @@ public partial class CopilotChat
 
 	async Task NewChat()
 	{
-		var system = new ChatMessage
-		{
-			Role = ChatRole.System,
-			Text = "Greet the user in a friendly way, make them feel welcome."
-		};
+		var system = new ChatMessage(
+			ChatRole.System,
+			"Greet the user in a friendly way, make them feel welcome."
+		);
 
 		await BeginThinking(async () =>
 		{
 			ChatResponse response = await ai.GetResponseAsync(system);
 
-			messages.Add(response.Message);
+			messages.Add(response.Messages[0]);
 		});
 	}
 	#endregion

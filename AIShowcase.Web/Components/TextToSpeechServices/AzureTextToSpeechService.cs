@@ -15,9 +15,9 @@ public class AzureTextToSpeechService : ITextToSpeechService
 
 	public AzureTextToSpeechService(IConfiguration config)
 	{
-		speechApiKey = config["SpeechApiKey"]
+		speechApiKey = config["Speech:Azure:Key"]
 			?? "";
-		serviceRegion = config["ServiceRegion"]
+		serviceRegion = config["Speech:Azure:ServiceRegion"]
 			?? "";
 		isConfigured = !(string.IsNullOrWhiteSpace(speechApiKey) && string.IsNullOrWhiteSpace(serviceRegion));
 	}

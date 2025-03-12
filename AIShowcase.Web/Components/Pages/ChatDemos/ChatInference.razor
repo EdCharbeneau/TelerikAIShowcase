@@ -41,30 +41,28 @@ Capture enter button✅
 
     protected override async Task OnInitializedAsync()
     {
-        var system = new ChatMessage
-            {
-                Role = ChatRole.System,
-                Text = "Greet the user in a friendly way, make them feel welcome."
-            };
+        var system = new ChatMessage(
+               ChatRole.System,
+               "Greet the user in a friendly way, make them feel welcome."
+        );
 
         await BeginThinking(async () =>
         {
             ChatResponse response = await ai.GetResponseAsync(system);
 
-            response.Message.AuthorName = "Allen Issac";
+            response.Messages[0].AuthorName = "Allen Issac";
 
-            messages.Add(response.Message);
+            messages.Add(response.Messages[0]);
         });
     }
 
     async Task AddMessage()
     {
-        ChatMessage userMessage = new()
-            {
-                Role = ChatRole.User,
-                Text = Prompt,
-                AuthorName = "You"
-            };
+        ChatMessage userMessage = new(
+                ChatRole.User,
+                Prompt
+        )
+            { AuthorName = "You" };
 
         messages.Add(userMessage);
         Prompt = "";
@@ -73,9 +71,9 @@ Capture enter button✅
         {
             ChatResponse response = await ai.GetResponseAsync(messages);
 
-            response.Message.AuthorName = "Allen Issac";
+            response.Messages[0].AuthorName = "Allen Issac";
 
-            messages.Add(response.Message);
+            messages.Add(response.Messages[0]);
         });
     }
 

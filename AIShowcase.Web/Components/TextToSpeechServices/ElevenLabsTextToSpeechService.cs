@@ -15,7 +15,7 @@ public class ElevenLabsTextToSpeechService : ITextToSpeechService
 	{
 		try
 		{
-			api = new ElevenLabsClient(config["ElevenLabsApiKey"]);
+			api = new ElevenLabsClient(config["ElevenLabs:Key"]);
 		}
 		catch (Exception)
 		{
