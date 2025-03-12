@@ -65,16 +65,16 @@
     --kendo-color-base-on-surface: #CDD0E0;
     --kendo-color-base-on-subtle: #EFF0F5;
     /* Primary */
-    --kendo-color-primary-subtle: #453817;
-    --kendo-color-primary-subtle-hover: #5C4C1F;
-    --kendo-color-primary-subtle-active: #735E26;
-    --kendo-color-primary: #CCB066;
-    --kendo-color-primary-hover: #D4BC7D;
-    --kendo-color-primary-active: #DECC9C;
-    --kendo-color-primary-emphasis: #A18436;
+    --kendo-color-primary: #58b9ca;
+    --kendo-color-primary-subtle: color-mix(in srgb, var(--kendo-color-primary) 70%, black);
+    --kendo-color-primary-subtle-hover: color-mix(in srgb, var(--kendo-color-primary) 60%, black);
+    --kendo-color-primary-subtle-active: color-mix(in srgb, var(--kendo-color-primary) 50%, black);
+    --kendo-color-primary-hover: color-mix(in srgb, var(--kendo-color-primary) 90%, white);
+    --kendo-color-primary-active: color-mix(in srgb, var(--kendo-color-primary) 80%, white);
+    --kendo-color-primary-emphasis: color-mix(in srgb, var(--kendo-color-primary) 110%, white);
     --kendo-color-on-primary: #1C1D22;
-    --kendo-color-primary-on-surface: #CCB066;
-    --kendo-color-primary-on-subtle: #EDE3C9;
+    --kendo-color-primary-on-surface: var(--kendo-color-primary);
+    --kendo-color-primary-on-subtle: color-mix(in srgb, var(--kendo-color-primary) 70%, white);
     /* Secondary */
     --kendo-color-secondary-subtle: #5E668D;
     --kendo-color-secondary-subtle-hover: #6C749D;
@@ -268,7 +268,7 @@ h6 {
 
 .chat-output {
     --sb-track-color: #1f2f5c;
-    --sb-thumb-color: #CCB066;
+    --sb-thumb-color: var(--kendo-color-primary);
     --sb-size: 6px;
 }
 
