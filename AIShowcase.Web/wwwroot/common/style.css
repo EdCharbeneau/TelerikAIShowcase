@@ -263,7 +263,9 @@ h6 {
    font-size: var(--kendo-h6-font-size);  
 }
 
-
+.chat-output .user p:last-child {
+    margin-bottom:0;
+}
 
 
 .chat-output {

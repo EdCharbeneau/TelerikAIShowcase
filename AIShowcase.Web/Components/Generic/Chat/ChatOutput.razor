@@ -7,21 +7,19 @@
 <div class="k-d-flex k-flex-col">
     <div role="log" aria-label="Message list" aria-live="polite">
         <div @ref="messageListElement">
-            @foreach (ChatMessage m in FilteredMessages)
+            @foreach (ChatMessage m in GetFilteredMessages())
             {
                 if (m.Role == ChatRole.Assistant)
                 {
-                    <div class="k-w-full k-mb-8">
-                        @if (m.Text is not null)
-                            @((MarkupString)Markdown.ToHtml(m.Text))
+                    <div class="@m.Role k-w-full k-mb-8">
+                        @RenderMessage(m.Text)
                     </div>
                 }
                 else
                 {
-                    <div class="k-d-flex k-justify-content-end k-w-full k-mb-8 k-font-weight-semibold">
+                    <div class="@m.Role k-d-flex k-justify-content-end k-w-full k-mb-8 k-font-weight-semibold">
                         <div class="k-rounded-lg k-border-solid k-border-primary k-text-primary k-p-4 k-mb-4 k-elevation-2 k-w-3/4">
-                            @if (m.Text is not null)
-                                @((MarkupString)Markdown.ToHtml(m.Text))
+                            @RenderMessage(m.Text)
                         </div>
                     </div>
                 }
@@ -35,7 +33,7 @@
     List<ChatMessage> messageCache = new();
     bool shouldFormatSyntax;
 
-    private IEnumerable<ChatMessage> FilteredMessages => Messages.Where(m => m.Role == ChatRole.User || m.Role == ChatRole.Assistant);
+    private IEnumerable<ChatMessage> GetFilteredMessages() => Messages.Where(m => m.Role == ChatRole.User || m.Role == ChatRole.Assistant);
 
     [Parameter]
     public RenderFragment? ChildContent { get; set; }
@@ -50,9 +48,9 @@
     {
         if (shouldFormatSyntax && messageListElement is not null)
         {
-            shouldFormatSyntax = false;
             await prism.HighlightAllUnder(messageListElement.Value);
         }
+        shouldFormatSyntax = false;
     }
 
     public override async Task SetParametersAsync(ParameterView parameters)
@@ -66,4 +64,6 @@
         }
         await base.SetParametersAsync(parameters);
     }
+
+    private MarkupString? RenderMessage(string? text) => text is not null ? (MarkupString)Markdown.ToHtml(text) : null;
 }
