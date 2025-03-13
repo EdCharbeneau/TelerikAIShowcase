@@ -40,11 +40,11 @@
                                 <TextAreaSuffixTemplate>
                                     @if (string.IsNullOrWhiteSpace(Prompt))
                                     {
-                                        if (isPlaying)
+                                        if (isAudioPlaying)
                                         {
                                             <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking"></TelerikButton>
                                         }
-                                        <SpeechToTextButton @ref="Recorder" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" />
+                                        <SpeechToTextButton @ref="Microphone" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" />
                                     }
                                     else
                                     {
@@ -64,7 +64,7 @@
 
 @* Off screen elements *@
 
-<AudioPlayer @ref="AudioAPI" OnEnded="OnEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>
+<AudioPlayer @ref="audioPlayer" OnEnded="OnAudioEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>
 
 <TelerikPopup @ref="@PopupRef"
               Width="100"

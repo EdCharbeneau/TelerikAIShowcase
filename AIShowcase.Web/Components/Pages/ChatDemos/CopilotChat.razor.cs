@@ -6,33 +6,20 @@ using Telerik.Blazor.Components;
 namespace AIShowcase.WebApp.Components.Pages.ChatDemos;
 public partial class CopilotChat
 {
-	// Lifecycle
-	protected override async Task OnInitializedAsync()
-	{
-		await NewChat();
-	}
-
-	#region Prompt
-	public bool isPlaying;
+	// Global TODO: Move to settings or configuration
 	public string? selectedVoiceId = "Microsoft Server Speech Text to Speech Voice (en-US, NovaTurboMultilingualNeural)";
-	SpeechToTextButton? Recorder;
-	AudioPlayer? AudioAPI;
-	
-	string? Prompt { get; set; }
-	bool canSubmit => !string.IsNullOrWhiteSpace(Prompt) && !isThinking;
 
-	Task SubmitOnEnter(KeyboardEventArgs args)
-	{
-		if (args.Key == "Enter" && !args.ShiftKey && canSubmit)
-		{
-			return AddMessage();
-		}
-		return Task.CompletedTask;
-	}
+	// Lifecycle
+	protected override Task OnInitializedAsync() => NewChat();
 
+	#region Voice
+
+	public bool isAudioPlaying;
+	SpeechToTextButton? Microphone;
+	AudioPlayer? audioPlayer;
 	async Task CreateListeningMessage()
 	{
-		if (selectedVoiceId is null || AudioAPI is null) return;
+		if (selectedVoiceId is null || audioPlayer is null) return;
 		var helloMessage = await ai.GetResponseAsync(new ChatMessage
 		(
 			ChatRole.System,
@@ -47,24 +34,21 @@ public partial class CopilotChat
    """));
 		await PlaySpeech(helloMessage.Text);
 	}
-
 	Task OnRecordClick() => CreateListeningMessage();
-
 	Task OnRecognizedText(string value)
 	{
 		Prompt = value;
 		return RespondWithSpeech();
 	}
-
 	Task OnStopAudio()
 	{
-		isPlaying = false;
-		return AudioAPI!.Stop();
+		isAudioPlaying = false;
+		return audioPlayer!.Stop();
 	}
 
 	async Task RespondWithSpeech()
 	{
-		await Recorder!.StopRecording();
+		await Microphone!.StopRecording();
 
 		ChatMessage userMessage = new(ChatRole.User, Prompt);
 		Prompt = "";
@@ -78,10 +62,10 @@ public partial class CopilotChat
 			""";
 			ChatMessage augmentedPrompt = new(ChatRole.User, newPrompt);
 
-			var response = await ai.GetResponseAsync([.. messages, augmentedPrompt]);
+			ChatResponse response = await ai.GetResponseAsync([.. messages, augmentedPrompt]);
 
 			messages.Add(userMessage);
-			messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
+			messages.Add(new (ChatRole.Assistant, response.Text));
 
 			await PlaySpeech(response.Text);
 		});
@@ -89,20 +73,36 @@ public partial class CopilotChat
 
 	private async Task PlaySpeech(string text)
 	{
-		if (selectedVoiceId is null || AudioAPI is null) return;
-		var speech = await tts.GetSpeechAsBase64String(text, selectedVoiceId);
-		await AudioAPI.Load(speech);
-		isPlaying = true;
-		await AudioAPI.Play();
+		if (selectedVoiceId is null || audioPlayer is null) return;
+		string speech = await tts.GetSpeechAsBase64String(text, selectedVoiceId);
+		await audioPlayer.Load(speech);
+		isAudioPlaying = true;
+		await audioPlayer.Play();
 	}
 
-	async Task OnEnded()
+	async Task OnAudioEnded()
 	{
-		isPlaying = false;
-		if (Recorder is null) return;
-		await Recorder.StartRecording();
-		StateHasChanged();
+		isAudioPlaying = false;
+		if (Microphone is null) return;
+		await Microphone.StartRecording();
 	}
+
+	#endregion
+
+	#region Prompt
+
+	string? Prompt { get; set; }
+	bool canSubmit => !string.IsNullOrWhiteSpace(Prompt) && !isThinking;
+
+	Task SubmitOnEnter(KeyboardEventArgs args)
+	{
+		if (args.Key == "Enter" && !args.ShiftKey && canSubmit)
+		{
+			return AddMessage();
+		}
+		return Task.CompletedTask;
+	}
+
 	#endregion
 
 	#region Messages
@@ -115,11 +115,9 @@ public partial class CopilotChat
 		messages.Add(userMessage);
 		Prompt = "";
 
-		StateHasChanged();
-
 		await BeginThinking(async () =>
 		{
-			var responseStream = ai.GetStreamingResponseAsync(messages);
+			IAsyncEnumerable<ChatResponseUpdate> responseStream = ai.GetStreamingResponseAsync(messages);
 
 			await foreach (var message in responseStream)
 			{
@@ -186,7 +184,7 @@ public partial class CopilotChat
 
 	async Task NewChat()
 	{
-		var system = new ChatMessage(ChatRole.System, "Greet the user in a friendly way, make them feel welcome.");
+		ChatMessage system = new (ChatRole.System, "Greet the user in a friendly way, make them feel welcome.");
 
 		await BeginThinking(async () =>
 		{
