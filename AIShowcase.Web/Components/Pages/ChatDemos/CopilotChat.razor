@@ -1,12 +1,8 @@
 ﻿@page "/"
-@page "/copilot-chat"
 @using AIShowcase.WebApp.Components.TextToSpeechServices
 @using Microsoft.Extensions.AI
 @inject IChatClient ai
 @inject ITextToSpeechService tts
-
-
-@* Debounce must be 0 or prompt may be truncated. *@
 
 <div class="chat-output k-d-flex k-flex-col" style="height:calc(100vh - 375px); overflow: auto">
     <div class="k-flex-1">
@@ -21,7 +17,9 @@
         </div>
     </div>
 </div>
-<TelerikAppBar Class="chat-prompt" Position="AppBarPosition.Bottom" PositionMode="AppBarPositionMode.Sticky">
+<TelerikAppBar Class="chat-prompt" 
+        Position="AppBarPosition.Bottom" 
+        PositionMode="AppBarPositionMode.Sticky">
     <AppBarSection Class="k-d-flex k-justify-content-center k-w-full">
         <div class="k-d-grid k-w-1/2">
             <div class="grid-overlay">
@@ -30,7 +28,6 @@
                         <span @onkeypress="SubmitOnEnter">
                             <TelerikTextArea @bind-Value="@Prompt"
                                              Width="100%"
-                                             DebounceDelay="0"
                                              AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
                                              ShowPrefixSeparator="false"
                                              ShowSuffixSeparator="false"

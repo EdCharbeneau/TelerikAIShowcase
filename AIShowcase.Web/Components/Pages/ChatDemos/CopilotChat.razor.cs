@@ -9,36 +9,23 @@ public partial class CopilotChat
 	// Lifecycle
 	protected override async Task OnInitializedAsync()
 	{
-		var voices = await tts.GetVoices();
-		if (voices.Length == 0)
-		{
-			throw new InvalidOperationException("Voices were not loaded or selected");
-		}
-		selectedVoiceId = "Microsoft Server Speech Text to Speech Voice (en-US, NovaTurboMultilingualNeural)";
-
 		await NewChat();
 	}
 
 	#region Prompt
 	public bool isPlaying;
-	public string? selectedVoiceId;
+	public string? selectedVoiceId = "Microsoft Server Speech Text to Speech Voice (en-US, NovaTurboMultilingualNeural)";
 	SpeechToTextButton? Recorder;
 	AudioPlayer? AudioAPI;
+	
 	string? Prompt { get; set; }
 	bool canSubmit => !string.IsNullOrWhiteSpace(Prompt) && !isThinking;
 
-	/// <summary>
-	/// Captures the Enter key press event and triggers the AddMessage method if the Enter key is pressed without the Shift key.
-	/// </summary>
-	/// <param name="args">The keyboard event arguments.</param>
-	/// <returns>A task representing the asynchronous operation.</returns>
 	Task SubmitOnEnter(KeyboardEventArgs args)
 	{
-		// Captures enter but not shift + enter
-		if (args.Key == "Enter" && !args.ShiftKey)
+		if (args.Key == "Enter" && !args.ShiftKey && canSubmit)
 		{
-			if (canSubmit)
-				return AddMessage();
+			return AddMessage();
 		}
 		return Task.CompletedTask;
 	}
@@ -58,17 +45,10 @@ public partial class CopilotChat
    <example>What can I help with?</example>
    <example>I'm here to help.</example>
    """));
-		var speech = await tts.GetSpeechAsBase64String(helloMessage.Text, selectedVoiceId);
-		await AudioAPI.Load(speech);
-		isPlaying = true;
-		await AudioAPI.Play();
+		await PlaySpeech(helloMessage.Text);
 	}
 
-	async Task OnRecordClick()
-	{
-		// Speak > "Hello, I'm listening"
-		await CreateListeningMessage();
-	}
+	Task OnRecordClick() => CreateListeningMessage();
 
 	Task OnRecognizedText(string value)
 	{
@@ -79,22 +59,14 @@ public partial class CopilotChat
 	Task OnStopAudio()
 	{
 		isPlaying = false;
-		// If audio is playing AudioAPI cannot be null
 		return AudioAPI!.Stop();
-
 	}
 
-	//Create a shorter response to allow for better conversation
 	async Task RespondWithSpeech()
 	{
-		// Recorder can't be null here
 		await Recorder!.StopRecording();
 
-		ChatMessage userMessage = new(
-		 ChatRole.User,
-		 Prompt
-		);
-
+		ChatMessage userMessage = new(ChatRole.User, Prompt);
 		Prompt = "";
 
 		await BeginThinking(async () =>
@@ -104,37 +76,26 @@ public partial class CopilotChat
 			<question>{userMessage.Text}</question>.
 			Please respond in a concise single paragraph using plain text.
 			""";
-			ChatMessage augmentedPrompt = new(
-				ChatRole.User,
-				newPrompt);
-
-			//todo: make this use streaming
-			//for streaming we'll need to chunk the responses into completed paragraphs
-			//then generate a wav for each chunk
-			//the files will need to be played in order and the playlist will need to be updated as items play
+			ChatMessage augmentedPrompt = new(ChatRole.User, newPrompt);
 
 			var response = await ai.GetResponseAsync([.. messages, augmentedPrompt]);
 
 			messages.Add(userMessage);
-			messages.Add(new ChatMessage(
-				ChatRole.Assistant,
-				response.Text
-			));
+			messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
 
-			if (selectedVoiceId is null || AudioAPI is null) return;
-			{
-				var speech = await tts.GetSpeechAsBase64String(response.Text, selectedVoiceId);
-				await AudioAPI.Load(speech);
-				isPlaying = true;
-				await AudioAPI.Play();
-			}
+			await PlaySpeech(response.Text);
 		});
 	}
 
-	/// <summary>
-	/// Starts recording after ever audio track is played
-	/// </summary>
-	/// <returns></returns>
+	private async Task PlaySpeech(string text)
+	{
+		if (selectedVoiceId is null || AudioAPI is null) return;
+		var speech = await tts.GetSpeechAsBase64String(text, selectedVoiceId);
+		await AudioAPI.Load(speech);
+		isPlaying = true;
+		await AudioAPI.Play();
+	}
+
 	async Task OnEnded()
 	{
 		isPlaying = false;
@@ -150,13 +111,11 @@ public partial class CopilotChat
 
 	async Task AddMessage()
 	{
-		ChatMessage userMessage = new(
-			ChatRole.User,
-			Prompt
-		);
-
+		ChatMessage userMessage = new(ChatRole.User, Prompt);
 		messages.Add(userMessage);
 		Prompt = "";
+
+		StateHasChanged();
 
 		await BeginThinking(async () =>
 		{
@@ -164,13 +123,10 @@ public partial class CopilotChat
 
 			await foreach (var message in responseStream)
 			{
-				streamingText = streamingText + message.Text;
+				streamingText += message.Text;
 				StateHasChanged();
 			}
-			messages.Add(new ChatMessage(
-				ChatRole.Assistant,
-				streamingText
-			));
+			messages.Add(new ChatMessage(ChatRole.Assistant, streamingText));
 			streamingText = "";
 		});
 	}
@@ -179,11 +135,6 @@ public partial class CopilotChat
 	#region Thinking
 	bool isThinking;
 
-	/// <summary>
-	/// Sets the isThinking flag to true, executes the provided action, and then sets the isThinking flag to false.
-	/// </summary>
-	/// <param name="action">The asynchronous action to be executed while thinking.</param>
-	/// <returns>A task representing the asynchronous operation.</returns>
 	async Task BeginThinking(Func<Task> action)
 	{
 		isThinking = true;
@@ -235,18 +186,13 @@ public partial class CopilotChat
 
 	async Task NewChat()
 	{
-		var system = new ChatMessage(
-			ChatRole.System,
-			"Greet the user in a friendly way, make them feel welcome."
-		);
+		var system = new ChatMessage(ChatRole.System, "Greet the user in a friendly way, make them feel welcome.");
 
 		await BeginThinking(async () =>
 		{
 			ChatResponse response = await ai.GetResponseAsync(system);
-
 			messages.Add(response.Messages[0]);
 		});
 	}
 	#endregion
-
 }
