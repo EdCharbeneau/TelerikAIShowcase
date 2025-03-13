@@ -4,6 +4,7 @@
 @inject IChatClient ai
 @inject ITextToSpeechService tts
 
+@* Output *@
 <div class="chat-output k-d-flex k-flex-col" style="height:calc(100vh - 375px); overflow: auto">
     <div class="k-flex-1">
         <div class="k-d-flex k-justify-content-center k-w-full">
@@ -17,13 +18,15 @@
         </div>
     </div>
 </div>
+
+@* Inputs *@
 <TelerikAppBar Class="chat-prompt" 
         Position="AppBarPosition.Bottom" 
         PositionMode="AppBarPositionMode.Sticky">
     <AppBarSection Class="k-d-flex k-justify-content-center k-w-full">
         <div class="k-d-grid k-w-1/2">
             <div class="grid-overlay">
-                <TelerikCard Class="">
+                <TelerikCard>
                     <CardBody>
                         <span @onkeypress="SubmitOnEnter">
                             <TelerikTextArea @bind-Value="@Prompt"
@@ -35,20 +38,22 @@
                                              Placeholder="AskAI ..."
                                              AriaLabel="Ask AI">
                                 <TextAreaPrefixTemplate>
-                                    <TelerikButton Id="floating-action-button" Icon="@SvgIcon.MoreVertical" OnClick="TogglePopup"></TelerikButton>
+                                    <TelerikButton Id="floating-action-button" 
+                                        Icon="@SvgIcon.MoreVertical" 
+                                        OnClick="TogglePopup"/>
                                 </TextAreaPrefixTemplate>
                                 <TextAreaSuffixTemplate>
                                     @if (string.IsNullOrWhiteSpace(Prompt))
                                     {
                                         if (isAudioPlaying)
                                         {
-                                            <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking"></TelerikButton>
+                                            <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking"/>
                                         }
                                         <SpeechToTextButton @ref="Microphone" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" />
                                     }
                                     else
                                     {
-                                        <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="AddMessage" Enabled="canSubmit"></TelerikButton>
+                                        <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="AddMessage" Enabled="canSubmit"/>
                                     }
                                 </TextAreaSuffixTemplate>
                             </TelerikTextArea>
