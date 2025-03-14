@@ -1,10 +1,12 @@
 using AIShowcase.WebApp.Components.Generic;
+using AIShowcase.WebApp.Components.Pages.ChatDemos.Support;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.AI;
 using Telerik.Blazor.Components;
 
 namespace AIShowcase.WebApp.Components.Pages.ChatDemos;
-public partial class CopilotChat
+public partial class CopilotChat(NavigationManager navigation)
 {
 	// Global TODO: Move to settings or configuration
 	public string? selectedVoiceId = "Microsoft Server Speech Text to Speech Voice (en-US, NovaTurboMultilingualNeural)";
@@ -49,6 +51,13 @@ public partial class CopilotChat
 	async Task RespondWithSpeech()
 	{
 		await Microphone!.StopRecording();
+		ChatOptions chatOptions = new()
+		{
+			Tools = [
+		Tools.GetRoutingTool(),
+		Tools.GetNavigationTool(navigation)
+		]
+		};
 
 		ChatMessage userMessage = new(ChatRole.User, Prompt);
 		Prompt = "";
@@ -62,7 +71,7 @@ public partial class CopilotChat
 			""";
 			ChatMessage augmentedPrompt = new(ChatRole.User, newPrompt);
 
-			ChatResponse response = await ai.GetResponseAsync([.. messages, augmentedPrompt]);
+			ChatResponse response = await ai.GetResponseAsync([.. messages, augmentedPrompt], chatOptions);
 
 			messages.Add(userMessage);
 			messages.Add(new (ChatRole.Assistant, response.Text));

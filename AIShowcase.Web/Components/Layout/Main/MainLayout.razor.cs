@@ -1,34 +1,26 @@
-﻿using Telerik.Blazor.Components;
-using Telerik.SvgIcons;
+﻿using AIShowcase.WebApp.Support;
+using System.Diagnostics.CodeAnalysis;
+using Telerik.Blazor.Components;
 
 namespace AIShowcase.WebApp.Components.Layout.Main;
-public partial class MainLayout
+public partial class MainLayout(MainMenu menu)
 {
-	private DrawerItemModel _selectedDrawerItem;
+	[AllowNull]
+	private MenuItem _selectedDrawerItem;
 
 	#region Drawer Data
 
 	private bool DrawerExpanded { get; set; } = true;
 
-	private TelerikDrawer<DrawerItemModel> DrawerRef { get; set; }
+	private TelerikDrawer<MenuItem>? DrawerRef { get; set; }
 
-	private DrawerItemModel SelectedDrawerItem
+	private MenuItem SelectedDrawerItem
 	{
-		get => _selectedDrawerItem ?? DrawerItems.FirstOrDefault();
+		get => _selectedDrawerItem ?? menu.Items.First();
 		set => _selectedDrawerItem = value;
 	}
 
-	private IEnumerable<DrawerItemModel> DrawerItems { get; set; } = new List<DrawerItemModel>()
-		{
-			new DrawerItemModel() { Text = "Dashboard", Icon = SvgIcon.Star, Url = "/" },
-			new DrawerItemModel() { Text = "Voice Input", Icon = SvgIcon.RadiobuttonChecked, Url = "/speech-to-text" },
-			new DrawerItemModel() { Text = "Voice Output", Icon = SvgIcon.VolumeUp, Url = "/text-to-speech" },
-			new DrawerItemModel() { Text = "Basic Chat", Icon = SvgIcon.Textbox, Url = "/basic-chat" },
-			//new DrawerItemModel() { Text = "Settings", Icon = SvgIcon.Gear },
-			//new DrawerItemModel() { Text = "Support", Icon = SvgIcon.QuestionCircle }
-		};
-
-	private async Task ToggleDrawer() => await DrawerRef.ToggleAsync();
+	private async Task ToggleDrawer() => await DrawerRef!.ToggleAsync();
 
 	#endregion Drawer Data
 

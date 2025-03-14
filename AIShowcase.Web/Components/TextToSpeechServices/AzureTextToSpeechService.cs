@@ -1,5 +1,4 @@
-﻿using AIShowcase.WebApp.Common;
-using Microsoft.CognitiveServices.Speech;
+﻿using Microsoft.CognitiveServices.Speech;
 
 namespace AIShowcase.WebApp.Components.TextToSpeechServices;
 

@@ -21,8 +21,7 @@ namespace AIShowcase.WebApp
 
 			IChatClient client = innerClient.AsChatClient("gpt-4o-mini");
 
-			builder.Services.AddChatClient(services => services.GetRequiredService<AzureOpenAIClient>()
-				.AsChatClient(builder.Configuration["Chat:AzureOpenAI:ModelId"] ?? "gpt-4o-mini"));
+			builder.Services.AddChatClient(client).UseFunctionInvocation();
 
 		}
 
