@@ -54,7 +54,7 @@ public partial class CopilotChat(NavigationManager navigation)
 		ChatOptions chatOptions = new()
 		{
 			Tools = [
-		AIFunctionFactory.Create(navigationTool.GetRoutes),
+		AIFunctionFactory.Create(navigationTool.GetPages),
 		AIFunctionFactory.Create(navigationTool.NavigateTo),
 		]
 		};
