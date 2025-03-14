@@ -1,5 +1,5 @@
 ﻿using AIShowcase.WebApp.Components.Pages.ChatDemos.Support;
-using AIShowcase.WebApp.Support;
+using AIShowcase.WebApp.MenuData;
 using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.AI;

@@ -3,7 +3,7 @@ using AIShowcase.WebApp.Components;
 using System.Globalization;
 using CommunityToolkit.Aspire.OllamaSharp;
 using AIShowcase.WebApp.Components.ChatOutputServices;
-using AIShowcase.WebApp.Support;
+using AIShowcase.WebApp.MenuData;
 
 var builder = WebApplication.CreateBuilder(args);
 

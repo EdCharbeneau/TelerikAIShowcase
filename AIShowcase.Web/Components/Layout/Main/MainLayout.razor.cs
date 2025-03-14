@@ -1,4 +1,4 @@
-﻿using AIShowcase.WebApp.Support;
+﻿using AIShowcase.WebApp.MenuData;
 using System.Diagnostics.CodeAnalysis;
 using Telerik.Blazor.Components;
 

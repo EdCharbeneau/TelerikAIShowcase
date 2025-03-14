@@ -1,7 +1,6 @@
 ﻿using Telerik.SvgIcons;
 
-namespace AIShowcase.WebApp.Support
-{
+namespace AIShowcase.WebApp.MenuData;
 	public class MainMenu
 	{
 		public MainMenu()
@@ -39,4 +38,3 @@ namespace AIShowcase.WebApp.Support
 		public List<MenuItem> Items { get; set; } = [];
 
 	}
-}
