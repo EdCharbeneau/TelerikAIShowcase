@@ -1,8 +1,10 @@
 ﻿@page "/"
+@using AIShowcase.WebApp.Components.Pages.ChatDemos.Support
 @using AIShowcase.WebApp.Components.TextToSpeechServices
 @using Microsoft.Extensions.AI
 @inject IChatClient ai
 @inject ITextToSpeechService tts
+@inject NavigationTool navigationTool
 
 @* Output *@
 <div class="chat-output k-d-flex k-flex-col" style="height:calc(100vh - 375px); overflow: auto">

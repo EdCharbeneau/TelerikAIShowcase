@@ -54,8 +54,8 @@ public partial class CopilotChat(NavigationManager navigation)
 		ChatOptions chatOptions = new()
 		{
 			Tools = [
-		Tools.GetRoutingTool(),
-		Tools.GetNavigationTool(navigation)
+		AIFunctionFactory.Create(navigationTool.GetRoutes),
+		AIFunctionFactory.Create(navigationTool.NavigateTo),
 		]
 		};
 
@@ -74,7 +74,7 @@ public partial class CopilotChat(NavigationManager navigation)
 			ChatResponse response = await ai.GetResponseAsync([.. messages, augmentedPrompt], chatOptions);
 
 			messages.Add(userMessage);
-			messages.Add(new (ChatRole.Assistant, response.Text));
+			messages.Add(new(ChatRole.Assistant, response.Text));
 
 			await PlaySpeech(response.Text);
 		});
@@ -193,7 +193,7 @@ public partial class CopilotChat(NavigationManager navigation)
 
 	async Task NewChat()
 	{
-		ChatMessage system = new (ChatRole.System, "Greet the user in a friendly way, make them feel welcome.");
+		ChatMessage system = new(ChatRole.System, "Greet the user in a friendly way, make them feel welcome.");
 
 		await BeginThinking(async () =>
 		{

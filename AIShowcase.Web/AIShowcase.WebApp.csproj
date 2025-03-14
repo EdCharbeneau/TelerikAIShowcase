@@ -21,6 +21,10 @@
 	  <PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.3.0-preview.1.25114.11" />
 	  <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.3.0-preview.1.25161.3" />
 	  <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.0.0-preview.1.25161.1" />
+	  <!-- Required for Menu Search example -->
+	  <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.41.0-preview" />
+	  <PackageReference Include="System.Linq.AsyncEnumerable" Version="10.0.0-preview.1.25080.5" />
+
 	  <!-- Telerik UI for Blazor requires a license see terms for details -->
 	  <PackageReference Include="Telerik.UI.for.Blazor" Version="8.0.0" />
   </ItemGroup>

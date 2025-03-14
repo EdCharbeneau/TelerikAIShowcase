@@ -1,4 +1,6 @@
-﻿using Azure;
+﻿using AIShowcase.WebApp.Components.Pages.ChatDemos.Support;
+using AIShowcase.WebApp.Support;
+using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.AI;
 
@@ -19,10 +21,13 @@ namespace AIShowcase.WebApp
 
 			builder.Services.AddSingleton(innerClient);
 
-			IChatClient client = innerClient.AsChatClient("gpt-4o-mini");
-
+			var client = innerClient.AsChatClient("gpt-4o-mini");
 			builder.Services.AddChatClient(client).UseFunctionInvocation();
+			
+			var embedding = innerClient.AsEmbeddingGenerator("text-embedding-3-small");
+			builder.Services.AddEmbeddingGenerator(embedding);
 
+			builder.Services.AddScoped<NavigationTool>();
 		}
 
 	}

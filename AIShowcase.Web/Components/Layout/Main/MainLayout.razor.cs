@@ -3,10 +3,12 @@ using System.Diagnostics.CodeAnalysis;
 using Telerik.Blazor.Components;
 
 namespace AIShowcase.WebApp.Components.Layout.Main;
-public partial class MainLayout(MainMenu menu)
+public partial class MainLayout
 {
 	[AllowNull]
 	private MenuItem _selectedDrawerItem;
+
+	private MainMenu menu = new();
 
 	#region Drawer Data
 
