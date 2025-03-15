@@ -17,7 +17,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AIShowcase.ServiceDefaults\AIShowcase.ServiceDefaults.csproj" />
     <ProjectReference Include="..\AIShowcase.Web\AIShowcase.WebApp.csproj" />
   </ItemGroup>
 

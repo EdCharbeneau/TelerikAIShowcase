@@ -8,7 +8,7 @@ namespace AIShowcase.WebApp.Components.Pages.ChatDemos.Support
 	public class NavigationTool(NavigationManager navigationManager, MenuVectorData menuVectorData)
 	{
 		MainMenu menu = new();
-		bool initialized;
+		bool initialized = false;
 
 		[Description("Used to navigate to application features. " +
 			"Only navigate to items that exist in Get Pages." +
@@ -20,6 +20,7 @@ namespace AIShowcase.WebApp.Components.Pages.ChatDemos.Support
 			if (!initialized)
 			{
 				await menuVectorData.CreateVectorDataSource(menu.Items);
+				initialized = true;
 			}
 			var search = await menuVectorData.Search(route);
 			var first = await search.Results.FirstOrDefaultAsync();

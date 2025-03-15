@@ -4,29 +4,20 @@
 @namespace AIShowcase.WebApp.Components.Generic
 @inject PrismInterop prism
 
-<div class="k-d-flex k-flex-col">
-    <div role="log" aria-label="Message list" aria-live="polite">
-        <div @ref="messageListElement">
-            @foreach (ChatMessage m in GetFilteredMessages())
-            {
-                if (m.Role == ChatRole.Assistant)
-                {
-                    <div class="@m.Role k-w-full k-mb-8">
-                        @RenderMessage(m.Text)
-                    </div>
-                }
-                else
-                {
-                    <div class="@m.Role k-d-flex k-justify-content-end k-w-full k-mb-8 k-font-weight-semibold">
-                        <div class="k-rounded-lg k-border-solid k-border-primary k-text-primary k-p-4 k-mb-4 k-elevation-2 k-w-3/4">
-                            @RenderMessage(m.Text)
-                        </div>
-                    </div>
-                }
-            }
+
+            <div role="log" aria-label="Message list" aria-live="polite">
+                <div @ref="messageListElement">
+                    @foreach (ChatMessage m in GetFilteredMessages())
+                    {
+                        <ChatMessageItem Message="m"/>
+                    }
+                </div>
+                <span>
+                    @StreamingText
+                    <TelerikSkeleton Visible="IsThinking" ShapeType="SkeletonShapeType.Text" Width="10vw" Height="20px" />
+                </span>
         </div>
-    </div>
-</div>
+
 
 @code {
     ElementReference? messageListElement;
@@ -43,6 +34,12 @@
 
     [Parameter]
     public List<ChatMessage> Messages { get; set; } = new();
+
+    [Parameter]
+    public string? StreamingText { get; set; }
+
+    [Parameter]
+    public bool IsThinking { get; set; }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

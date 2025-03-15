@@ -1,94 +1,79 @@
-﻿@page "/"
+﻿@layout ChatLayout
+@page "/"
 @using AIShowcase.WebApp.Components.Pages.ChatDemos.Support
 @using AIShowcase.WebApp.Components.TextToSpeechServices
 @using Microsoft.Extensions.AI
+
 @inject IChatClient ai
 @inject ITextToSpeechService tts
 @inject NavigationTool navigationTool
 
-@* Output *@
-<div class="chat-output k-d-flex k-flex-col" style="height:calc(100vh - 375px); overflow: auto">
-    <div class="k-flex-1">
-        <div class="k-d-flex k-justify-content-center k-w-full">
-            <div class="k-w-1/2">
-                <ChatOutput Messages="messages" />
-                <span>
-                    @streamingText
-                    <TelerikSkeleton Visible="isThinking" ShapeType="SkeletonShapeType.Text" Width="10vw" Height="20px" />
-                </span>
-            </div>
-        </div>
-    </div>
-</div>
+<SectionContent SectionId="ChatLayout.Sections.ChatOutput">
+    <ChatOutput Messages="messages" StreamingText="@streamingText" IsThinking="isThinking" />
+</SectionContent>
 
-@* Inputs *@
-<TelerikAppBar Class="chat-prompt" 
-        Position="AppBarPosition.Bottom" 
-        PositionMode="AppBarPositionMode.Sticky">
-    <AppBarSection Class="k-d-flex k-justify-content-center k-w-full">
-        <div class="k-d-grid k-w-1/2">
-            <div class="grid-overlay">
-                <TelerikCard>
-                    <CardBody>
-                        <span @onkeypress="SubmitOnEnter">
-                            <TelerikTextArea @bind-Value="@Prompt"
-                                             Width="100%"
-                                             AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
-                                             ShowPrefixSeparator="false"
-                                             ShowSuffixSeparator="false"
-                                             ResizeMode="@TextAreaResizeMode.None"
-                                             Placeholder="AskAI ..."
-                                             AriaLabel="Ask AI">
-                                <TextAreaPrefixTemplate>
-                                    <TelerikButton Id="floating-action-button" 
-                                        Icon="@SvgIcon.MoreVertical" 
-                                        OnClick="TogglePopup"/>
-                                </TextAreaPrefixTemplate>
-                                <TextAreaSuffixTemplate>
-                                    @if (string.IsNullOrWhiteSpace(Prompt))
+<SectionContent SectionId="ChatLayout.Sections.ChatInput">
+    <div class="k-d-grid k-w-3/5">
+        <div class="grid-overlay">
+            <TelerikCard>
+                <CardBody>
+                    <span @onkeypress="SubmitOnEnter">
+                        <TelerikTextArea @bind-Value="@Prompt"
+                                         Width="100%"
+                                         AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
+                                         ShowPrefixSeparator="false"
+                                         ShowSuffixSeparator="false"
+                                         ResizeMode="@TextAreaResizeMode.None"
+                                         Placeholder="AskAI ..."
+                                         AriaLabel="Ask AI">
+                            <TextAreaPrefixTemplate>
+                                <TelerikButton Id="floating-action-button"
+                                               Icon="@SvgIcon.MoreVertical"
+                                               OnClick="TogglePopup" />
+                            </TextAreaPrefixTemplate>
+                            <TextAreaSuffixTemplate>
+                                @if (string.IsNullOrWhiteSpace(Prompt))
+                                {
+                                    if (isAudioPlaying)
                                     {
-                                        if (isAudioPlaying)
-                                        {
-                                            <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking"/>
-                                        }
-                                        <SpeechToTextButton @ref="Microphone" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" />
+                                        <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking" />
                                     }
-                                    else
-                                    {
-                                        <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="AddMessage" Enabled="canSubmit"/>
-                                    }
-                                </TextAreaSuffixTemplate>
-                            </TelerikTextArea>
-                        </span>
-                    </CardBody>
-                </TelerikCard>
-            </div>
-            <canvas width="0" height="0" class="grid-overlay" id="ttsEffect"></canvas>
+                                    <SpeechToTextButton @ref="Microphone" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" />
+                                }
+                                else
+                                {
+                                    <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="AddMessage" Enabled="canSubmit" />
+                                }
+                            </TextAreaSuffixTemplate>
+                        </TelerikTextArea>
+                    </span>
+                </CardBody>
+            </TelerikCard>
         </div>
-
-    </AppBarSection>
-</TelerikAppBar>
-
-@* Off screen elements *@
-
-<AudioPlayer @ref="audioPlayer" OnEnded="OnAudioEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>
-
-<TelerikPopup @ref="@PopupRef"
-              Width="100"
-              AnchorSelector="#floating-action-button"
-              AnimationType="@AnimationType.SlideUp"
-              AnimationDuration="100"
-              HorizontalAlign="@PopupHorizontalAlign.Left"
-              VerticalAlign="@PopupVerticalAlign.Bottom"
-              AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
-              AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
-              VerticalOffset="4">
-    <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
-        <TelerikButton Icon="@SvgIcon.FileAdd"
-                       OnClick="RestartChat"
-                       Rounded="@ThemeConstants.Button.Rounded.Medium"
-                       FillMode="@ThemeConstants.Button.FillMode.Flat"
-                       Size="@ThemeConstants.Button.Size.Large"
-                       Title="New">New</TelerikButton>
+        <canvas width="0" height="0" class="grid-overlay" id="ttsEffect"></canvas>
     </div>
-</TelerikPopup>
+</SectionContent>
+
+<SectionContent SectionId="ChatLayout.Sections.OffScreen">
+    <AudioPlayer @ref="audioPlayer" OnEnded="OnAudioEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>
+
+    <TelerikPopup @ref="@PopupRef"
+                  Width="100"
+                  AnchorSelector="#floating-action-button"
+                  AnimationType="@AnimationType.SlideUp"
+                  AnimationDuration="100"
+                  HorizontalAlign="@PopupHorizontalAlign.Left"
+                  VerticalAlign="@PopupVerticalAlign.Bottom"
+                  AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
+                  AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
+                  VerticalOffset="4">
+        <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
+            <TelerikButton Icon="@SvgIcon.FileAdd"
+                           OnClick="RestartChat"
+                           Rounded="@ThemeConstants.Button.Rounded.Medium"
+                           FillMode="@ThemeConstants.Button.FillMode.Flat"
+                           Size="@ThemeConstants.Button.Size.Large"
+                           Title="New">New</TelerikButton>
+        </div>
+    </TelerikPopup>
+</SectionContent>

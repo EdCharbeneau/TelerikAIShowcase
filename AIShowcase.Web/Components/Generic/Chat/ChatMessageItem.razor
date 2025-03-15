@@ -1,0 +1,32 @@
+﻿@namespace AIShowcase.WebApp.Components.Generic
+
+@using Markdig
+
+@if (Message.Role == ChatRole.Assistant)
+{
+    @foreach (var content in Message.Contents)
+    {
+        if (content is TextContent { Text: { Length: > 0 } text })
+        {
+            <div class="@Message.Role k-w-full k-mb-8">
+                @RenderMessage(Message.Text)
+            </div>
+        }
+    }
+}
+else
+{
+    <div class="@Message.Role k-d-flex k-justify-content-end k-w-full k-mb-8 k-font-weight-semibold">
+        <div class="k-rounded-lg k-border-solid k-border-primary k-text-primary k-p-4 k-mb-4 k-elevation-2 k-w-3/4">
+            @RenderMessage(Message.Text)
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter, EditorRequired]
+    public required ChatMessage Message { get; set; }
+
+    private MarkupString? RenderMessage(string? text) => text is not null ? (MarkupString)Markdown.ToHtml(text) : null;
+
+}

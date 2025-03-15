@@ -96,7 +96,8 @@
     string prompt { get; set; } = "";
     private bool popupVisible = false;
 
-    private TelerikPopup PopupRef { get; set; }
+    private TelerikPopup? PopupRef { get; set; }
+    
     private void OnClick()
     {
         if (popupVisible)
@@ -111,13 +112,13 @@
 
     private void HidePopup()
     {
-        PopupRef.Hide();
+        PopupRef?.Hide();
         popupVisible = false;
     }
 
     private void ShowPopup()
     {
-        PopupRef.Show();
+        PopupRef?.Show();
         popupVisible = true;
     }
 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.AI;
 using Telerik.Blazor.Components;
 
 namespace AIShowcase.WebApp.Components.Pages.ChatDemos;
-public partial class CopilotChat(NavigationManager navigation)
+public partial class CopilotChat
 {
 	// Global TODO: Move to settings or configuration
 	public string? selectedVoiceId = "Microsoft Server Speech Text to Speech Voice (en-US, NovaTurboMultilingualNeural)";
