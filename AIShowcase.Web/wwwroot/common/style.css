@@ -41,6 +41,11 @@
         box-shadow:none;
     }
 
+.chat-menu .k-popup {
+    border:none;
+    background: transparent;
+}
+
     :root {
         /* app bar */
         --ai-showcase-appbar-height: 48px;

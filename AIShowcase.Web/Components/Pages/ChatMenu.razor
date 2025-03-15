@@ -11,15 +11,24 @@
     Class="chat-menu"
               Width="100"
               AnchorSelector="#menu-action-button"
-              AnimationType="@AnimationType.SlideDown"
+              AnimationType="@AnimationType.Fade"
               AnimationDuration="100"
-              HorizontalAlign="@PopupHorizontalAlign.Center"
+              HorizontalAlign="@PopupHorizontalAlign.Left"
               VerticalAlign="@PopupVerticalAlign.Top"
-              AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Center"
+              AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
               AnchorVerticalAlign="@PopupAnchorVerticalAlign.Bottom"
-              VerticalOffset="0">
+              VerticalOffset="8">
     <TelerikCard>
         <CardBody>
+            <b>Voices</b>
+            <TelerikButtonGroup
+            Class="k-d-grid k-gap-2 k-grid-cols-2">
+                <ButtonGroupToggleButton Class="!k-rounded-md">Nova</ButtonGroupToggleButton>
+                <ButtonGroupToggleButton Class="!k-rounded-md">Onyx</ButtonGroupToggleButton>
+                <ButtonGroupToggleButton Class="!k-rounded-md">Echo</ButtonGroupToggleButton>
+                <ButtonGroupToggleButton Class="!k-rounded-md">Emma</ButtonGroupToggleButton>
+            </TelerikButtonGroup>
+            <b>Pages</b>
             <div class="k-d-flex k-flex-col k-p-4 k-gap-4">
                 @foreach (var item in menu.Items)
                 {
