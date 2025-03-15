@@ -1,0 +1,49 @@
+﻿<TelerikFloatingActionButton HorizontalAlign="@FloatingActionButtonHorizontalAlign.Start"
+                             VerticalAlign="@FloatingActionButtonVerticalAlign.Top"
+                             PositionMode="@FloatingActionButtonPositionMode.Absolute"
+                             OnClick="@ToggleMenu"
+                             Icon="@(popupVisible ? SvgIcon.X : SvgIcon.Menu)"
+                             Id="menu-action-button"
+                             VerticalOffset="4em"
+                             HorizontalOffset="5em" />
+
+<TelerikPopup @ref="@PopupRef"
+    Class="chat-menu"
+              Width="100"
+              AnchorSelector="#menu-action-button"
+              AnimationType="@AnimationType.SlideDown"
+              AnimationDuration="100"
+              HorizontalAlign="@PopupHorizontalAlign.Center"
+              VerticalAlign="@PopupVerticalAlign.Top"
+              AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Center"
+              AnchorVerticalAlign="@PopupAnchorVerticalAlign.Bottom"
+              VerticalOffset="0">
+    <TelerikCard>
+        <CardBody>
+            <div class="k-d-flex k-flex-col k-p-4 k-gap-4">
+                @foreach (var item in menu.Items)
+                {
+                    <a class="telerik-blazor k-button k-button-outline k-rounded-md k-button-md k-button-outline-primary" href="@item.Url">@item.Text</a>
+                }
+            </div>
+        </CardBody>
+    </TelerikCard>
+
+</TelerikPopup>
+@code {
+    private MainMenu menu = new();
+    private TelerikPopup? PopupRef { get; set; }
+    private bool popupVisible = false;
+    private void ToggleMenu()
+    {
+        if (popupVisible)
+        {
+            PopupRef?.Hide();
+        }
+        else
+        {
+            PopupRef?.Show();
+        }
+        popupVisible = !popupVisible;
+    }
+}
