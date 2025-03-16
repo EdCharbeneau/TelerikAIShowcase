@@ -19,6 +19,8 @@ namespace AIShowcase.WebApp
 						throw new InvalidOperationException("The required AzureOpenAI Key was not configured for this application."))
 				);
 
+			//builder.AddOllamaApiClient("connectionName").AddChatClient();
+
 			builder.Services.AddSingleton(innerClient);
 
 			var client = innerClient.AsChatClient("gpt-4o-mini");

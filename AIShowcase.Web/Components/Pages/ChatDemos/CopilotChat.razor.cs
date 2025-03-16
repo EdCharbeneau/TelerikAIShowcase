@@ -8,11 +8,23 @@ using Telerik.Blazor.Components;
 namespace AIShowcase.WebApp.Components.Pages.ChatDemos;
 public partial class CopilotChat
 {
+	ChatOptions chatOptions = new();
+	ChatSuggestions? chatSuggestions;
 	// Global TODO: Move to settings or configuration
 	public string? selectedVoiceId = "Microsoft Server Speech Text to Speech Voice (en-US, NovaTurboMultilingualNeural)";
 
 	// Lifecycle
-	protected override Task OnInitializedAsync() => NewChat();
+	protected override Task OnInitializedAsync()
+	{
+		chatOptions = new()
+		{
+			Tools = [
+						AIFunctionFactory.Create(navigationTool.GetPages),
+						AIFunctionFactory.Create(navigationTool.NavigateTo),
+					]
+		};
+		return NewChat();
+	}
 
 	#region Voice
 
@@ -61,6 +73,7 @@ public partial class CopilotChat
 
 		ChatMessage userMessage = new(ChatRole.User, Prompt);
 		Prompt = "";
+		chatSuggestions?.Clear();
 
 		await BeginThinking(async () =>
 		{
@@ -77,6 +90,7 @@ public partial class CopilotChat
 			messages.Add(new(ChatRole.Assistant, response.Text));
 
 			await PlaySpeech(response.Text);
+			chatSuggestions?.Update(messages);
 		});
 	}
 
@@ -121,12 +135,17 @@ public partial class CopilotChat
 	async Task AddMessage()
 	{
 		ChatMessage userMessage = new(ChatRole.User, Prompt);
-		messages.Add(userMessage);
 		Prompt = "";
+		await AddUserMessage(userMessage);
+	}
 
+	async Task AddUserMessage(ChatMessage userMessage)
+	{
+		messages.Add(userMessage);
+		chatSuggestions?.Clear();
 		await BeginThinking(async () =>
 		{
-			IAsyncEnumerable<ChatResponseUpdate> responseStream = ai.GetStreamingResponseAsync(messages);
+			IAsyncEnumerable<ChatResponseUpdate> responseStream = ai.GetStreamingResponseAsync(messages, chatOptions);
 
 			await foreach (var message in responseStream)
 			{
@@ -136,6 +155,7 @@ public partial class CopilotChat
 			messages.Add(new ChatMessage(ChatRole.Assistant, streamingText));
 			streamingText = "";
 		});
+		chatSuggestions?.Update(messages);
 	}
 	#endregion
 

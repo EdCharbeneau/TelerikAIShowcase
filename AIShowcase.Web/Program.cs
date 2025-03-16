@@ -1,9 +1,8 @@
 using AIShowcase.WebApp;
 using AIShowcase.WebApp.Components;
-using System.Globalization;
-using CommunityToolkit.Aspire.OllamaSharp;
 using AIShowcase.WebApp.Components.ChatOutputServices;
 using AIShowcase.WebApp.MenuData;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,9 +13,6 @@ builder.Services.AddRazorComponents()
 	.AddInteractiveServerComponents();
 
 builder.Services.AddSpeechRecognitionServices();
-
-// If local uncomment this line
-//builder.AddOllamaApiClient("connectionName").AddChatClient();
 
 builder.AddChatServices();
 builder.Services.AddScoped<MenuVectorData>();
