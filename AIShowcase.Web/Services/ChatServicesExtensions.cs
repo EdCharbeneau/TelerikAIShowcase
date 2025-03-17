@@ -29,6 +29,7 @@ namespace AIShowcase.WebApp.Services
 			builder.Services.AddEmbeddingGenerator(embedding);
 
 			builder.Services.AddScoped<NavigationTool>();
+			builder.Services.AddScoped<VoiceSettingsTool>();
 		}
 
 	}

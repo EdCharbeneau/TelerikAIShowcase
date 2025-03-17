@@ -8,21 +8,28 @@ public partial class Chat
 {
 	ChatOptions chatOptions = new();
 	ChatSuggestions? chatSuggestions;
-	// Global TODO: Move to settings or configuration
-	public string? selectedVoiceId = "Microsoft Server Speech Text to Speech Voice (en-US, NovaTurboMultilingualNeural)";
 
 	// Lifecycle
 	protected override async Task OnInitializedAsync()
 	{
+		settings.OnChange += StateHasChanged;
+
 		chatOptions = new()
 		{
 			Tools = [
 						AIFunctionFactory.Create(navigationTool.GetPages),
 						AIFunctionFactory.Create(navigationTool.NavigateTo),
+						AIFunctionFactory.Create(voiceSettingsTool.GetVoices),
+						AIFunctionFactory.Create(voiceSettingsTool.SetVoice),
 					]
 		};
 		await NewChat();
 	}
+	public void Dispose()
+	{
+		settings.OnChange -= StateHasChanged;
+	}
+
 
 	#region Voice
 
@@ -31,7 +38,7 @@ public partial class Chat
 	AudioPlayer? audioPlayer;
 	async Task CreateListeningMessage()
 	{
-		if (selectedVoiceId is null || audioPlayer is null) return;
+		if (settings is null || audioPlayer is null) return;
 		var helloMessage = await ai.GetResponseAsync(new ChatMessage
 		(
 			ChatRole.System,
@@ -90,8 +97,8 @@ public partial class Chat
 
 	private async Task PlaySpeech(string text)
 	{
-		if (selectedVoiceId is null || audioPlayer is null) return;
-		string speech = await tts.GetSpeechAsBase64String(text, selectedVoiceId);
+		if (settings.SelectedVoiceId is null || audioPlayer is null) return;
+		string speech = await tts.GetSpeechAsBase64String(text, settings.SelectedVoiceId);
 		await audioPlayer.Load(speech);
 		isAudioPlaying = true;
 		await audioPlayer.Play();
@@ -213,4 +220,5 @@ public partial class Chat
 		});
 	}
 	#endregion
+
 }

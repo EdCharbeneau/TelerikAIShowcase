@@ -7,6 +7,7 @@ public class AzureTextToSpeechService : ITextToSpeechService
 	public string Name => "Azure";
 	private readonly string speechApiKey;
 	private readonly string serviceRegion;
+	private Voice[] voicesCache = Array.Empty<Voice>();
 
 	bool isConfigured;
 	public bool IsConfigured => isConfigured;
@@ -62,13 +63,19 @@ public class AzureTextToSpeechService : ITextToSpeechService
 		culture ??= "en-US";
 		if (!isConfigured) throw new InvalidOperationException("AzureTextToSpeechService was not configured.");
 
-		var speechConfig = SpeechConfig.FromSubscription(speechApiKey, serviceRegion);
-		using var synthesizer = new SpeechSynthesizer(speechConfig, null);
-		var response = await synthesizer.GetVoicesAsync(culture);
-		return response
-			.Voices
-			.Where(v=>v.Name.Contains("Turbo"))
-			.Select(v => new Voice(v.LocalName, v.Name))
-			.ToArray();
+		if (voicesCache.Length == 0)
+		{
+
+			var speechConfig = SpeechConfig.FromSubscription(speechApiKey, serviceRegion);
+			using var synthesizer = new SpeechSynthesizer(speechConfig, null);
+			var response = await synthesizer.GetVoicesAsync(culture);
+
+			voicesCache = response
+				.Voices
+				.Where(v => v.Name.Contains("Turbo"))
+				.Select(v => new Voice(v.LocalName.Split(' ')[0], v.Name))
+				.ToArray();
+		}
+		return voicesCache;
 	}
 }

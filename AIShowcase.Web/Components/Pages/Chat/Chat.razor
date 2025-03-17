@@ -8,6 +8,8 @@
 @inject IChatClient ai
 @inject ITextToSpeechService tts
 @inject NavigationTool navigationTool
+@inject VoiceSettingsTool voiceSettingsTool
+@inject ApplicationSettings settings
 
 <SectionContent SectionId="ChatLayout.Sections.ChatOutput">
     <ChatOutput Messages="messages" StreamingText="@streamingText" IsThinking="isThinking" />

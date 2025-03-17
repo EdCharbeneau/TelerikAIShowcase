@@ -1,4 +1,6 @@
 ﻿using AIShowcase.WebApp.MenuData;
+using AIShowcase.WebApp.Services;
+using AIShowcase.WebApp.Services.TextToSpeechServices;
 using Microsoft.AspNetCore.Components;
 using System.ComponentModel;
 
@@ -38,6 +40,29 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 		public string[] GetPages()
 		{
 			return menu.Items.Select(m=>m.Text).ToArray();
+		}
+	}
+
+	public class VoiceSettingsTool(ApplicationSettings settings, ITextToSpeechService tts)
+	{
+		[Description("Get a list of voices from the speech provider.")]
+		public async Task<string[]> GetVoices()
+		{
+			var voices = await tts.GetVoices();
+			return voices.Select(v => v.DisplayName).ToArray();
+		}
+
+		[Description("Set the voice for the application.")]
+		public async Task<string> SetVoice(string voice)
+		{
+			var voices = await GetVoices();
+			if (voices.Contains(voice))
+			{
+				var voiceId = (await tts.GetVoices()).First(v => v.DisplayName == voice).Id;
+				settings.SetSelectedVoiceId(voiceId);
+				return "Voice set";
+			}
+			return "Voice not found";
 		}
 	}
 }

@@ -1,47 +1,36 @@
 ﻿@using AIShowcase.WebApp.Services.TextToSpeechServices
 @using AIShowcase.WebApp.Services
 @inject ITextToSpeechService tts
+@inject ApplicationSettings settings
 <b>Voices</b>
 
 <div class="k-d-grid k-grid-cols-2 k-gap-2">
     @if (Voices.Length > 0)
     {
-        foreach (var item in Voices.Select((v, index) => new { v, index }))
+        foreach (var voice in Voices)
         {
-            <TelerikButton OnClick="(()=> OnClick(item.index))"
-                           Class="@cssClass(item.v.Selected)">@item.v.Voice.DisplayName.Split(' ')[0]</TelerikButton>
+            <TelerikButton OnClick="(()=> OnClick(voice))"
+                           Class="@cssClass(voice)">@voice.DisplayName</TelerikButton>
         }
     }
 </div>
 
 @code {
-    private string cssClass(bool selected) => selected ? "k-button-solid-primary k-button-solid" : "";
-    private VoiceOption[] Voices { get; set; } = [];
-
-    public string? SelectedVoiceId { get; set; }
+    private string cssClass(Voice voice) => voice.Id == settings.SelectedVoiceId ? "k-button-solid-primary k-button-solid" : "";
+    private Voice[] Voices { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
     {
+        settings.OnChange += StateHasChanged;
         var voices = await tts.GetVoices();
-        Voices = voices.Select(v => new VoiceOption(false, v)).ToArray();
+        Voices = voices.ToArray();
     }
 
-    private async Task OnClick(int index)
+    private async Task OnClick(Voice voice)
     {
-        Voices = Voices.Select(v => { v.Selected = false; return v; }).ToArray();
-        Voices[index].Selected = true;
-        SelectedVoiceId = Voices[index].Voice.Id;
+        settings.SetSelectedVoiceId(voice.Id);
         await Task.CompletedTask;
     }
 
-    public class VoiceOption
-    {
-        public VoiceOption(bool selected, Voice voice)
-        {
-            Selected = selected;
-            Voice = voice;
-        }
-        public bool Selected { get; set; }
-        public Voice Voice { get; set; }
-    };
+
 }
