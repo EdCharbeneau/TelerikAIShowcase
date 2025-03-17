@@ -1,7 +1,8 @@
-﻿@layout ChatLayout
-@page "/"
-@using AIShowcase.WebApp.Components.Pages.ChatDemos.Support
-@using AIShowcase.WebApp.Components.TextToSpeechServices
+﻿@page "/"
+@layout ChatLayout
+@using AIShowcase.WebApp.Components.Generic
+@using AIShowcase.WebApp.Services
+@using AIShowcase.WebApp.Services.TextToSpeechServices
 @using Microsoft.Extensions.AI
 
 @inject IChatClient ai
@@ -10,7 +11,7 @@
 
 <SectionContent SectionId="ChatLayout.Sections.ChatOutput">
     <ChatOutput Messages="messages" StreamingText="@streamingText" IsThinking="isThinking" />
-    <ChatSuggestions OnSelected="AddUserMessage" @ref="chatSuggestions" />
+    <ChatSuggestions OnSelected="SubmitMessage" @ref="chatSuggestions" />
 </SectionContent>
 
 <SectionContent SectionId="ChatLayout.Sections.ChatInput">
@@ -43,7 +44,7 @@
                                 }
                                 else
                                 {
-                                    <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="AddMessage" Enabled="canSubmit" />
+                                    <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="SubmitMessage" Enabled="canSubmit" />
                                 }
                             </TextAreaSuffixTemplate>
                         </TelerikTextArea>
@@ -55,8 +56,7 @@
     </div>
 </SectionContent>
 
-<ChatMenu></ChatMenu>
-
+<ChatMenu/>
 
 <SectionContent SectionId="ChatLayout.Sections.OffScreen">
     <AudioPlayer @ref="audioPlayer" OnEnded="OnAudioEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>

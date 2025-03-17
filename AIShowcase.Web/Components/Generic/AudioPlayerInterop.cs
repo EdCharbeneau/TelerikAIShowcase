@@ -1,12 +1,16 @@
 ﻿using ElevenLabs.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection.Metadata;
 
 namespace AIShowcase.WebApp.Components.Generic;
 public class AudioPlayerInterop
 {
 	private readonly Lazy<Task<IJSObjectReference>> moduleTask;
+
+	[AllowNull]
+	IJSObjectReference module;
 
 	private const string ModulePath = "./audioplayer-interop.js";
 	public AudioPlayerInterop(IJSRuntime jsRuntime)
@@ -17,46 +21,39 @@ public class AudioPlayerInterop
 
 	public async Task InitializeAsync(ElementReference audioTagRef, string? targetVisualizer)
 	{
-		var module = await moduleTask.Value;
+		module = await moduleTask.Value;
 		await module.InvokeVoidAsync("init", audioTagRef, targetVisualizer, DotNetObjectReference.Create(this));
 	}
 
 	public async Task AddVisualizer(string targetCanvas)
 	{
-		var module = await moduleTask.Value;
 		await module.InvokeVoidAsync("addVisualizer", targetCanvas);
 	}
 
 	public async Task Play()
 	{
-		var module = await moduleTask.Value;
 		await module.InvokeVoidAsync("play");
 	}
 	public async Task Pause()
 	{
-		var module = await moduleTask.Value;
 		await module.InvokeVoidAsync("pause");
 	}
 	public async Task Stop()
 	{
-		var module = await moduleTask.Value;
 		await module.InvokeVoidAsync("stop");
 	}
 
 	public async Task SetVolume(double volume)
 	{
-		var module = await moduleTask.Value;
 		await module.InvokeVoidAsync("setVolume", volume);
 	}
 	public async Task Load(string dataUri)
 	{
-		var module = await moduleTask.Value;
 		await module.InvokeVoidAsync("load", dataUri);
 	}
 
 	public async Task Mute(bool isMuted)
 	{
-		var module = await moduleTask.Value;
 		await module.InvokeVoidAsync("mute", isMuted);
 	}
 

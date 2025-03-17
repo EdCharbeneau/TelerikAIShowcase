@@ -1,7 +1,7 @@
 ﻿using AIShowcase.WebApp.Components.Generic;
-using AIShowcase.WebApp.Components.TextToSpeechServices;
+using AIShowcase.WebApp.Services.TextToSpeechServices;
 
-namespace AIShowcase.WebApp;
+namespace AIShowcase.WebApp.Services;
 public static class SpeechServicesExtensions
 {
 	public static IServiceCollection AddSpeechServices(this IServiceCollection services)

@@ -1,7 +1,7 @@
-using AIShowcase.WebApp;
 using AIShowcase.WebApp.Components;
 using AIShowcase.WebApp.Components.ChatOutputServices;
 using AIShowcase.WebApp.MenuData;
+using AIShowcase.WebApp.Services;
 using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -16,6 +16,7 @@ builder.Services.AddSpeechRecognitionServices();
 
 builder.AddChatServices();
 builder.Services.AddScoped<MenuVectorData>();
+builder.Services.AddScoped<ApplicationSettings>();
 builder.Services.AddSpeechServices();
 builder.Services.AddTelerikBlazor();
 builder.Services.AddScoped<PrismInterop>();

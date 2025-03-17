@@ -1,4 +1,4 @@
-﻿namespace AIShowcase.WebApp.Components.TextToSpeechServices;
+﻿namespace AIShowcase.WebApp.Services.TextToSpeechServices;
 public class Voice
 {
 	public string DisplayName { get; set; } = "";

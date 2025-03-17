@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Components;
 using System.ComponentModel;
 
-namespace AIShowcase.WebApp.Components.Pages.ChatDemos.Support
+namespace AIShowcase.WebApp.Components.Pages.Chat
 {
 
 	public class NavigationTool(NavigationManager navigationManager, MenuVectorData menuVectorData)
@@ -16,7 +16,7 @@ namespace AIShowcase.WebApp.Components.Pages.ChatDemos.Support
 			)]
 		public async Task<string?> NavigateTo(string route)
 		{
-			Console.WriteLine($"AI passed{route}");
+			//Console.WriteLine($"AI passed {route}");
 			if (!initialized)
 			{
 				await menuVectorData.CreateVectorDataSource(menu.Items);

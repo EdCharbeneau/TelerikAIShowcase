@@ -1,10 +1,9 @@
-﻿using AIShowcase.WebApp.Components.Pages.ChatDemos.Support;
-using AIShowcase.WebApp.MenuData;
+﻿using AIShowcase.WebApp.Components.Pages.Chat;
 using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.AI;
 
-namespace AIShowcase.WebApp
+namespace AIShowcase.WebApp.Services
 {
 	public static class ChatServicesExtensions
 	{

@@ -1,12 +1,10 @@
 using AIShowcase.WebApp.Components.Generic;
-using AIShowcase.WebApp.Components.Pages.ChatDemos.Support;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.AI;
 using Telerik.Blazor.Components;
 
-namespace AIShowcase.WebApp.Components.Pages.ChatDemos;
-public partial class CopilotChat
+namespace AIShowcase.WebApp.Components.Pages.Chat;
+public partial class Chat
 {
 	ChatOptions chatOptions = new();
 	ChatSuggestions? chatSuggestions;
@@ -14,7 +12,7 @@ public partial class CopilotChat
 	public string? selectedVoiceId = "Microsoft Server Speech Text to Speech Voice (en-US, NovaTurboMultilingualNeural)";
 
 	// Lifecycle
-	protected override Task OnInitializedAsync()
+	protected override async Task OnInitializedAsync()
 	{
 		chatOptions = new()
 		{
@@ -23,7 +21,7 @@ public partial class CopilotChat
 						AIFunctionFactory.Create(navigationTool.NavigateTo),
 					]
 		};
-		return NewChat();
+		await NewChat();
 	}
 
 	#region Voice
@@ -37,7 +35,7 @@ public partial class CopilotChat
 		var helloMessage = await ai.GetResponseAsync(new ChatMessage
 		(
 			ChatRole.System,
-			"""
+			@"
    You are an AI assistant. 
    Let the user know you're listening with a single text only sentence.
    Here are some examples:
@@ -45,52 +43,48 @@ public partial class CopilotChat
    <example>What's on your mind?</example>
    <example>What can I help with?</example>
    <example>I'm here to help.</example>
-   """));
+   "));
 		await PlaySpeech(helloMessage.Text);
 	}
 	Task OnRecordClick() => CreateListeningMessage();
-	Task OnRecognizedText(string value)
+	async Task OnRecognizedText(string value)
 	{
 		Prompt = value;
-		return RespondWithSpeech();
+		await RespondWithSpeech();
 	}
-	Task OnStopAudio()
+	async Task OnStopAudio()
 	{
 		isAudioPlaying = false;
-		return audioPlayer!.Stop();
+		await audioPlayer!.Stop();
 	}
 
 	async Task RespondWithSpeech()
 	{
 		await Microphone!.StopRecording();
-		ChatOptions chatOptions = new()
-		{
-			Tools = [
-		AIFunctionFactory.Create(navigationTool.GetPages),
-		AIFunctionFactory.Create(navigationTool.NavigateTo),
-		]
-		};
 
-		ChatMessage userMessage = new(ChatRole.User, Prompt);
-		Prompt = "";
-		chatSuggestions?.Clear();
+		ChatMessage userMessage = GetUserChatMessage();
 
-		await BeginThinking(async () =>
-		{
-			string newPrompt = $"""
+		// Rephrase the user's question so the spoken response is more concise.
+		// This reduces the amount of text the SST service needs to process.
+		// This also reduces the time it takes to speak the response.
+		string newPrompt = $@"
 			The user asked a question using their voice
 			<question>{userMessage.Text}</question>.
 			Please respond in a concise single paragraph using plain text.
-			""";
-			ChatMessage augmentedPrompt = new(ChatRole.User, newPrompt);
+			";
 
-			ChatResponse response = await ai.GetResponseAsync([.. messages, augmentedPrompt], chatOptions);
+		ChatMessage augmentedessage = new(ChatRole.User, newPrompt);
 
+		await BeginThinking(async () =>
+		{
+			// Get a chat response with the augmented message
+			ChatResponse response = await ai.GetResponseAsync([.. messages, augmentedessage], chatOptions);
+			// add the original user message and the response to the chat
 			messages.Add(userMessage);
+			// add the response to the chat
 			messages.Add(new(ChatRole.Assistant, response.Text));
-
+			// Speak the response to the user
 			await PlaySpeech(response.Text);
-			chatSuggestions?.Update(messages);
 		});
 	}
 
@@ -117,11 +111,18 @@ public partial class CopilotChat
 	string? Prompt { get; set; }
 	bool canSubmit => !string.IsNullOrWhiteSpace(Prompt) && !isThinking;
 
+	ChatMessage GetUserChatMessage()
+	{
+		var userMessage = new ChatMessage(ChatRole.User, Prompt);
+		Prompt = "";
+		return userMessage;
+	}
+
 	Task SubmitOnEnter(KeyboardEventArgs args)
 	{
 		if (args.Key == "Enter" && !args.ShiftKey && canSubmit)
 		{
-			return AddMessage();
+			return SubmitMessage();
 		}
 		return Task.CompletedTask;
 	}
@@ -132,17 +133,11 @@ public partial class CopilotChat
 	string streamingText = "";
 	List<ChatMessage> messages = [];
 
-	async Task AddMessage()
-	{
-		ChatMessage userMessage = new(ChatRole.User, Prompt);
-		Prompt = "";
-		await AddUserMessage(userMessage);
-	}
+	Task SubmitMessage() => RespondWithStreamingText(GetUserChatMessage());
 
-	async Task AddUserMessage(ChatMessage userMessage)
+	async Task RespondWithStreamingText(ChatMessage userMessage)
 	{
 		messages.Add(userMessage);
-		chatSuggestions?.Clear();
 		await BeginThinking(async () =>
 		{
 			IAsyncEnumerable<ChatResponseUpdate> responseStream = ai.GetStreamingResponseAsync(messages, chatOptions);
@@ -155,19 +150,26 @@ public partial class CopilotChat
 			messages.Add(new ChatMessage(ChatRole.Assistant, streamingText));
 			streamingText = "";
 		});
-		chatSuggestions?.Update(messages);
 	}
 	#endregion
 
 	#region Thinking
 	bool isThinking;
 
+	/// <summary>
+	/// Wraps an AI request process with a loading indicator.
+	/// This method also clears and updates the chat suggestions.
+	/// </summary>
+	/// <param name="action"></param>
+	/// <returns></returns>
 	async Task BeginThinking(Func<Task> action)
 	{
+		chatSuggestions?.Clear();
 		isThinking = true;
 		try
 		{
 			await action();
+			chatSuggestions?.Update(messages);
 		}
 		finally
 		{
@@ -184,30 +186,19 @@ public partial class CopilotChat
 	{
 		if (popupVisible)
 		{
-			HidePopup();
+			PopupRef?.Hide();
 		}
 		else
 		{
-			ShowPopup();
+			PopupRef?.Show();
 		}
-	}
-
-	private void HidePopup()
-	{
-		PopupRef?.Hide();
-		popupVisible = false;
-	}
-
-	private void ShowPopup()
-	{
-		PopupRef?.Show();
-		popupVisible = true;
+		popupVisible = !popupVisible;
 	}
 
 	async Task RestartChat()
 	{
 		messages = [];
-		HidePopup();
+		TogglePopup();
 		await NewChat();
 	}
 
@@ -218,7 +209,7 @@ public partial class CopilotChat
 		await BeginThinking(async () =>
 		{
 			ChatResponse response = await ai.GetResponseAsync(system);
-			messages.Add(response.Messages[0]);
+			messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
 		});
 	}
 	#endregion

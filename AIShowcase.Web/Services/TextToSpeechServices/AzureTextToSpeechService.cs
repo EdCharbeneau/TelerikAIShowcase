@@ -1,6 +1,6 @@
 ﻿using Microsoft.CognitiveServices.Speech;
 
-namespace AIShowcase.WebApp.Components.TextToSpeechServices;
+namespace AIShowcase.WebApp.Services.TextToSpeechServices;
 
 public class AzureTextToSpeechService : ITextToSpeechService
 {
@@ -65,11 +65,10 @@ public class AzureTextToSpeechService : ITextToSpeechService
 		var speechConfig = SpeechConfig.FromSubscription(speechApiKey, serviceRegion);
 		using var synthesizer = new SpeechSynthesizer(speechConfig, null);
 		var response = await synthesizer.GetVoicesAsync(culture);
-		return response.Voices.Select(v => new Voice(v.LocalName, v.Name)).ToArray();
-	}
-
-	public Task<Voice[]> GetVoices()
-	{
-		throw new NotImplementedException();
+		return response
+			.Voices
+			.Where(v=>v.Name.Contains("Turbo"))
+			.Select(v => new Voice(v.LocalName, v.Name))
+			.ToArray();
 	}
 }

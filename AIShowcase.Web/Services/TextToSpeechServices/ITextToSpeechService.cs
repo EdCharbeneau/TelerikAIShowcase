@@ -1,5 +1,4 @@
-﻿
-namespace AIShowcase.WebApp.Components.TextToSpeechServices
+﻿namespace AIShowcase.WebApp.Services.TextToSpeechServices
 {
 	public interface ITextToSpeechService
 	{
