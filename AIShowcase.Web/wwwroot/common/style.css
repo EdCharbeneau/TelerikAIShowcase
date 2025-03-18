@@ -335,3 +335,7 @@ h6 {
         scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
     }
 }
+
+.k-dropzone-inner .k-icon, .k-dropzone-inner .k-dropzone-icon {
+    color: inherit;
+}

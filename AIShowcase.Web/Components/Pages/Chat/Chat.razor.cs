@@ -1,6 +1,7 @@
 using AIShowcase.WebApp.Components.Generic;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.AI;
+using System;
 using Telerik.Blazor.Components;
 
 namespace AIShowcase.WebApp.Components.Pages.Chat;
@@ -8,12 +9,10 @@ public partial class Chat
 {
 	ChatOptions chatOptions = new();
 	ChatSuggestions? chatSuggestions;
-	TelerikFileSelect UploadRef;
+	TelerikFileSelect? UploadRef;
 	// Lifecycle
 	protected override async Task OnInitializedAsync()
 	{
-		settings.OnChange += StateHasChanged;
-
 		chatOptions = new()
 		{
 			Tools = [
@@ -90,8 +89,9 @@ public partial class Chat
 			// add the response to the chat
 			messages.Add(new(ChatRole.Assistant, response.Text));
 			// Speak the response to the user
-			await PlaySpeech(response.Text);
+			
 		});
+			await PlaySpeech(messages.Last().Text);
 	}
 
 	private async Task PlaySpeech(string text)
@@ -218,6 +218,31 @@ public partial class Chat
 			messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
 		});
 	}
-	#endregion
+	async Task OnFileSelect(FileSelectEventArgs args)
+	{
+		PopupRef?.Hide();
+		if (UploadRef is null) return;
 
+		var file = args.Files[0];
+
+		byte[]? imgBytes = null;
+
+		// Fully flush out the uploaded file Stream into a MemoryStream then copy into the byte[]
+		using var ms = new MemoryStream();
+		await file.Stream.CopyToAsync(ms);
+		imgBytes = ms.ToArray();
+
+		ChatMessage fileMessage = new(ChatRole.User, "What's in this image?");
+		fileMessage.Contents.Add(new DataContent(imgBytes, "image/jpg"));
+
+		messages.Add(fileMessage);
+
+		await BeginThinking(async () =>
+		{
+			StateHasChanged();
+			ChatResponse response = await ai.GetResponseAsync(fileMessage);
+			messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
+		});
+	}
+	#endregion
 }

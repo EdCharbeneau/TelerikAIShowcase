@@ -20,7 +20,9 @@ builder.Services.AddScoped<ApplicationSettings>();
 builder.Services.AddSpeechServices();
 builder.Services.AddTelerikBlazor();
 builder.Services.AddScoped<PrismInterop>();
-
+builder.Services.AddSignalR(e => {
+	e.MaximumReceiveMessageSize = 102400000;
+});
 // Register HttpClient
 builder.Services.AddHttpClient();
 

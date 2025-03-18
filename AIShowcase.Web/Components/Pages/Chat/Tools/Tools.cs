@@ -39,7 +39,7 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 		[Description("A list of pages in this application.")]
 		public string[] GetPages()
 		{
-			return menu.Items.Select(m=>m.Text).ToArray();
+			return menu.Items.Select(m => m.Text).ToArray();
 		}
 	}
 
@@ -55,14 +55,12 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 		[Description("Set the voice for the application.")]
 		public async Task<string> SetVoice(string voice)
 		{
-			var voices = await GetVoices();
-			if (voices.Contains(voice))
-			{
-				var voiceId = (await tts.GetVoices()).First(v => v.DisplayName == voice).Id;
-				settings.SetSelectedVoiceId(voiceId);
-				return "Voice set";
-			}
-			return "Voice not found";
+			var voices = await tts.GetVoices();
+			var selected = voices.FirstOrDefault(v => v.DisplayName.Contains(voice, StringComparison.OrdinalIgnoreCase));
+			if (selected is null)
+				return "Voice not found";
+			settings.SetSelectedVoiceId(selected.Id);
+			return "Voice set";
 		}
 	}
 }

@@ -21,7 +21,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        settings.OnChange += StateHasChanged;
+        settings.OnChange += SettingsChanged;
         var voices = await tts.GetVoices();
         Voices = voices.ToArray();
     }
@@ -32,5 +32,8 @@
         await Task.CompletedTask;
     }
 
+    private void SettingsChanged() {
+        InvokeAsync(() => StateHasChanged());
+    }
 
 }

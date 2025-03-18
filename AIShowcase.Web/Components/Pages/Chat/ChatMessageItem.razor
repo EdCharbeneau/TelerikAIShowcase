@@ -14,11 +14,24 @@
 }
 else
 {
-    <div class="@Message.Role k-d-flex k-justify-content-end k-w-full k-mb-8 k-font-weight-semibold">
-        <div class="k-rounded-lg k-border-solid k-border-primary k-text-primary k-p-4 k-mb-4 k-elevation-2 k-w-3/4">
-            @RenderMessage(Message.Text)
-        </div>
-    </div>
+    @foreach (var content in Message.Contents)
+    {
+        if (content is TextContent { Text: { Length: > 0 } text })
+        {
+
+            <div class="@Message.Role k-d-flex k-justify-content-end k-w-full k-mb-8 k-font-weight-semibold">
+                <div class="k-rounded-lg k-border-solid k-border-primary k-text-primary k-p-4 k-mb-4 k-elevation-2 k-w-fit-content">
+                    @RenderMessage(Message.Text)
+                </div>
+            </div>
+        }
+        if (content is DataContent data && data.MediaType.Contains("image"))
+        {
+            <div class="k-d-flex k-flex-col k-align-items-end k-mb-8">
+                <img src="@data.Uri" class="k-rounded-md k-w-1/4" alt="User uploaded image." title="User uploaded image." />
+            </div>
+        }
+    }
 }
 
 @code {

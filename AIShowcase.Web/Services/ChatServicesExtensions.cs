@@ -2,6 +2,8 @@
 using Azure;
 using Azure.AI.OpenAI;
 using Microsoft.Extensions.AI;
+using OpenAI;
+using System.ClientModel;
 
 namespace AIShowcase.WebApp.Services
 {
@@ -10,13 +12,23 @@ namespace AIShowcase.WebApp.Services
 		public static void AddChatServices(this WebApplicationBuilder builder)
 		{
 			//Authentication with Azure OpenAI
-			AzureOpenAIClient innerClient =
-				new AzureOpenAIClient(
-					new Uri(builder.Configuration["Chat:AzureOpenAI:Endpoint"] ??
-						throw new InvalidOperationException("The required AzureOpenAI endpoint was not configured for this application.")),
-					new AzureKeyCredential(builder.Configuration["Chat:AzureOpenAI:Key"] ??
-						throw new InvalidOperationException("The required AzureOpenAI Key was not configured for this application."))
-				);
+			//AzureOpenAIClient innerClient =
+			//	new AzureOpenAIClient(
+			//		new Uri(builder.Configuration["Chat:AzureOpenAI:Endpoint"] ??
+			//			throw new InvalidOperationException("The required AzureOpenAI endpoint was not configured for this application.")),
+			//		new AzureKeyCredential(builder.Configuration["Chat:AzureOpenAI:Key"] ??
+			//			throw new InvalidOperationException("The required AzureOpenAI Key was not configured for this application."))
+			//	);
+
+			#region GitHub Models
+			var credential = new ApiKeyCredential(builder.Configuration["Chat:GitHubModels:Token"] ?? throw new InvalidOperationException("Missing configuration: GitHubModels:Token. See the README for details."));
+			var openAIOptions = new OpenAIClientOptions()
+			{
+				Endpoint = new Uri("https://models.inference.ai.azure.com")
+			};
+
+			var innerClient = new OpenAIClient(credential, openAIOptions);
+			#endregion
 
 			//builder.AddOllamaApiClient("connectionName").AddChatClient();
 
