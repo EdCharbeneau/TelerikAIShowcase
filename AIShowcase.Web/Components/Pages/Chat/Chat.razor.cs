@@ -8,7 +8,7 @@ public partial class Chat
 {
 	ChatOptions chatOptions = new();
 	ChatSuggestions? chatSuggestions;
-
+	TelerikFileSelect UploadRef;
 	// Lifecycle
 	protected override async Task OnInitializedAsync()
 	{
@@ -29,7 +29,6 @@ public partial class Chat
 	{
 		settings.OnChange -= StateHasChanged;
 	}
-
 
 	#region Voice
 

@@ -45,11 +45,44 @@
     border:none;
     background: transparent;
 }
-
-    :root {
-        /* app bar */
-        --ai-showcase-appbar-height: 48px;
+ .k-popup .k-dropzone-hint {
+    display: none;
+}
+.k-popup .k-dropzone, .k-popup .k-upload {
+    padding: 0;
+    background:none;
+    border:none;
+    outline:none;
+}
+.k-dropzone-inner {
+    padding: 0;
+    background: none;
+    border: none;
+    outline: none;
+    display: block;
+    border-radius: inherit;
+}
+.dropzone-over {
+    transition: ease-in-out 0.3s;
+    animation: strobe 4s linear infinite;
+    border: none;
+    border-radius: var(--kendo-border-radius-md);
+}
+@keyframes strobe {
+    0%, 100% {
+        background-color: #58b9ca;
     }
+
+    50% {
+        background-color: transparent;
+    }
+}
+
+
+:root {
+    /* app bar */
+    --ai-showcase-appbar-height: 48px;
+}
 
 :root {
     /* Color System Swatches */
