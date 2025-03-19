@@ -1,14 +1,21 @@
 ﻿@using Markdig
+@inject ILogger<ChatMessageItem> logger
 
 @if (Message.Role == ChatRole.Assistant)
 {
     @foreach (var content in Message.Contents)
     {
+
+        logger.LogCritical(Message.Contents.Count().ToString());
         if (content is TextContent { Text: { Length: > 0 } text })
         {
             <div class="@Message.Role k-w-full k-mb-8">
                 @RenderMessage(Message.Text)
             </div>
+        }
+        if (content is FunctionCallContent fcc)
+        {
+            <p>FUNCTIONCALL!!!!</p>
         }
     }
 }

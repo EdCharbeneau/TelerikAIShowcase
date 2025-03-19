@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIShowcase.ServiceDefaults"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AIShowcase.WebApp", "AIShowcase.Web\AIShowcase.WebApp.csproj", "{80738FF1-5067-4287-9048-F410101F7973}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DocumentSearch", "DocumentSearch\DocumentSearch.csproj", "{D30947E0-4317-41C5-A365-27C02F555EDA}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{80738FF1-5067-4287-9048-F410101F7973}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80738FF1-5067-4287-9048-F410101F7973}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80738FF1-5067-4287-9048-F410101F7973}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D30947E0-4317-41C5-A365-27C02F555EDA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D30947E0-4317-41C5-A365-27C02F555EDA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D30947E0-4317-41C5-A365-27C02F555EDA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D30947E0-4317-41C5-A365-27C02F555EDA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

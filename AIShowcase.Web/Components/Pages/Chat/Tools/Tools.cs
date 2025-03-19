@@ -63,4 +63,5 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 			return "Voice set";
 		}
 	}
+
 }

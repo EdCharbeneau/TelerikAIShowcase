@@ -4,7 +4,10 @@
 @using AIShowcase.WebApp.Services
 @using AIShowcase.WebApp.Services.TextToSpeechServices
 @using Microsoft.Extensions.AI
+@using ai_demos.Services
 
+
+@inject SemanticSearch searchTool
 @inject IChatClient ai
 @inject ITextToSpeechService tts
 @inject NavigationTool navigationTool
