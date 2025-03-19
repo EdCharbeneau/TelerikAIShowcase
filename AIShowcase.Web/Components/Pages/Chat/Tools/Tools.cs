@@ -13,7 +13,7 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 		bool initialized = false;
 
 		[Description("Used to navigate to application features. " +
-			"Only navigate to items that exist in Get Pages." +
+			"Only navigate to items that exist in get features." +
 			"The tool responds with `Cannot navigate` if no route is available."
 			)]
 		public async Task<string?> NavigateTo(string route)
@@ -36,8 +36,8 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 			return first.Record.Url;
 		}
 
-		[Description("A list of pages in this application.")]
-		public string[] GetPages()
+		[Description("A list of application features in this application.")]
+		public string[] GetRoutes()
 		{
 			return menu.Items.Select(m => m.Text).ToArray();
 		}
@@ -63,4 +63,5 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 			return "Voice set";
 		}
 	}
+
 }

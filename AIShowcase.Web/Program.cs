@@ -1,3 +1,4 @@
+using ai_demos.Services.Ingestion;
 using AIShowcase.WebApp.Components;
 using AIShowcase.WebApp.Components.ChatOutputServices;
 using AIShowcase.WebApp.MenuData;
@@ -14,17 +15,22 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSpeechRecognitionServices();
 
+builder.AddDocumentSearchServices();
+
 builder.AddChatServices();
-builder.Services.AddScoped<MenuVectorData>();
-builder.Services.AddScoped<ApplicationSettings>();
+
 builder.Services.AddSpeechServices();
-builder.Services.AddTelerikBlazor();
-builder.Services.AddScoped<PrismInterop>();
+
 builder.Services.AddSignalR(e => {
 	e.MaximumReceiveMessageSize = 102400000;
 });
 // Register HttpClient
 builder.Services.AddHttpClient();
+
+builder.Services.AddScoped<MenuVectorData>();
+builder.Services.AddScoped<ApplicationSettings>();
+builder.Services.AddScoped<PrismInterop>();
+builder.Services.AddTelerikBlazor();
 
 var culture = new CultureInfo("en-US");
 CultureInfo.DefaultThreadCurrentCulture = culture;
@@ -49,5 +55,13 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
+
+// By default, we ingest PDF files from the /wwwroot/Data directory. You can ingest from
+// other sources by implementing IIngestionSource.
+// Important: ensure that any content you ingest is trusted, as it may be reflected back
+// to users or could be a source of prompt injection risk.
+await DataIngestor.IngestDataAsync(
+	app.Services,
+	new PDFDirectorySource(Path.Combine(builder.Environment.WebRootPath, "Data")));
 
 app.Run();

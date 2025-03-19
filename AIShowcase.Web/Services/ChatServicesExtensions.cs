@@ -11,7 +11,7 @@ namespace AIShowcase.WebApp.Services
 	{
 		public static void AddChatServices(this WebApplicationBuilder builder)
 		{
-			//Authentication with Azure OpenAI
+			// Authentication with Azure OpenAI
 			//AzureOpenAIClient innerClient =
 			//	new AzureOpenAIClient(
 			//		new Uri(builder.Configuration["Chat:AzureOpenAI:Endpoint"] ??
@@ -35,7 +35,7 @@ namespace AIShowcase.WebApp.Services
 			builder.Services.AddSingleton(innerClient);
 
 			var client = innerClient.AsChatClient("gpt-4o-mini");
-			builder.Services.AddChatClient(client).UseFunctionInvocation();
+			builder.Services.AddChatClient(client).UseFunctionInvocation().UseLogging();
 			
 			var embedding = innerClient.AsEmbeddingGenerator("text-embedding-3-small");
 			builder.Services.AddEmbeddingGenerator(embedding);

@@ -1,5 +1,5 @@
 ﻿@using Markdig
-
+@using Telerik.Blazor.Components.Common.Icon
 @if (Message.Role == ChatRole.Assistant)
 {
     @foreach (var content in Message.Contents)
@@ -8,6 +8,20 @@
         {
             <div class="@Message.Role k-w-full k-mb-8">
                 @RenderMessage(Message.Text)
+            </div>
+        }
+        if (content is FunctionCallContent { Name: "Search" } fcc && fcc.Arguments?.TryGetValue("searchPhrase", out var searchPhrase) is true)
+        {
+            <div class="k-w-full k-mb-4">
+                <TelerikIcon Icon="SvgIcon.FilePdf"/>
+                <span>Searching:</span>
+                <span class="assistant-search-phrase">@searchPhrase</span>
+                @if (fcc.Arguments?.TryGetValue("filenameFilter", out var filenameObj) is true && filenameObj is string filename && !string.IsNullOrEmpty(filename))
+                {
+                    <text> in </text>
+
+                    <span class="assistant-search-phrase">@filename</span>
+                }
             </div>
         }
     }
@@ -35,9 +49,13 @@ else
 }
 
 @code {
-    [Parameter, EditorRequired]
-    public required ChatMessage Message { get; set; }
+        [Parameter, EditorRequired]
+        public required ChatMessage Message { get; set; }
 
-    private MarkupString? RenderMessage(string? text) => text is not null ? (MarkupString)Markdown.ToHtml(text) : null;
+    private MarkupString? RenderMessage(string? text) {
+            if(text is null) return null;
+            string rawString = text;
+            return (MarkupString)Markdown.ToHtml(text);
+        }
 
 }

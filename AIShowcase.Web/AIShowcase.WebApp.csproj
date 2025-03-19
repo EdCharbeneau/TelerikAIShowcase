@@ -9,21 +9,26 @@
 
   <ItemGroup>
 	  <!-- Required for speech recognition button -->
-	  <PackageReference Include="Azure.AI.OpenAI" Version="2.2.0-beta.2" />
 	  <PackageReference Include="Blazor.SpeechRecognition" Version="9.0.1" />
 	  <PackageReference Include="Blazor.SpeechSynthesis" Version="9.0.1" />
-	  <PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" Version="9.2.1-beta.205" />
+
+	  <PackageReference Include="Azure.AI.OpenAI" Version="2.2.0-beta.2" />
+	  <!--<PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" Version="9.2.1-beta.205" />-->
 	  <PackageReference Include="ElevenLabs-DotNet" Version="3.4.2" />
 	  <PackageReference Include="Markdig" Version="0.40.0" />
 	  <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.42.0" />
-	  <PackageReference Include="Microsoft.Extensions.AI" Version="9.3.0-preview.1.25161.3" />
-	  <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.3.0-preview.1.25161.3" />
+	  
+	  <!--<PackageReference Include="OpenAI" Version="2.2.0-beta.1" />-->
+	  <PackageReference Include="Microsoft.Extensions.AI" Version="9.3.0-preview.1.25114.11" />
+	  <PackageReference Include="Microsoft.Extensions.AI.Abstractions" Version="9.3.0-preview.1.25114.11" />
 	  <PackageReference Include="Microsoft.Extensions.AI.Ollama" Version="9.3.0-preview.1.25114.11" />
-	  <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.3.0-preview.1.25161.3" />
-	  <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.0.0-preview.1.25161.1" />
+	  <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.3.0-preview.1.25114.11" />
+	  
+	  <PackageReference Include="Microsoft.Extensions.VectorData.Abstractions" Version="9.0.0-preview.1.25078.1" />
+	  <PackageReference Include="Microsoft.SemanticKernel.Abstractions" Version="1.37.0" />
+	  <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.37.0-preview" />
 	  <!-- Required for Menu Search example -->
-	  <PackageReference Include="Microsoft.SemanticKernel.Connectors.InMemory" Version="1.41.0-preview" />
-	  <PackageReference Include="System.Linq.AsyncEnumerable" Version="10.0.0-preview.1.25080.5" />
+	  <PackageReference Include="System.Linq.Async" Version="6.0.1" />
 
 	  <!-- Telerik UI for Blazor requires a license see terms for details -->
 	  <PackageReference Include="Telerik.UI.for.Blazor" Version="8.0.0" />
@@ -31,6 +36,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AIShowcase.ServiceDefaults\AIShowcase.ServiceDefaults.csproj" />
+    <ProjectReference Include="..\DocumentSearch\DocumentSearch.csproj" />
   </ItemGroup>
 
 </Project>

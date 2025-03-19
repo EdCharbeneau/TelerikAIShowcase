@@ -4,23 +4,23 @@
 @inject PrismInterop prism
 
 
-            <div role="log" aria-label="Message list" aria-live="polite">
-                <div @ref="messageListElement">
-                    @foreach (ChatMessage m in GetFilteredMessages())
-                    {
-                        <ChatMessageItem Message="m"/>
-                    }
-                </div>
-                <span>
-                    @StreamingText
-                    <TelerikSkeleton Visible="IsThinking" ShapeType="SkeletonShapeType.Text" Width="10vw" Height="20px" />
-                </span>
-        </div>
+<div role="log" aria-label="Message list" aria-live="polite">
+    <div @ref="messageListElement">
+        @foreach (ChatMessage m in GetFilteredMessages())
+        {
+            <ChatMessageItem Message="m" />
+        }
+    </div>
+    <span>
+        @StreamingText
+        <TelerikSkeleton Visible="IsThinking" ShapeType="SkeletonShapeType.Text" Width="10vw" Height="20px" />
+    </span>
+</div>
 
 
 @code {
     ElementReference? messageListElement;
-    List<ChatMessage> messageCache = new();
+    IEnumerable<ChatMessage>? messageCache;
     bool shouldFormatSyntax;
 
     private IEnumerable<ChatMessage> GetFilteredMessages() => Messages.Where(m => m.Role == ChatRole.User || m.Role == ChatRole.Assistant);
@@ -32,7 +32,7 @@
     public string? Class { get; set; }
 
     [Parameter]
-    public List<ChatMessage> Messages { get; set; } = new();
+    public required IEnumerable<ChatMessage> Messages { get; set; }
 
     [Parameter]
     public string? StreamingText { get; set; }
@@ -51,13 +51,13 @@
 
     public override async Task SetParametersAsync(ParameterView parameters)
     {
-        bool parameterExists = parameters.TryGetValue<List<ChatMessage>>(nameof(Messages), out var value);
+        // bool parameterExists = parameters.TryGetValue<IEnumerable<ChatMessage>>(nameof(Messages), out var value);
 
-        if (parameterExists && !messageCache.SequenceEqual(value!))
-        {
-            shouldFormatSyntax = true;
-            messageCache = new List<ChatMessage>(value!);
-        }
+        // if (parameterExists && !messageCache.SequenceEqual(value!))
+        // {
+        //     shouldFormatSyntax = true;
+        //     messageCache = new List<ChatMessage>(value!);
+        // }
         await base.SetParametersAsync(parameters);
     }
 

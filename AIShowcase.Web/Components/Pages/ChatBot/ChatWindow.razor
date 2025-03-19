@@ -50,9 +50,9 @@ Capture enter button✅
         {
             ChatResponse response = await ai.GetResponseAsync(system);
 
-            response.Messages[0].AuthorName = "Allen Issac";
+            response.Message.AuthorName = "Allen Issac";
 
-            messages.Add(response.Messages[0]);
+            messages.Add(response.Message);
         });
     }
 
@@ -71,9 +71,9 @@ Capture enter button✅
         {
             ChatResponse response = await ai.GetResponseAsync(messages);
 
-            response.Messages[0].AuthorName = "Allen Issac";
+            response.Message.AuthorName = "Allen Issac";
 
-            messages.Add(response.Messages[0]);
+            messages.Add(response.Message);
         });
     }
 

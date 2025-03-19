@@ -1,25 +1,46 @@
 using AIShowcase.WebApp.Components.Generic;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.AI;
-using System;
+using System.ComponentModel;
+using System.Text.Json;
 using Telerik.Blazor.Components;
+
 
 namespace AIShowcase.WebApp.Components.Pages.Chat;
 public partial class Chat
 {
+	private const string SystemPrompt = @"
+        You are an assistant who answers questions about information you retrieve.
+        Do not answer questions about anything else.
+        Use only simple markdown to format your responses.
+
+        Use the search tool to find relevant information. When you do this, end your
+        reply with citations in the special JSON format:
+
+		citations: [ { filename: 'string', page_number: 'page', text='exact quote here' }]
+
+        Always include the citation in your response if there are results.
+
+        The quote must be max 5 words, taken word-for-word from the search result, and is the basis for why the citation is relevant.
+        Don't refer to the presence of citations; just emit the JSON right at the end, with no surrounding text.
+        ";
 	ChatOptions chatOptions = new();
 	ChatSuggestions? chatSuggestions;
 	TelerikFileSelect? UploadRef;
+	CancellationTokenSource? currentResponseCancellation;
+
 	// Lifecycle
 	protected override async Task OnInitializedAsync()
 	{
+
 		chatOptions = new()
 		{
 			Tools = [
-						AIFunctionFactory.Create(navigationTool.GetPages),
+						AIFunctionFactory.Create(navigationTool.GetRoutes),
 						AIFunctionFactory.Create(navigationTool.NavigateTo),
 						AIFunctionFactory.Create(voiceSettingsTool.GetVoices),
 						AIFunctionFactory.Create(voiceSettingsTool.SetVoice),
+						AIFunctionFactory.Create(SearchAsync)
 					]
 		};
 		await NewChat();
@@ -49,7 +70,7 @@ public partial class Chat
    <example>What can I help with?</example>
    <example>I'm here to help.</example>
    "));
-		await PlaySpeech(helloMessage.Text);
+		await PlaySpeech(helloMessage.Message.Text);
 	}
 	Task OnRecordClick() => CreateListeningMessage();
 	async Task OnRecognizedText(string value)
@@ -87,11 +108,11 @@ public partial class Chat
 			// add the original user message and the response to the chat
 			messages.Add(userMessage);
 			// add the response to the chat
-			messages.Add(new(ChatRole.Assistant, response.Text));
+			messages.Add(new(ChatRole.Assistant, response.Message.Text));
 			// Speak the response to the user
-			
+
 		});
-			await PlaySpeech(messages.Last().Text);
+		await PlaySpeech(messages.Last().Text);
 	}
 
 	private async Task PlaySpeech(string text)
@@ -136,26 +157,35 @@ public partial class Chat
 	#endregion
 
 	#region Messages
-	string streamingText = "";
-	List<ChatMessage> messages = [];
+	string? streamingText;
+	List<ChatMessage> messages = new();
 
 	Task SubmitMessage() => RespondWithStreamingText(GetUserChatMessage());
 
 	async Task RespondWithStreamingText(ChatMessage userMessage)
 	{
+		// Add the user message to the conversation
 		messages.Add(userMessage);
+		chatSuggestions?.Clear();
+
+		// Stream and display a new response from the IChatClient
+		var responseText = new TextContent("");
+		var currentResponseMessage = new ChatMessage(ChatRole.Assistant, [responseText]);
+		currentResponseCancellation = new();
 		await BeginThinking(async () =>
 		{
-			IAsyncEnumerable<ChatResponseUpdate> responseStream = ai.GetStreamingResponseAsync(messages, chatOptions);
-
-			await foreach (var message in responseStream)
+			await foreach (var chunk in ai.GetStreamingResponseAsync(messages, chatOptions, currentResponseCancellation.Token))
 			{
-				streamingText += message.Text;
+				responseText.Text += chunk.Text;
+				streamingText = responseText.Text;
 				StateHasChanged();
 			}
-			messages.Add(new ChatMessage(ChatRole.Assistant, streamingText));
-			streamingText = "";
 		});
+		// Store the final response in the conversation, and begin getting suggestions
+		messages.Add(currentResponseMessage!);
+		currentResponseMessage = null;
+		streamingText = null;
+		chatSuggestions?.Update(messages);
 	}
 	#endregion
 
@@ -210,12 +240,12 @@ public partial class Chat
 
 	async Task NewChat()
 	{
-		ChatMessage system = new(ChatRole.System, "Greet the user in a friendly way, make them feel welcome.");
-
+		ChatMessage system = new(ChatRole.System, SystemPrompt);
+		messages.Add(system);
 		await BeginThinking(async () =>
 		{
-			ChatResponse response = await ai.GetResponseAsync(system);
-			messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
+			ChatResponse response = await ai.GetResponseAsync([system]);
+			messages.Add(new ChatMessage(ChatRole.Assistant, response.Message.Text));
 		});
 	}
 	async Task OnFileSelect(FileSelectEventArgs args)
@@ -241,8 +271,20 @@ public partial class Chat
 		{
 			StateHasChanged();
 			ChatResponse response = await ai.GetResponseAsync(fileMessage);
-			messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
+			messages.Add(new ChatMessage(ChatRole.Assistant, response.Message.Text));
 		});
+	}
+
+	[Description("Searches for information using a phrase or keyword")]
+	private async Task<IEnumerable<string>> SearchAsync(
+	[Description("The phrase to search for.")] string searchPhrase,
+	[Description("Whenever possible, specify the filename to search that file only. If not provided, the search includes all files.")] string? filenameFilter = null)
+	{
+		await InvokeAsync(StateHasChanged);
+		var results = await Search.SearchAsync(searchPhrase, filenameFilter, maxResults: 5);
+		var final = results.Select(result =>
+			$"<result filename=\"{result.FileName}\" page_number=\"{result.PageNumber}\">{result.Text}</result>");
+		return final;
 	}
 	#endregion
 }
