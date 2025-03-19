@@ -11,23 +11,23 @@ namespace AIShowcase.WebApp.Services
 	{
 		public static void AddChatServices(this WebApplicationBuilder builder)
 		{
-			//Authentication with Azure OpenAI
-			//AzureOpenAIClient innerClient =
-			//	new AzureOpenAIClient(
-			//		new Uri(builder.Configuration["Chat:AzureOpenAI:Endpoint"] ??
-			//			throw new InvalidOperationException("The required AzureOpenAI endpoint was not configured for this application.")),
-			//		new AzureKeyCredential(builder.Configuration["Chat:AzureOpenAI:Key"] ??
-			//			throw new InvalidOperationException("The required AzureOpenAI Key was not configured for this application."))
-			//	);
+			// Authentication with Azure OpenAI
+			AzureOpenAIClient innerClient =
+				new AzureOpenAIClient(
+					new Uri(builder.Configuration["Chat:AzureOpenAI:Endpoint"] ??
+						throw new InvalidOperationException("The required AzureOpenAI endpoint was not configured for this application.")),
+					new AzureKeyCredential(builder.Configuration["Chat:AzureOpenAI:Key"] ??
+						throw new InvalidOperationException("The required AzureOpenAI Key was not configured for this application."))
+				);
 
 			#region GitHub Models
-			var credential = new ApiKeyCredential(builder.Configuration["Chat:GitHubModels:Token"] ?? throw new InvalidOperationException("Missing configuration: GitHubModels:Token. See the README for details."));
-			var openAIOptions = new OpenAIClientOptions()
-			{
-				Endpoint = new Uri("https://models.inference.ai.azure.com")
-			};
+			//var credential = new ApiKeyCredential(builder.Configuration["Chat:GitHubModels:Token"] ?? throw new InvalidOperationException("Missing configuration: GitHubModels:Token. See the README for details."));
+			//var openAIOptions = new OpenAIClientOptions()
+			//{
+			//	Endpoint = new Uri("https://models.inference.ai.azure.com")
+			//};
 
-			var innerClient = new OpenAIClient(credential, openAIOptions);
+			//var innerClient = new OpenAIClient(credential, openAIOptions);
 			#endregion
 
 			//builder.AddOllamaApiClient("connectionName").AddChatClient();
@@ -35,7 +35,7 @@ namespace AIShowcase.WebApp.Services
 			builder.Services.AddSingleton(innerClient);
 
 			var client = innerClient.AsChatClient("gpt-4o-mini");
-			builder.Services.AddChatClient(client).UseFunctionInvocation();
+			builder.Services.AddChatClient(client).UseFunctionInvocation().UseLogging();
 			
 			var embedding = innerClient.AsEmbeddingGenerator("text-embedding-3-small");
 			builder.Services.AddEmbeddingGenerator(embedding);

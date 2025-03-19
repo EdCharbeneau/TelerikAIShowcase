@@ -10,6 +10,10 @@
                 @RenderMessage(Message.Text)
             </div>
         }
+        if (content is FunctionCallContent fcc)
+        {
+            <p>FUNCTIONCALL!!!!</p>
+        }
     }
 }
 else
