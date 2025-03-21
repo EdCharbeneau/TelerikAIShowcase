@@ -20,91 +20,9 @@
 </SectionContent>
 
 <SectionContent SectionId="ChatLayout.Sections.ChatInput">
-
-        <div class="k-d-grid k-w-3/5">
-            <div class="grid-overlay">
-                <TelerikDropZone DragOverClass="dropzone-over" 
-                Id="file-drop" 
-                Height="auto">
-                                <Template>
-                <TelerikCard>
-                    <CardBody>
-                        <span @onkeypress="SubmitOnEnter">
-                            <TelerikTextArea @bind-Value="@Prompt"
-                                             Width="100%"
-                                             AdornmentsOrientation="TextAreaAdornmentsOrientation.Horizontal"
-                                             ShowPrefixSeparator="false"
-                                             ShowSuffixSeparator="false"
-                                             ResizeMode="@TextAreaResizeMode.None"
-                                             Placeholder="AskAI ..."
-                                             AriaLabel="Ask AI">
-                                <TextAreaPrefixTemplate>
-                                    <TelerikButton Id="floating-action-button"
-                                                   Icon="@SvgIcon.MoreVertical"
-                                                   OnClick="TogglePopup" />
-                                </TextAreaPrefixTemplate>
-                                <TextAreaSuffixTemplate>
-                                    @if (string.IsNullOrWhiteSpace(Prompt))
-                                    {
-                                        if (isAudioPlaying)
-                                        {
-                                            <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking" />
-                                        }
-                                        <SpeechToTextButton @ref="Microphone" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" />
-                                    }
-                                    else
-                                    {
-                                        <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="SubmitMessage" Enabled="canSubmit" />
-                                    }
-                                </TextAreaSuffixTemplate>
-                            </TelerikTextArea>
-
-
-                        </span>
-                    </CardBody>
-                </TelerikCard>
-                            </Template>
-                            </TelerikDropZone>
-            </div>
-            <canvas width="0" height="0" class="grid-overlay" id="ttsEffect"></canvas>
-        </div>
-
-</SectionContent>
-
-<ChatMenu />
-
-<SectionContent SectionId="ChatLayout.Sections.OffScreen">
-    <AudioPlayer @ref="audioPlayer" OnEnded="OnAudioEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>
-
-    <TelerikPopup @ref="@PopupRef"
-                  Width="100"
-                  AnchorSelector="#floating-action-button"
-                  AnimationType="@AnimationType.SlideUp"
-                  AnimationDuration="100"
-                  HorizontalAlign="@PopupHorizontalAlign.Left"
-                  VerticalAlign="@PopupVerticalAlign.Bottom"
-                  AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
-                  AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
-                  VerticalOffset="4">
-        <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
-            <TelerikButton Icon="@SvgIcon.PlusCircle"
-                           OnClick="RestartChat"
-                           Rounded="@ThemeConstants.Button.Rounded.Medium"
-                           FillMode="@ThemeConstants.Button.FillMode.Flat"
-                           Size="@ThemeConstants.Button.Size.Large"
-                           Title="New">New</TelerikButton>
-            <TelerikButton Icon="@SvgIcon.Paperclip"
-                           OnClick="UploadRef.OpenSelectFilesDialog"
-                           Rounded="@ThemeConstants.Button.Rounded.Medium"
-                           FillMode="@ThemeConstants.Button.FillMode.Flat"
-                           Size="@ThemeConstants.Button.Size.Large"
-                           Title="File Upload">Upload</TelerikButton>
-        </div>
-    </TelerikPopup>
-
-    <div style="display:none">
-    <TelerikFileSelect @ref="UploadRef" OnSelect="@OnFileSelect" DropZoneId="file-drop" Class="file-upload-button">
-    </TelerikFileSelect>
-    </div>
-
+    <ChatInput @ref="ChatInputRef" OnSend="RespondWithStreamingText"
+               OnSendSpeech="RespondWithSpeech" 
+               OnSendImage="SubmitImage"
+               OnMicrophoneStart="CreateListeningMessage"
+               OnRestartChatClicked="RestartChat"/>
 </SectionContent>

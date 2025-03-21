@@ -1,10 +1,7 @@
-using AIShowcase.WebApp.Components.Generic;
-using Microsoft.AspNetCore.Components.Web;
+using Azure;
 using Microsoft.Extensions.AI;
 using System.ComponentModel;
-using System.Text.Json;
 using Telerik.Blazor.Components;
-
 
 namespace AIShowcase.WebApp.Components.Pages.Chat;
 public partial class Chat
@@ -26,8 +23,8 @@ public partial class Chat
         ";
 	ChatOptions chatOptions = new();
 	ChatSuggestions? chatSuggestions;
-	TelerikFileSelect? UploadRef;
 	CancellationTokenSource? currentResponseCancellation;
+	ChatInput? ChatInputRef;
 
 	// Lifecycle
 	protected override async Task OnInitializedAsync()
@@ -52,12 +49,9 @@ public partial class Chat
 
 	#region Voice
 
-	public bool isAudioPlaying;
-	SpeechToTextButton? Microphone;
-	AudioPlayer? audioPlayer;
 	async Task CreateListeningMessage()
 	{
-		if (settings is null || audioPlayer is null) return;
+		//if (settings is null || audioPlayer is null) return;
 		var helloMessage = await ai.GetResponseAsync(new ChatMessage
 		(
 			ChatRole.System,
@@ -70,25 +64,13 @@ public partial class Chat
    <example>What can I help with?</example>
    <example>I'm here to help.</example>
    "));
-		await PlaySpeech(helloMessage.Message.Text);
+		if (ChatInputRef is not null && helloMessage.Message.Text is string)
+		{
+			await ChatInputRef.PlaySpeech(helloMessage.Message.Text);
+		}
 	}
-	Task OnRecordClick() => CreateListeningMessage();
-	async Task OnRecognizedText(string value)
+	async Task RespondWithSpeech(ChatMessage userMessage)
 	{
-		Prompt = value;
-		await RespondWithSpeech();
-	}
-	async Task OnStopAudio()
-	{
-		isAudioPlaying = false;
-		await audioPlayer!.Stop();
-	}
-
-	async Task RespondWithSpeech()
-	{
-		await Microphone!.StopRecording();
-
-		ChatMessage userMessage = GetUserChatMessage();
 
 		// Rephrase the user's question so the spoken response is more concise.
 		// This reduces the amount of text the SST service needs to process.
@@ -99,68 +81,31 @@ public partial class Chat
 			Please respond in a concise single paragraph using plain text.
 			";
 
-		ChatMessage augmentedessage = new(ChatRole.User, newPrompt);
+		ChatMessage modifiedMessage = new(ChatRole.User, newPrompt);
 
-		await BeginThinking(async () =>
+		// Get a chat response with the augmented message
+		ChatResponse response = await ai.GetResponseAsync([.. messages, modifiedMessage], chatOptions);
+		// add the original user message and the response to the chat
+		messages.Add(userMessage);
+		// add the response to the chat
+		messages.Add(new(ChatRole.Assistant, response.Message.Text));
+		// Speak the response to the user
+
+		if (ChatInputRef is not null && response.Message.Text is string)
 		{
-			// Get a chat response with the augmented message
-			ChatResponse response = await ai.GetResponseAsync([.. messages, augmentedessage], chatOptions);
-			// add the original user message and the response to the chat
-			messages.Add(userMessage);
-			// add the response to the chat
-			messages.Add(new(ChatRole.Assistant, response.Message.Text));
-			// Speak the response to the user
-
-		});
-		await PlaySpeech(messages.Last().Text);
-	}
-
-	private async Task PlaySpeech(string text)
-	{
-		if (settings.SelectedVoiceId is null || audioPlayer is null) return;
-		string speech = await tts.GetSpeechAsBase64String(text, settings.SelectedVoiceId);
-		await audioPlayer.Load(speech);
-		isAudioPlaying = true;
-		await audioPlayer.Play();
-	}
-
-	async Task OnAudioEnded()
-	{
-		isAudioPlaying = false;
-		if (Microphone is null) return;
-		await Microphone.StartRecording();
+			await ChatInputRef.PlaySpeech(response.Message.Text);
+		}
 	}
 
 	#endregion
 
 	#region Prompt
 
-	string? Prompt { get; set; }
-	bool canSubmit => !string.IsNullOrWhiteSpace(Prompt) && !isThinking;
-
-	ChatMessage GetUserChatMessage()
-	{
-		var userMessage = new ChatMessage(ChatRole.User, Prompt);
-		Prompt = "";
-		return userMessage;
-	}
-
-	Task SubmitOnEnter(KeyboardEventArgs args)
-	{
-		if (args.Key == "Enter" && !args.ShiftKey && canSubmit)
-		{
-			return SubmitMessage();
-		}
-		return Task.CompletedTask;
-	}
-
 	#endregion
 
 	#region Messages
 	string? streamingText;
 	List<ChatMessage> messages = new();
-
-	Task SubmitMessage() => RespondWithStreamingText(GetUserChatMessage());
 
 	async Task RespondWithStreamingText(ChatMessage userMessage)
 	{
@@ -214,30 +159,6 @@ public partial class Chat
 	}
 	#endregion
 
-	#region Popup Menu
-	private TelerikPopup? PopupRef;
-	private bool popupVisible = false;
-
-	private void TogglePopup()
-	{
-		if (popupVisible)
-		{
-			PopupRef?.Hide();
-		}
-		else
-		{
-			PopupRef?.Show();
-		}
-		popupVisible = !popupVisible;
-	}
-
-	async Task RestartChat()
-	{
-		messages = [];
-		TogglePopup();
-		await NewChat();
-	}
-
 	async Task NewChat()
 	{
 		ChatMessage system = new(ChatRole.System, SystemPrompt);
@@ -248,37 +169,26 @@ public partial class Chat
 			messages.Add(new ChatMessage(ChatRole.Assistant, response.Message.Text));
 		});
 	}
-	async Task OnFileSelect(FileSelectEventArgs args)
+	async Task RestartChat()
 	{
-		PopupRef?.Hide();
-		if (UploadRef is null) return;
-
-		var file = args.Files[0];
-
-		byte[]? imgBytes = null;
-
-		// Fully flush out the uploaded file Stream into a MemoryStream then copy into the byte[]
-		using var ms = new MemoryStream();
-		await file.Stream.CopyToAsync(ms);
-		imgBytes = ms.ToArray();
-
-		ChatMessage fileMessage = new(ChatRole.User, "What's in this image?");
-		fileMessage.Contents.Add(new DataContent(imgBytes, "image/jpg"));
-
-		messages.Add(fileMessage);
+		messages = [];
+		await NewChat();
+	}
+	async Task SubmitImage(ChatMessage imageMessage)
+	{
+		messages.Add(imageMessage);
 
 		await BeginThinking(async () =>
 		{
-			StateHasChanged();
-			ChatResponse response = await ai.GetResponseAsync(fileMessage);
+			ChatResponse response = await ai.GetResponseAsync(imageMessage);
 			messages.Add(new ChatMessage(ChatRole.Assistant, response.Message.Text));
 		});
 	}
 
 	[Description("Searches for information using a phrase or keyword")]
 	private async Task<IEnumerable<string>> SearchAsync(
-	[Description("The phrase to search for.")] string searchPhrase,
-	[Description("Whenever possible, specify the filename to search that file only. If not provided, the search includes all files.")] string? filenameFilter = null)
+[Description("The phrase to search for.")] string searchPhrase,
+[Description("Whenever possible, specify the filename to search that file only. If not provided, the search includes all files.")] string? filenameFilter = null)
 	{
 		await InvokeAsync(StateHasChanged);
 		var results = await Search.SearchAsync(searchPhrase, filenameFilter, maxResults: 5);
@@ -286,5 +196,4 @@ public partial class Chat
 			$"<result filename=\"{result.FileName}\" page_number=\"{result.PageNumber}\">{result.Text}</result>");
 		return final;
 	}
-	#endregion
 }
