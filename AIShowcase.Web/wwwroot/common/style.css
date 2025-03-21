@@ -54,6 +54,11 @@
     border:none;
     outline:none;
 }
+
+/* Keep the text area from blocking the drag & drop UI */
+.dropzone-over textarea {
+    visibility: hidden;
+}
 .k-dropzone-inner {
     padding: 0;
     background: none;

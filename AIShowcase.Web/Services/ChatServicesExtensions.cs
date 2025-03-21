@@ -11,10 +11,13 @@ namespace AIShowcase.WebApp.Services
 	{
 		public static void AddChatServices(this WebApplicationBuilder builder)
 		{
+			//builder.AddOllamaApiClient("llama32").AddChatClient().UseFunctionInvocation().UseLogging();
+			builder.AddOllamaApiClient("local-embedding").AddEmbeddingGenerator();
+
 			// Authentication with Azure OpenAI
 			//AzureOpenAIClient innerClient =
-			//	new AzureOpenAIClient(
 			//		new Uri(builder.Configuration["Chat:AzureOpenAI:Endpoint"] ??
+			//	new AzureOpenAIClient(
 			//			throw new InvalidOperationException("The required AzureOpenAI endpoint was not configured for this application.")),
 			//		new AzureKeyCredential(builder.Configuration["Chat:AzureOpenAI:Key"] ??
 			//			throw new InvalidOperationException("The required AzureOpenAI Key was not configured for this application."))
@@ -28,17 +31,14 @@ namespace AIShowcase.WebApp.Services
 			};
 
 			var innerClient = new OpenAIClient(credential, openAIOptions);
-			#endregion
-
-			//builder.AddOllamaApiClient("connectionName").AddChatClient();
-
 			builder.Services.AddSingleton(innerClient);
 
 			var client = innerClient.AsChatClient("gpt-4o-mini");
 			builder.Services.AddChatClient(client).UseFunctionInvocation().UseLogging();
-			
-			var embedding = innerClient.AsEmbeddingGenerator("text-embedding-3-small");
-			builder.Services.AddEmbeddingGenerator(embedding);
+
+			//var embedding = innerClient.AsEmbeddingGenerator("text-embedding-3-small");
+			//builder.Services.AddEmbeddingGenerator(embedding);
+			#endregion
 
 			builder.Services.AddScoped<NavigationTool>();
 			builder.Services.AddScoped<VoiceSettingsTool>();

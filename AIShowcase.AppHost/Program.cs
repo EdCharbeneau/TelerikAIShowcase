@@ -14,13 +14,22 @@ var ollama = builder
 	;
 
 // 🤖 Add a model
-var phi4 = ollama.AddModel(
-	name: "phi4", // 🏷️ Name referenced by your application
-	modelName: "phi4"
+var embed = ollama.AddModel(
+	name: "local-embedding", // 🏷️ Name referenced by your application
+	modelName: "nomic-embed-text"
 	);
 
+// 🤖 Add a model
+var llama = ollama.AddModel(
+	name: "llama32", // 🏷️ Name referenced by your application
+	modelName: "llama3.2"
+	);
+
+
 var aiShowcase = builder.AddProject<AIShowcase_WebApp>("aiShowcase")
-	.WithReference(phi4)
-	.WaitFor(phi4);
+	.WithReference(llama)
+	.WaitFor(llama)
+	.WithReference(embed)
+	.WaitFor(embed);
 
 builder.Build().Run();

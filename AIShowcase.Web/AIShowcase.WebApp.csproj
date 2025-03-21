@@ -13,9 +13,12 @@
 	  <PackageReference Include="Blazor.SpeechSynthesis" Version="9.0.1" />
 
 	  <PackageReference Include="Azure.AI.OpenAI" Version="2.2.0-beta.2" />
+
+	  <PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" Version="9.3.1-beta.241" />
 	  <!--<PackageReference Include="CommunityToolkit.Aspire.OllamaSharp" Version="9.2.1-beta.205" />-->
 	  <PackageReference Include="ElevenLabs-DotNet" Version="3.4.2" />
 	  <PackageReference Include="Markdig" Version="0.40.0" />
+	  <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid" Version="9.0.3" />
 	  <PackageReference Include="Microsoft.CognitiveServices.Speech" Version="1.42.0" />
 	  
 	  <!--<PackageReference Include="OpenAI" Version="2.2.0-beta.1" />-->

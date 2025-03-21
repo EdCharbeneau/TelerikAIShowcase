@@ -26,20 +26,21 @@ public partial class ChatInput
 
 	private Task OnRecordClick(MouseEventArgs _) => OnMicrophoneStart.InvokeAsync();
 
-	private string? messageText;
+	private string? messageText = "Can you search Choosing a component library";
 
 	private bool canSubmit => !string.IsNullOrWhiteSpace(messageText);
 
 	private async Task SendMessageAsync()
 	{
-		await OnSend.InvokeAsync(new ChatMessage(ChatRole.User, messageText));
+		var message = new ChatMessage(ChatRole.User, messageText);
 		messageText = null;
+		await OnSend.InvokeAsync(message);
 	}
 	async Task OnRecognizedText(string value)
 	{
 		await Microphone!.StopRecording();
-		await OnSendSpeech.InvokeAsync(new ChatMessage(ChatRole.User, messageText));
 		messageText = null;
+		await OnSendSpeech.InvokeAsync(new ChatMessage(ChatRole.User, value));
 	}
 
 	async Task SubmitOnEnter(KeyboardEventArgs args)
@@ -95,6 +96,7 @@ public partial class ChatInput
 
 	async Task OnFileSelect(FileSelectEventArgs args)
 	{
+		messageText = null;
 		PopupRef?.Hide();
 		if (UploadRef is null) return;
 
@@ -112,6 +114,13 @@ public partial class ChatInput
 
 		await OnSendImage.InvokeAsync(imageMessage);
 
+	}
+
+	private Task OnNewChatClicked()
+	{
+		messageText = null;
+		PopupRef?.Hide();
+		return OnRestartChatClicked.InvokeAsync();
 	}
 
 

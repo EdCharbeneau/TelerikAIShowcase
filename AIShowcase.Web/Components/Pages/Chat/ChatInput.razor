@@ -26,17 +26,16 @@
                                                    OnClick="TogglePopup" />
                                 </TextAreaPrefixTemplate>
                                 <TextAreaSuffixTemplate>
-                                    @if (isAudioPlaying)
-                                    {
-                                        <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking" />
-                                    }
-                                    @if (canSubmit)
-                                    {
+                                    @if (canSubmit) {
                                         <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="SendMessageAsync" Enabled="canSubmit" />
                                     }
                                     else
                                     {
-                                        <SpeechToTextButton @ref="Microphone" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" />
+                                        if (isAudioPlaying)
+                                        {
+                                            <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking" />
+                                        }
+                                        <SpeechToTextButton @ref="Microphone" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" Disabled="isAudioPlaying"/>
                                     }
                                 </TextAreaSuffixTemplate>
                             </TelerikTextArea>
@@ -50,7 +49,6 @@
         </div>
 
 
-<ChatMenu />
 
     <AudioPlayer @ref="audioPlayer" OnEnded="OnAudioEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>
 
@@ -66,7 +64,7 @@
                   VerticalOffset="4">
         <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
             <TelerikButton Icon="@SvgIcon.PlusCircle"
-                           OnClick="(()=> OnRestartChatClicked.InvokeAsync())"
+                           OnClick="OnNewChatClicked"
                            Rounded="@ThemeConstants.Button.Rounded.Medium"
                            FillMode="@ThemeConstants.Button.FillMode.Flat"
                            Size="@ThemeConstants.Button.Size.Large"

@@ -50,13 +50,10 @@ else
 }
 
 @code {
-    int _renderCount;
         [Parameter, EditorRequired]
         public required ChatMessage Message { get; set; }
 
     private MarkupString? RenderMessage(string? text) {
-            _renderCount++;
-            Logger.LogWarning($"Render Message Called:{_renderCount}");
             if(text is null) return null;
             string rawString = text;
             return (MarkupString)Markdown.ToHtml(text);

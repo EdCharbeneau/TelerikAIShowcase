@@ -1,28 +1,27 @@
 ﻿@page "/"
 @layout ChatLayout
 @using AIShowcase.WebApp.Components.Generic
-@using AIShowcase.WebApp.Services
-@using AIShowcase.WebApp.Services.TextToSpeechServices
 @using Microsoft.Extensions.AI
 @using ai_demos.Services
 
-
 @inject SemanticSearch Search
 @inject IChatClient ai
-@inject ITextToSpeechService tts
 @inject NavigationTool navigationTool
 @inject VoiceSettingsTool voiceSettingsTool
-@inject ApplicationSettings settings
 
 <SectionContent SectionId="ChatLayout.Sections.ChatOutput">
-    <ChatOutput Messages="messages" StreamingText="@streamingText" IsThinking="isThinking" />
+    <ChatOutput Messages="messages" StreamingText="@streamingText" IsThinking="isThinking">
+        <EmptyTemplate>
+            <h2>I'm ready to help.</h2>
+        </EmptyTemplate>
+    </ChatOutput>
     <ChatSuggestions OnSelected="RespondWithStreamingText" @ref="chatSuggestions" />
 </SectionContent>
 
 <SectionContent SectionId="ChatLayout.Sections.ChatInput">
     <ChatInput @ref="ChatInputRef" OnSend="RespondWithStreamingText"
-               OnSendSpeech="RespondWithSpeech" 
+               OnSendSpeech="RespondWithSpeech"
                OnSendImage="SubmitImage"
                OnMicrophoneStart="CreateListeningMessage"
-               OnRestartChatClicked="RestartChat"/>
+               OnRestartChatClicked="RestartChat" />
 </SectionContent>

@@ -1,7 +1,5 @@
-using Azure;
 using Microsoft.Extensions.AI;
 using System.ComponentModel;
-using Telerik.Blazor.Components;
 
 namespace AIShowcase.WebApp.Components.Pages.Chat;
 public partial class Chat
@@ -12,19 +10,23 @@ public partial class Chat
         Use only simple markdown to format your responses.
 
         Use the search tool to find relevant information. When you do this, end your
-        reply with citations in the special JSON format:
+        reply with citations in the special XML format:
 
-		citations: [ { filename: 'string', page_number: 'page', text='exact quote here' }]
+        <citation filename='string' page_number='number'>exact quote here</citation>
 
         Always include the citation in your response if there are results.
 
         The quote must be max 5 words, taken word-for-word from the search result, and is the basis for why the citation is relevant.
-        Don't refer to the presence of citations; just emit the JSON right at the end, with no surrounding text.
+        Don't refer to the presence of citations; just emit these tags right at the end, with no surrounding text.
         ";
+
+	string? streamingText;
+	List<ChatMessage> messages = new();
 	ChatOptions chatOptions = new();
 	ChatSuggestions? chatSuggestions;
 	CancellationTokenSource? currentResponseCancellation;
 	ChatInput? ChatInputRef;
+	bool isThinking;
 
 	// Lifecycle
 	protected override async Task OnInitializedAsync()
@@ -42,12 +44,6 @@ public partial class Chat
 		};
 		await NewChat();
 	}
-	public void Dispose()
-	{
-		settings.OnChange -= StateHasChanged;
-	}
-
-	#region Voice
 
 	async Task CreateListeningMessage()
 	{
@@ -82,9 +78,10 @@ public partial class Chat
 			";
 
 		ChatMessage modifiedMessage = new(ChatRole.User, newPrompt);
-
+		await BeginThinking();
 		// Get a chat response with the augmented message
 		ChatResponse response = await ai.GetResponseAsync([.. messages, modifiedMessage], chatOptions);
+		await EndThinking();
 		// add the original user message and the response to the chat
 		messages.Add(userMessage);
 		// add the response to the chat
@@ -97,16 +94,6 @@ public partial class Chat
 		}
 	}
 
-	#endregion
-
-	#region Prompt
-
-	#endregion
-
-	#region Messages
-	string? streamingText;
-	List<ChatMessage> messages = new();
-
 	async Task RespondWithStreamingText(ChatMessage userMessage)
 	{
 		// Add the user message to the conversation
@@ -117,58 +104,43 @@ public partial class Chat
 		var responseText = new TextContent("");
 		var currentResponseMessage = new ChatMessage(ChatRole.Assistant, [responseText]);
 		currentResponseCancellation = new();
-		await BeginThinking(async () =>
+		await BeginThinking();
+		await foreach (var chunk in ai.GetStreamingResponseAsync(messages, chatOptions, currentResponseCancellation.Token))
 		{
-			await foreach (var chunk in ai.GetStreamingResponseAsync(messages, chatOptions, currentResponseCancellation.Token))
-			{
-				responseText.Text += chunk.Text;
-				streamingText = responseText.Text;
-				StateHasChanged();
-			}
-		});
+			responseText.Text += chunk.Text;
+			streamingText = responseText.Text;
+			StateHasChanged();
+		}
+		await EndThinking();
 		// Store the final response in the conversation, and begin getting suggestions
 		messages.Add(currentResponseMessage!);
 		currentResponseMessage = null;
 		streamingText = null;
 		chatSuggestions?.Update(messages);
 	}
-	#endregion
 
-	#region Thinking
-	bool isThinking;
-
-	/// <summary>
-	/// Wraps an AI request process with a loading indicator.
-	/// This method also clears and updates the chat suggestions.
-	/// </summary>
-	/// <param name="action"></param>
-	/// <returns></returns>
-	async Task BeginThinking(Func<Task> action)
+	async Task BeginThinking()
 	{
 		chatSuggestions?.Clear();
 		isThinking = true;
-		try
-		{
-			await action();
-			chatSuggestions?.Update(messages);
-		}
-		finally
-		{
-			isThinking = false;
-		}
+		await Task.CompletedTask;
 	}
-	#endregion
+
+	async Task EndThinking()
+	{
+		if(messages.Count > 0) chatSuggestions?.Update(messages);
+		isThinking = false;
+		await Task.CompletedTask;
+	}
 
 	async Task NewChat()
 	{
 		ChatMessage system = new(ChatRole.System, SystemPrompt);
-		messages.Add(system);
-		await BeginThinking(async () =>
-		{
-			ChatResponse response = await ai.GetResponseAsync([system]);
-			messages.Add(new ChatMessage(ChatRole.Assistant, response.Message.Text));
-		});
+		await BeginThinking();
+		ChatResponse response = await ai.GetResponseAsync([system]);
+		await EndThinking();
 	}
+
 	async Task RestartChat()
 	{
 		messages = [];
@@ -178,11 +150,10 @@ public partial class Chat
 	{
 		messages.Add(imageMessage);
 
-		await BeginThinking(async () =>
-		{
-			ChatResponse response = await ai.GetResponseAsync(imageMessage);
-			messages.Add(new ChatMessage(ChatRole.Assistant, response.Message.Text));
-		});
+		await BeginThinking();
+		ChatResponse response = await ai.GetResponseAsync(imageMessage);
+		messages.Add(new ChatMessage(ChatRole.Assistant, response.Message.Text));
+		await EndThinking();
 	}
 
 	[Description("Searches for information using a phrase or keyword")]
