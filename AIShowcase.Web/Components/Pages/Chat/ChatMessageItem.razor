@@ -1,6 +1,10 @@
-﻿@using Markdig
+﻿@using AIShowcase.WebApp.Components.ChatOutputServices
+@using Markdig
 @using Telerik.Blazor.Components.Common.Icon
 @inject ILogger<ChatMessageItem> Logger
+@inject PrismInterop Prism
+<div @ref="rootElement">
+
 @if (Message.Role == ChatRole.Assistant)
 {
     @foreach (var content in Message.Contents)
@@ -48,15 +52,26 @@ else
         }
     }
 }
+</div>
 
 @code {
-        [Parameter, EditorRequired]
-        public required ChatMessage Message { get; set; }
+    ElementReference? rootElement;
+
+    [Parameter, EditorRequired]
+    public required ChatMessage Message { get; set; }
 
     private MarkupString? RenderMessage(string? text) {
-            if(text is null) return null;
-            string rawString = text;
-            return (MarkupString)Markdown.ToHtml(text);
-        }
+        if(text is null) return null;
+        string rawString = text;
+        return (MarkupString)Markdown.ToHtml(text);
+    }
 
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && rootElement is not null)
+        {
+            await Prism.HighlightAllUnder(rootElement.Value);
+        }
+        await base.OnAfterRenderAsync(firstRender);
+    }
 }

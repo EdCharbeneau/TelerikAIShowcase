@@ -1,7 +1,6 @@
 ﻿@using AIShowcase.WebApp.Components.ChatOutputServices
 @using Markdig
 @using Microsoft.Extensions.AI
-@inject PrismInterop prism
 
 @if (Messages.Count() == 0)
 {
@@ -45,26 +44,26 @@
     [Parameter]
     public bool IsThinking { get; set; }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (shouldFormatSyntax && messageListElement is not null)
-        {
-            await prism.HighlightAllUnder(messageListElement.Value);
-        }
-        shouldFormatSyntax = false;
-    }
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (shouldFormatSyntax && messageListElement is not null)
+    //     {S
+    //         await prism.HighlightAllUnder(messageListElement.Value);
+    //     }
+    //     shouldFormatSyntax = false;
+    // }
 
-    public override async Task SetParametersAsync(ParameterView parameters)
-    {
-        bool parameterExists = parameters.TryGetValue<IEnumerable<ChatMessage>>(nameof(Messages), out var value);
+    // public override async Task SetParametersAsync(ParameterView parameters)
+    // {
+    //     bool parameterExists = parameters.TryGetValue<IEnumerable<ChatMessage>>(nameof(Messages), out var value);
 
-        if (parameterExists && !messageCache.SequenceEqual(value!))
-        {
-            shouldFormatSyntax = true;
-            messageCache = new List<ChatMessage>(value!);
-        }
-        await base.SetParametersAsync(parameters);
-    }
+    //     if (parameterExists && !messageCache.SequenceEqual(value!))
+    //     {
+    //         shouldFormatSyntax = true;
+    //         messageCache = new List<ChatMessage>(value!);
+    //     }
+    //     await base.SetParametersAsync(parameters);
+    // }
 
-    private MarkupString? RenderMessage(string? text) => text is not null ? (MarkupString)Markdown.ToHtml(text) : null;
+    // private MarkupString? RenderMessage(string? text) => text is not null ? (MarkupString)Markdown.ToHtml(text) : null;
 }
