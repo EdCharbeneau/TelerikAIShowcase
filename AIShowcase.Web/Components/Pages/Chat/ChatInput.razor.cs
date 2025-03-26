@@ -62,8 +62,8 @@ public partial class ChatInput
 	}
 	public async Task PlaySpeech(string text)
 	{
-		if (settings.SelectedVoiceId is null || audioPlayer is null) return;
-		string speech = await tts.GetSpeechAsBase64String(text, settings.SelectedVoiceId);
+		if (settings.SelectedVoice is null || audioPlayer is null) return;
+		string speech = await tts.GetSpeechAsBase64String(text, settings.SelectedVoice.Id);
 		await audioPlayer.Load(speech);
 		isAudioPlaying = true;
 		await audioPlayer.Play();

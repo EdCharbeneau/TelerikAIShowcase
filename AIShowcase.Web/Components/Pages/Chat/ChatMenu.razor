@@ -5,7 +5,7 @@
                              VerticalAlign="@FloatingActionButtonVerticalAlign.Top"
                              PositionMode="@FloatingActionButtonPositionMode.Absolute"
                              OnClick="@ToggleMenu"
-                             Icon="@(popupVisible ? SvgIcon.X : SvgIcon.Menu)"
+                             Icon="@(popupVisible? SvgIcon.X: SvgIcon.Menu)"
                              Id="menu-action-button"
                              VerticalOffset="4em"
                              HorizontalOffset="5em" />
@@ -23,9 +23,16 @@
               VerticalOffset="8">
     <TelerikCard>
         <CardBody>
-<VoiceSelection/>
-            <b>Pages</b>
-            <div class="k-d-flex k-flex-col k-p-4 k-gap-4">
+            @if (voicesVisible)
+            {
+                <VoiceSelection />
+            }
+            else
+            {
+                <TelerikButton Class="k-w-full" OnClick="OnShowVoiceSelection" FillMode="@ThemeConstants.Button.FillMode.Clear">Voice: @settings.SelectedVoice?.DisplayName</TelerikButton>
+            }
+            <div class="k-d-flex k-flex-col k-gap-4">
+                <b>Features</b>
                 @foreach (var item in menu.Items)
                 {
                     <a class="telerik-blazor k-button k-button-outline k-rounded-md k-button-md k-button-outline-primary" href="@item.Url">@item.Text</a>
@@ -39,6 +46,7 @@
     private MainMenu menu = new();
     private TelerikPopup? PopupRef { get; set; }
     private bool popupVisible = false;
+    private bool voicesVisible = false;
     private void ToggleMenu()
     {
         if (popupVisible)
@@ -50,5 +58,10 @@
             PopupRef?.Show();
         }
         popupVisible = !popupVisible;
+    }
+
+    private void OnShowVoiceSelection()
+    {
+        voicesVisible = true;
     }
 }

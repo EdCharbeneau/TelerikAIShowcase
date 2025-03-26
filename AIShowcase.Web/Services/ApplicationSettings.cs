@@ -1,11 +1,11 @@
 ﻿using AIShowcase.WebApp.Services.TextToSpeechServices;
-using System.Diagnostics.CodeAnalysis;
 
 namespace AIShowcase.WebApp.Services;
 
 public class ApplicationSettings(ITextToSpeechService tts)
 {
-    public string? SelectedVoiceId { get; set; }
+
+    public Voice? SelectedVoice { get; set; }
 
     public event Action? OnChange;
 
@@ -16,26 +16,26 @@ public class ApplicationSettings(ITextToSpeechService tts)
 
     private async Task InitializeVoices()
     {
-        if (SelectedVoiceId is null)
+        if (SelectedVoice is null)
         {
             var voices = await tts.GetVoices();
-            SelectedVoiceId = voices.FirstOrDefault(v => v.DisplayName.Contains("Nova"))?.Id;
-            if (SelectedVoiceId is null)
+            SelectedVoice = voices.FirstOrDefault(v => v.DisplayName.Contains("Nova"));
+            if (SelectedVoice is null)
             {
                 if (voices.Length > 0)
                 {
                     var random = new Random();
-                    SelectedVoiceId = voices[random.Next(voices.Length)].Id;
+                    SelectedVoice = voices[random.Next(voices.Length)];
                 }
             }
         }
         NotifyStateChanged();
     }
 
-    public void SetSelectedVoiceId(string voiceId)
+    public void SetSelectedVoice(Voice voice)
     {
-        SelectedVoiceId = voiceId;
-        NotifyStateChanged();
+		SelectedVoice = voice;
+		NotifyStateChanged();
     }
 
     private void NotifyStateChanged() => OnChange?.Invoke();

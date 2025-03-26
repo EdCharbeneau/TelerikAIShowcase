@@ -2,21 +2,30 @@
 @using AIShowcase.WebApp.Services
 @inject ITextToSpeechService tts
 @inject ApplicationSettings settings
-<b>Voices</b>
 
-<div class="k-d-grid k-grid-cols-2 k-gap-2">
-    @if (Voices.Length > 0)
-    {
-        foreach (var voice in Voices)
+
+@if (visible)
+{
+    <div class="k-d-grid k-grid-cols-2 k-gap-2">
+        <TelerikButton Class="k-col-span-2" FillMode="@ThemeConstants.Button.FillMode.Clear" OnClick="(() => visible = false)" Icon="SvgIcon.ArrowLeft">Done</TelerikButton>
+        @if (Voices.Length > 0)
         {
-            <TelerikButton OnClick="(()=> OnClick(voice))"
-                           Class="@cssClass(voice)">@voice.DisplayName</TelerikButton>
+            foreach (var voice in Voices)
+            {
+                <TelerikButton OnClick="(() => OnClick(voice))"
+                               Class="@cssClass(voice)">@voice.DisplayName</TelerikButton>
+            }
         }
-    }
-</div>
+    </div>
+}
+else
+{
+    <TelerikButton Class="k-w-full" FillMode="@ThemeConstants.Button.FillMode.Clear" OnClick="@(() => visible = true)">Voice: @settings.SelectedVoice?.DisplayName </TelerikButton>
+}
 
 @code {
-    private string cssClass(Voice voice) => voice.Id == settings.SelectedVoiceId ? "k-button-solid-primary k-button-solid" : "";
+    private bool visible;
+    private string cssClass(Voice voice) => voice.Id == settings.SelectedVoice?.Id ? "k-button-solid-primary k-button-solid" : "";
     private Voice[] Voices { get; set; } = [];
 
     protected override async Task OnInitializedAsync()
@@ -28,11 +37,12 @@
 
     private async Task OnClick(Voice voice)
     {
-        settings.SetSelectedVoiceId(voice.Id);
+        settings.SetSelectedVoice(voice);
         await Task.CompletedTask;
     }
 
-    private void SettingsChanged() {
+    private void SettingsChanged()
+    {
         InvokeAsync(() => StateHasChanged());
     }
 

@@ -59,7 +59,7 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 			var selected = voices.FirstOrDefault(v => v.DisplayName.Contains(voice, StringComparison.OrdinalIgnoreCase));
 			if (selected is null)
 				return "Voice not found";
-			settings.SetSelectedVoiceId(selected.Id);
+			settings.SetSelectedVoice(selected);
 			return "Voice set";
 		}
 	}
