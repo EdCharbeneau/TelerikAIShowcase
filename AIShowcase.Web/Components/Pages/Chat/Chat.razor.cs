@@ -4,21 +4,13 @@ using System.ComponentModel;
 namespace AIShowcase.WebApp.Components.Pages.Chat;
 public partial class Chat
 {
-	private const string SystemPrompt = @"
+	private string SystemPrompt = @"
         You are an assistant who answers questions about information you retrieve.
-        Do not answer questions about anything else.
+        
         Use only simple markdown to format your responses.
 
-        Use the search tool to find relevant information. When you do this, end your
-        reply with citations in the special XML format:
-
-        <citation filename='string' page_number='number'>exact quote here</citation>
-
-        Always include the citation in your response if there are results.
-
-        The quote must be max 5 words, taken word-for-word from the search result, and is the basis for why the citation is relevant.
-        Don't refer to the presence of citations; just emit these tags right at the end, with no surrounding text.
-        ";
+       When conducting a search using the search tool use HTML cite tags for referenced materials.
+		";
 
 	string? streamingText;
 	List<ChatMessage> messages = new();
@@ -98,6 +90,7 @@ public partial class Chat
 	{
 		// Add the user message to the conversation
 		messages.Add(userMessage);
+		messages.Add(new ChatMessage(ChatRole.System, "Use HTML citations to reference materials."));
 		chatSuggestions?.Clear();
 
 		// Stream and display a new response from the IChatClient

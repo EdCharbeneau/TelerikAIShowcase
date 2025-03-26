@@ -1,0 +1,42 @@
+﻿@page "/view-pdf"
+@inject IJSRuntime js
+<h3>PdfViewer</h3>
+<TelerikPdfViewer Data="pdfData" Height="800px"></TelerikPdfViewer>
+@loading
+@code {
+    TelerikPdfViewer? telerikPdfViewer;
+    private byte[]? pdfData;
+    bool loading;
+
+    [Parameter]
+    public int Page { get; set; } = 1;
+
+    [Parameter]
+    public string PdfUrl { get; set; } = "https://localhost:7118/Data/how-to-choose-a-component-library.pdf";
+
+    [Parameter]
+    public string SearchValue { get; set; } = "Kendo";
+
+    protected override async Task OnInitializedAsync()
+    {
+        loading = true;
+        if (!string.IsNullOrEmpty(PdfUrl))
+        {
+            using (var httpClient = new HttpClient())
+            {
+                pdfData = await httpClient.GetByteArrayAsync(PdfUrl);
+                loading = false;
+            }
+        }
+        await base.OnInitializedAsync();
+    }
+
+    protected override Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            js.InvokeVoidAsync("invokePDFSearch", SearchValue, Page);
+        }
+        return base.OnAfterRenderAsync(firstRender);
+    }
+}
