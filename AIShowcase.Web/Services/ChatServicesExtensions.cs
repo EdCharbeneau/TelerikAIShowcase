@@ -31,7 +31,7 @@ namespace AIShowcase.WebApp.Services
 			};
 
 			var innerClient = new OpenAIClient(credential, openAIOptions);
-			builder.Services.AddSingleton(innerClient);
+			//builder.Services.AddSingleton(innerClient);
 
 			var client = innerClient.AsChatClient("gpt-4o-mini");
 			builder.Services.AddChatClient(client).UseFunctionInvocation().UseLogging();

@@ -8,23 +8,28 @@
     private byte[]? pdfData;
     bool loading;
 
+    [SupplyParameterFromQuery]
     [Parameter]
-    public int Page { get; set; } = 1;
+    public int Page { get; set; } 
 
+    [SupplyParameterFromQuery]
     [Parameter]
-    public string PdfUrl { get; set; } = "https://localhost:7118/Data/how-to-choose-a-component-library.pdf";
+    public string File { get; set; } 
 
+    [SupplyParameterFromQuery]
     [Parameter]
-    public string SearchValue { get; set; } = "Kendo";
+    public string Term { get; set; } 
 
     protected override async Task OnInitializedAsync()
     {
         loading = true;
-        if (!string.IsNullOrEmpty(PdfUrl))
+        if (!string.IsNullOrEmpty(File))
         {
             using (var httpClient = new HttpClient())
             {
-                pdfData = await httpClient.GetByteArrayAsync(PdfUrl);
+                var basePath = "https://localhost:7118/"; // TODO: Make dynamic
+                var fullPath = $"{basePath}{File}";
+                pdfData = await httpClient.GetByteArrayAsync(fullPath);
                 loading = false;
             }
         }
@@ -35,7 +40,7 @@
     {
         if (firstRender)
         {
-            js.InvokeVoidAsync("invokePDFSearch", SearchValue, Page);
+            js.InvokeVoidAsync("invokePDFSearch", Term, Page);
         }
         return base.OnAfterRenderAsync(firstRender);
     }

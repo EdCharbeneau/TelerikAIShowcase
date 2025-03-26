@@ -90,7 +90,7 @@ public partial class Chat
 	{
 		// Add the user message to the conversation
 		messages.Add(userMessage);
-		messages.Add(new ChatMessage(ChatRole.System, "Use HTML citations to reference materials."));
+		messages.Add(new ChatMessage(ChatRole.System, "Use HTML citations to reference materials. Format pdf file citation links with view-pdf?file=Data/{file_name}&page={page_number}&term={exact quote}"));
 		chatSuggestions?.Clear();
 
 		// Stream and display a new response from the IChatClient

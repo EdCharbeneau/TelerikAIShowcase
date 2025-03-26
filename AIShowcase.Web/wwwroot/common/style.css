@@ -344,3 +344,13 @@ h6 {
 .k-dropzone-inner .k-icon, .k-dropzone-inner .k-dropzone-icon {
     color: inherit;
 }
+
+a {
+    color: var(--kendo-color-primary);
+}
+    a:hover {
+        color: var(--kendo-color-primary-hover);
+    }
+    a:visited {
+        color: var(--kendo-color-primary-emphasis);
+    }
