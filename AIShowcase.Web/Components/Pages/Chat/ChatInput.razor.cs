@@ -26,7 +26,7 @@ public partial class ChatInput
 
 	private Task OnRecordClick(MouseEventArgs _) => OnMicrophoneStart.InvokeAsync();
 
-	private string? messageText = "Can you search Choosing a component library";
+	private string? messageText = "";
 
 	private bool canSubmit => !string.IsNullOrWhiteSpace(messageText);
 

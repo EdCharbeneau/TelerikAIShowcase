@@ -3,11 +3,10 @@
 @inject ITextToSpeechService tts
 @inject ApplicationSettings settings
 
-
 @if (visible)
 {
     <div class="k-d-grid k-grid-cols-2 k-gap-2">
-        <TelerikButton Class="k-col-span-2" FillMode="@ThemeConstants.Button.FillMode.Clear" OnClick="(() => visible = false)" Icon="SvgIcon.ArrowLeft">Done</TelerikButton>
+        <TelerikButton Class="k-col-span-2" FillMode="@ThemeConstants.Button.FillMode.Clear" OnClick="ToggleVoiceSelection" Icon="SvgIcon.ArrowLeft">Done</TelerikButton>
         @if (Voices.Length > 0)
         {
             foreach (var voice in Voices)
@@ -20,7 +19,7 @@
 }
 else
 {
-    <TelerikButton Class="k-w-full" FillMode="@ThemeConstants.Button.FillMode.Clear" OnClick="@(() => visible = true)">Voice: @settings.SelectedVoice?.DisplayName </TelerikButton>
+    <TelerikButton Class="k-w-full" FillMode="@ThemeConstants.Button.FillMode.Clear" OnClick="ToggleVoiceSelection">Voice: @settings.SelectedVoice?.DisplayName </TelerikButton>
 }
 
 @code {
@@ -33,6 +32,11 @@ else
         settings.OnChange += SettingsChanged;
         var voices = await tts.GetVoices();
         Voices = voices.ToArray();
+    }
+
+    public void ToggleVoiceSelection()
+    {
+        visible = !visible;
     }
 
     private async Task OnClick(Voice voice)

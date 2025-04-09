@@ -23,14 +23,7 @@
               VerticalOffset="8">
     <TelerikCard>
         <CardBody>
-            @if (voicesVisible)
-            {
-                <VoiceSelection />
-            }
-            else
-            {
-                <TelerikButton Class="k-w-full" OnClick="OnShowVoiceSelection" FillMode="@ThemeConstants.Button.FillMode.Clear">Voice: @settings.SelectedVoice?.DisplayName</TelerikButton>
-            }
+            <VoiceSelection />
             <div class="k-d-flex k-flex-col k-gap-4">
                 <b>Features</b>
                 @foreach (var item in menu.Items)
