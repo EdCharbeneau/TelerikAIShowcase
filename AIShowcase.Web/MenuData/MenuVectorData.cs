@@ -26,7 +26,7 @@ public class MenuVectorData(IEmbeddingGenerator<string, Embedding<float>> genera
 	{
 		if (vectors is null) throw new InvalidOperationException("Use the CreateVectorDataSource method before searching.");
 		var queryEmbedding = await generator.GenerateEmbeddingVectorAsync(query);
-		var searchOptions = new VectorSearchOptions()
+		var searchOptions = new VectorSearchOptions<MenuItem>()
 		{
 			Top = 1,
 		};

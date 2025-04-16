@@ -49,10 +49,7 @@ Capture enter button✅
         await BeginThinking(async () =>
         {
             ChatResponse response = await ai.GetResponseAsync(system);
-
-            response.Message.AuthorName = "Allen Issac";
-
-            messages.Add(response.Message);
+            messages.AddRange(response.Messages);
         });
     }
 
@@ -71,9 +68,7 @@ Capture enter button✅
         {
             ChatResponse response = await ai.GetResponseAsync(messages);
 
-            response.Message.AuthorName = "Allen Issac";
-
-            messages.Add(response.Message);
+            messages.AddRange(response.Messages);
         });
     }
 

@@ -52,9 +52,9 @@ public partial class Chat
    <example>What can I help with?</example>
    <example>I'm here to help.</example>
    "));
-		if (ChatInputRef is not null && helloMessage.Message.Text is string)
+		if (ChatInputRef is not null && helloMessage.Text is not null)
 		{
-			await ChatInputRef.PlaySpeech(helloMessage.Message.Text);
+			await ChatInputRef.PlaySpeech(helloMessage.Text);
 		}
 	}
 	async Task RespondWithSpeech(ChatMessage userMessage)
@@ -77,12 +77,12 @@ public partial class Chat
 		// add the original user message and the response to the chat
 		messages.Add(userMessage);
 		// add the response to the chat
-		messages.Add(new(ChatRole.Assistant, response.Message.Text));
+		messages.Add(new(ChatRole.Assistant, response.Text));
 		// Speak the response to the user
 
-		if (ChatInputRef is not null && response.Message.Text is string)
+		if (ChatInputRef is not null && response.Text is string)
 		{
-			await ChatInputRef.PlaySpeech(response.Message.Text);
+			await ChatInputRef.PlaySpeech(response.Text);
 		}
 	}
 
@@ -145,7 +145,7 @@ public partial class Chat
 
 		await BeginThinking();
 		ChatResponse response = await ai.GetResponseAsync(imageMessage);
-		messages.Add(new ChatMessage(ChatRole.Assistant, response.Message.Text));
+		messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
 		await EndThinking();
 	}
 
