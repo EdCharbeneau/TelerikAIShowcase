@@ -24,16 +24,13 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 				await menuVectorData.CreateVectorDataSource(menu.Items);
 				initialized = true;
 			}
-			var search = await menuVectorData.Search(route);
-			var first = await search.Results.FirstOrDefaultAsync();
-			//Console.WriteLine($"Vector result:{first?.Score}");
-			if (first is null || first.Score < .5)
+			var searchResult = await menuVectorData.Search(route);
+			if (searchResult is null || searchResult.Score < .5)
 			{
 				return "Cannot navigate";
 			}
-			//Console.WriteLine($"Vector result:{first.Record.Url}");
-			navigationManager.NavigateTo(first.Record.Url);
-			return first.Record.Url;
+			navigationManager.NavigateTo(searchResult.Record.Url);
+			return searchResult.Record.Url;
 		}
 
 		[Description("A list of application features in this application.")]

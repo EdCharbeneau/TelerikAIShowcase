@@ -5,20 +5,19 @@ namespace AIShowcase.WebApp.MenuData;
 
 public class MenuItem
 {
-
-	[VectorStoreRecordKey]
+	[VectorStoreKey]
 	public required string Text { get; set; }
 
 	public required ISvgIcon Icon { get; set; }
 
-	[VectorStoreRecordData]
+	[VectorStoreData]
 	public required string Url { get; set; }
 
 	public bool Separator { get; set; }
 
-	[VectorStoreRecordData]
+	[VectorStoreData]
 	public required string Description { get; set; }
 
-	[VectorStoreRecordVector(1536, DistanceFunction.CosineSimilarity)] // 1536 is the default vector size for the OpenAI text-embedding-3-small model
+	[VectorStoreVector(1536, DistanceFunction = DistanceFunction.CosineSimilarity)]
 	public ReadOnlyMemory<float> Vector { get; set; }
 }

@@ -11,6 +11,7 @@
 	  <PackageReference Include="Microsoft.Extensions.AI.OpenAI" Version="9.4.0-preview.1.25207.5" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="9.0.4" />
 	  <PackageReference Include="Microsoft.Extensions.AI" Version="9.4.0-preview.1.25207.5" />
+	  <!-- Remove VectorData usage: custom JsonVectorStore implements minimal needed interfaces, drop dependency to avoid TypeLoadException -->
 	  <PackageReference Include="Microsoft.SemanticKernel.Core" Version="1.46.0" />
 	  <PackageReference Include="PdfPig" Version="0.1.11-alpha-20250413-58085" />
 	  <PackageReference Include="System.Linq.Async" Version="6.0.1" />

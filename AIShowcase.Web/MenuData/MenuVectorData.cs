@@ -6,34 +6,28 @@ namespace AIShowcase.WebApp.MenuData;
 
 public class MenuVectorData(IEmbeddingGenerator<string, Embedding<float>> generator)
 {
-	private IVectorStoreRecordCollection<string, MenuItem>? vectors;
+	private VectorStoreCollection<string, MenuItem>? vectors;
 	public InMemoryVectorStore VectorStore { get; private set; } = new InMemoryVectorStore();
 
 	public async Task CreateVectorDataSource(IList<MenuItem> data)
 	{
 		vectors = VectorStore.GetCollection<string, MenuItem>("menu");
 
-		await vectors.CreateCollectionIfNotExistsAsync();
+		await vectors.EnsureCollectionExistsAsync();
 
 		foreach (var item in data)
 		{
-			item.Vector = await generator.GenerateEmbeddingVectorAsync(item.Text);
+			item.Vector = await generator.GenerateVectorAsync(item.Text);
 			await vectors.UpsertAsync(item);
 		}
 	}
 
-	public async Task<VectorSearchResults<MenuItem>> Search(string query)
+	public async Task<VectorSearchResult<MenuItem>?> Search(string query)
 	{
 		if (vectors is null) throw new InvalidOperationException("Use the CreateVectorDataSource method before searching.");
-		var queryEmbedding = await generator.GenerateEmbeddingVectorAsync(query);
-		var searchOptions = new VectorSearchOptions<MenuItem>()
-		{
-			Top = 1,
-		};
-
-		VectorSearchResults<MenuItem> results = await vectors.VectorizedSearchAsync(queryEmbedding, searchOptions);
-
-		return results;
-
+		ReadOnlyMemory<float> queryEmbedding = await generator.GenerateVectorAsync(query);
+		var results = vectors.SearchAsync(queryEmbedding, top: 1);
+		var item = await results.FirstOrDefaultAsync();
+		return item;
 	}
 }

@@ -2,13 +2,13 @@
 @using AIShowcase.WebApp.Services.TextToSpeechServices
 @inject ITextToSpeechService tts
 @inject ApplicationSettings settings
-        
+
 <div class="k-d-grid k-w-3/5">
-            <div class="grid-overlay">
-                <TelerikDropZone DragOverClass="dropzone-over" 
-                Id="file-drop" 
-                Height="auto">
-                                <Template>
+    <div class="grid-overlay">
+        <TelerikDropZone DragOverClass="dropzone-over"
+                         Id="file-drop"
+                         Height="auto">
+            <Template>
                 <TelerikCard>
                     <CardBody>
                         <span @onkeypress="SubmitOnEnter">
@@ -26,16 +26,24 @@
                                                    OnClick="TogglePopup" />
                                 </TextAreaPrefixTemplate>
                                 <TextAreaSuffixTemplate>
-                                    @if (canSubmit) {
+                                    @if (canSubmit)
+                                    {
                                         <TelerikButton Icon="SvgIcon.ArrowUp" OnClick="SendMessageAsync" Enabled="canSubmit" />
                                     }
                                     else
                                     {
-                                        <TelerikSpeechToTextButton OnClick="OnRecordClick" OnResult="OnRecognizedText" Enabled="!isAudioPlaying" Lang="en-us"/>
+                                        <TelerikButton Icon="SvgIcon.MicrophoneOutline"
+                                                       Class="@(!isReadyForSpeech ? "" : "k-hidden")"
+                                        OnClick="OnRecordClick" />
+                                        <TelerikSpeechToTextButton @ref="telerikSpeechToTextButton" 
+                                            Class="@(isReadyForSpeech ? "" : "k-hidden")"
+                                            OnResult="OnRecognizedText" 
+                                            Enabled="!isAudioPlaying" 
+                                            Lang="en-us" />
+                                        if (isAudioPlaying)
                                         {
-                                            <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking" />
+                                            <TelerikButton Icon="SvgIcon.VolumeMute" OnClick="OnStopAudio" Title="Stop Talking" />
                                         }
-                                        <SpeechToTextButton @ref="Microphone" OnRecordClick="OnRecordClick" OnRecongizeded="OnRecognizedText" Disabled="isAudioPlaying"/>
                                     }
                                 </TextAreaSuffixTemplate>
                             </TelerikTextArea>
@@ -44,42 +52,42 @@
                 </TelerikCard>
             </Template>
         </TelerikDropZone>
-            </div>
-            <canvas width="0" height="0" class="grid-overlay" id="ttsEffect"></canvas>
-        </div>
+    </div>
+    <canvas width="0" height="0" class="grid-overlay" id="ttsEffect"></canvas>
+</div>
 
 
 
-    <AudioPlayer @ref="audioPlayer" OnEnded="OnAudioEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>
+<AudioPlayer @ref="audioPlayer" OnEnded="OnAudioEnded" ShowControls="false" TargetVisualizerId="ttsEffect"></AudioPlayer>
 
-    <TelerikPopup @ref="@PopupRef"
-                  Width="100"
-                  AnchorSelector="#floating-action-button"
-                  AnimationType="@AnimationType.SlideUp"
-                  AnimationDuration="100"
-                  HorizontalAlign="@PopupHorizontalAlign.Left"
-                  VerticalAlign="@PopupVerticalAlign.Bottom"
-                  AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
-                  AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
-                  VerticalOffset="4">
-        <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
-            <TelerikButton Icon="@SvgIcon.PlusCircle"
-                           OnClick="OnNewChatClicked"
-                           Rounded="@ThemeConstants.Button.Rounded.Medium"
-                           FillMode="@ThemeConstants.Button.FillMode.Flat"
-                           Size="@ThemeConstants.Button.Size.Large"
-                           Title="New">New</TelerikButton>
-            <TelerikButton Icon="@SvgIcon.Paperclip"
-                           OnClick="UploadRef.OpenSelectFilesDialog"
-                           Rounded="@ThemeConstants.Button.Rounded.Medium"
-                           FillMode="@ThemeConstants.Button.FillMode.Flat"
-                           Size="@ThemeConstants.Button.Size.Large"
-                           Title="File Upload">Upload</TelerikButton>
-        </div>
-    </TelerikPopup>
+<TelerikPopup @ref="@PopupRef"
+              Width="100"
+              AnchorSelector="#floating-action-button"
+              AnimationType="@AnimationType.SlideUp"
+              AnimationDuration="100"
+              HorizontalAlign="@PopupHorizontalAlign.Left"
+              VerticalAlign="@PopupVerticalAlign.Bottom"
+              AnchorHorizontalAlign="@PopupAnchorHorizontalAlign.Left"
+              AnchorVerticalAlign="@PopupAnchorVerticalAlign.Top"
+              VerticalOffset="4">
+    <div class="k-d-flex k-flex-col k-gap-1.5 k-p-1.5">
+        <TelerikButton Icon="@SvgIcon.PlusCircle"
+                       OnClick="OnNewChatClicked"
+                       Rounded="@ThemeConstants.Button.Rounded.Medium"
+                       FillMode="@ThemeConstants.Button.FillMode.Flat"
+                       Size="@ThemeConstants.Button.Size.Large"
+                       Title="New">New</TelerikButton>
+        <TelerikButton Icon="@SvgIcon.Paperclip"
+                       OnClick="UploadRef.OpenSelectFilesDialog"
+                       Rounded="@ThemeConstants.Button.Rounded.Medium"
+                       FillMode="@ThemeConstants.Button.FillMode.Flat"
+                       Size="@ThemeConstants.Button.Size.Large"
+                       Title="File Upload">Upload</TelerikButton>
+    </div>
+</TelerikPopup>
 
-    <div style="display:none">
+<div style="display:none">
     <TelerikFileSelect @ref="UploadRef" OnSelect="@OnFileSelect" DropZoneId="file-drop" Class="file-upload-button">
     </TelerikFileSelect>
-    </div>
+</div>
 

@@ -31,7 +31,6 @@ public partial class Chat
 						AIFunctionFactory.Create(navigationTool.NavigateTo),
 						AIFunctionFactory.Create(voiceSettingsTool.GetVoices),
 						AIFunctionFactory.Create(voiceSettingsTool.SetVoice),
-						AIFunctionFactory.Create(SearchAsync)
 					]
 		};
 		await NewChat();
@@ -147,17 +146,5 @@ public partial class Chat
 		ChatResponse response = await ai.GetResponseAsync(imageMessage);
 		messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
 		await EndThinking();
-	}
-
-	[Description("Searches for information using a phrase or keyword")]
-	private async Task<IEnumerable<string>> SearchAsync(
-[Description("The phrase to search for.")] string searchPhrase,
-[Description("Whenever possible, specify the filename to search that file only. If not provided, the search includes all files.")] string? filenameFilter = null)
-	{
-		await InvokeAsync(StateHasChanged);
-		var results = await Search.SearchAsync(searchPhrase, filenameFilter, maxResults: 5);
-		var final = results.Select(result =>
-			$"<result filename=\"{result.FileName}\" page_number=\"{result.PageNumber}\">{result.Text}</result>");
-		return final;
 	}
 }

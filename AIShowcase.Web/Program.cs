@@ -1,4 +1,3 @@
-using ai_demos.Services.Ingestion;
 using AIShowcase.WebApp.Components;
 using AIShowcase.WebApp.Components.ChatOutputServices;
 using AIShowcase.WebApp.MenuData;
@@ -15,7 +14,7 @@ builder.Services.AddRazorComponents()
 
 builder.Services.AddSpeechRecognitionServices();
 
-builder.AddDocumentSearchServices();
+//builder.AddDocumentSearchServices();
 
 builder.AddChatServices();
 
@@ -55,13 +54,5 @@ app.UseAntiforgery();
 
 app.MapRazorComponents<App>()
 	.AddInteractiveServerRenderMode();
-
-// By default, we ingest PDF files from the /wwwroot/Data directory. You can ingest from
-// other sources by implementing IIngestionSource.
-// Important: ensure that any content you ingest is trusted, as it may be reflected back
-// to users or could be a source of prompt injection risk.
-await DataIngestor.IngestDataAsync(
-	app.Services,
-	new PDFDirectorySource(Path.Combine(builder.Environment.WebRootPath, "Data")));
 
 app.Run();

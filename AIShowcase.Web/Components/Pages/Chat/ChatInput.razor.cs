@@ -24,7 +24,10 @@ public partial class ChatInput
 	[Parameter]
 	public EventCallback OnRestartChatClicked { get; set; }
 
-	private Task OnRecordClick(MouseEventArgs _) => OnMicrophoneStart.InvokeAsync();
+	private async Task OnRecordClick(MouseEventArgs _)
+	{
+		await OnMicrophoneStart.InvokeAsync();
+	}
 
 	private string? messageText = "";
 
@@ -36,11 +39,12 @@ public partial class ChatInput
 		messageText = null;
 		await OnSend.InvokeAsync(message);
 	}
-	async Task OnRecognizedText(string value)
+	async Task OnRecognizedText(SpeechToTextButtonResultEventArgs args)
 	{
-		await Microphone!.StopRecording();
+		isReadyForSpeech = false;
 		messageText = null;
-		await OnSendSpeech.InvokeAsync(new ChatMessage(ChatRole.User, value));
+		var text = args.Alternatives[0].Transcript;
+		await OnSendSpeech.InvokeAsync(new ChatMessage(ChatRole.User, text));
 	}
 
 	async Task SubmitOnEnter(KeyboardEventArgs args)
@@ -52,8 +56,9 @@ public partial class ChatInput
 	}
 
 	#region Voice
+	public bool isReadyForSpeech = false;
 	public bool isAudioPlaying;
-	SpeechToTextButton? Microphone;
+	TelerikSpeechToTextButton? telerikSpeechToTextButton;
 	public AudioPlayer? audioPlayer {  get; private set; }
 	async Task OnStopAudio()
 	{
@@ -71,8 +76,9 @@ public partial class ChatInput
 	async Task OnAudioEnded()
 	{
 		isAudioPlaying = false;
-		if (Microphone is null) return;
-		await Microphone.StartRecording();
+		if (telerikSpeechToTextButton is null) return;
+		isReadyForSpeech = true;
+		await telerikSpeechToTextButton.StartAsync();
 	}
 
 	#endregion
