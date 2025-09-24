@@ -31,7 +31,7 @@
                                     }
                                     else
                                     {
-                                        if (isAudioPlaying)
+                                        <TelerikSpeechToTextButton OnClick="OnRecordClick" OnResult="OnRecognizedText" Enabled="!isAudioPlaying" Lang="en-us"/>
                                         {
                                             <TelerikButton Icon="SvgIcon.Stop" OnClick="OnStopAudio" Title="Stop Talking" />
                                         }
