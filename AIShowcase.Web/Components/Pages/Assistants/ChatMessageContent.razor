@@ -1,0 +1,136 @@
+@using Microsoft.Extensions.AI
+@using Microsoft.AspNetCore.Components
+
+@if (Message is not null)
+{
+    if (Message.Role == ChatRole.User)
+    {
+        @if (UserAvatarTemplate is not null)
+        {
+            @UserAvatarTemplate(Message.AuthorName)
+        }
+
+        @foreach (var content in Message.Contents)
+        {
+            switch (content)
+            {
+                case TextContent tc:
+                    @if (UserTextContentTemplate is not null)
+                    {
+                        @UserTextContentTemplate(tc.Text)
+                    }
+                    break;
+                case DataContent data:
+                    @if (UserDataContentTemplate is not null)
+                    {
+                        @UserDataContentTemplate(data)
+                    }
+                    break;
+            }
+        }
+    }
+
+    if (Message.Role == ChatRole.Assistant)
+    {
+        if (AssistantAvatarTemplate is not null)
+        {
+            @AssistantAvatarTemplate(Message.AuthorName)
+        }
+        @foreach (var content in Message.Contents)
+        {
+            switch (content)
+            {
+                case TextContent tc:
+                    if (AssistantTextContentTemplate is not null)
+                    {
+                        @AssistantTextContentTemplate(tc.Text)
+                    }
+                    break;
+                case FunctionCallContent fcc:
+                    if (FunctionCallTemplate is not null)
+                    {
+                        FunctionResultContent[] functionResults = Message.Contents.OfType<FunctionResultContent>().Where(r => r.CallId == fcc.CallId).ToArray();
+                        if (functionResults.Length == 0) { };
+                        @FunctionCallTemplate((Content: fcc, Result: functionResults))
+                    }
+                    break;
+                case UsageContent usageContent:
+                    if (UsageContentTemplate is not null)
+                    {
+                        @UsageContentTemplate(usageContent)
+                    }
+                    break;
+                case UriContent uriContent:
+                    if (UriContentTemplate is not null)
+                    {
+                        @UriContentTemplate(uriContent)
+                    }
+                    break;
+                case DataContent data:
+                    if (AssistantDataContentTemplate is not null)
+                    {
+                        @AssistantDataContentTemplate(data)
+                    }
+                    break;
+                case ErrorContent errorContent:
+                    if (ErrorContentTemplate is not null)
+                    {
+                        @ErrorContentTemplate(errorContent)
+                    }
+                    break;
+                case TextReasoningContent trc:
+                    if (TextReasoningContentTemplate is not null)
+                    {
+                        @TextReasoningContentTemplate(trc)
+                    }
+                    break;
+            }
+        }
+    }
+}
+
+@code {
+    [Parameter]
+    public ChatMessage? Message { get; set; }
+
+    #region User Templates
+
+    [Parameter]
+    public RenderFragment<string?> UserAvatarTemplate { get; set; } = default!; // set by parent
+
+    [Parameter]
+    public RenderFragment<string?> UserTextContentTemplate { get; set; } = default!; // set by parent
+
+    [Parameter]
+    public RenderFragment<DataContent?> UserDataContentTemplate { get; set; } = default!; // set by parent
+
+    #endregion
+
+    #region Assistant Templates
+    [Parameter]
+    public RenderFragment<string?> AssistantAvatarTemplate { get; set; } = default!; // set by parent
+
+    [Parameter]
+    public RenderFragment<string?> AssistantTextContentTemplate { get; set; } = default!; // set by parent
+
+
+    [Parameter]
+    public RenderFragment<UsageContent> UsageContentTemplate { get; set; } = default!; // set by parent
+
+    [Parameter]
+    public RenderFragment<(FunctionCallContent Content, FunctionResultContent[] Result)> FunctionCallTemplate { get; set; } = default!; // set by parent
+
+    [Parameter]
+    public RenderFragment<UriContent> UriContentTemplate { get; set; } = default!; // set by parent
+
+    [Parameter]
+    public RenderFragment<DataContent> AssistantDataContentTemplate { get; set; } = default!; // set by parent
+
+    [Parameter]
+    public RenderFragment<ErrorContent> ErrorContentTemplate { get; set; } = default!; // set by parent
+
+    [Parameter]
+    public RenderFragment<TextReasoningContent> TextReasoningContentTemplate { get; set; } = default!; // set by parent
+
+    #endregion
+}

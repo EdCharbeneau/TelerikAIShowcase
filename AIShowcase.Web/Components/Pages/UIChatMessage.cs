@@ -1,4 +1,4 @@
-﻿namespace AIShowcase.WebApp.Components.Pages.ChatBot;
+﻿namespace AIShowcase.WebApp.Components.Pages;
 public class UIChatMessage
 {
 	public string? Id { get; set; } = Guid.NewGuid().ToString();
