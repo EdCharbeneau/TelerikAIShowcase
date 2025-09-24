@@ -2,6 +2,7 @@
 using AIShowcase.WebApp.Services;
 using AIShowcase.WebApp.Services.TextToSpeechServices;
 using Microsoft.AspNetCore.Components;
+using ProgressSyntha;
 using System.ComponentModel;
 
 namespace AIShowcase.WebApp.Components.Pages.Chat
@@ -61,6 +62,24 @@ namespace AIShowcase.WebApp.Components.Pages.Chat
 				return "Voice not found";
 			settings.SetSelectedVoiceId(selected.Id);
 			return "Voice set";
+		}
+	}
+
+	public class SynthaTool(SynthaClient client)
+	{
+		[Description("Searches documents for answers")]
+		public async Task<string> Ask(string query)
+		{
+			var results = client.Ask(query);
+			string text = "";
+			await foreach (var item in results)
+			{
+				if(item.Item is AnswerContent answer)
+				{
+					text += answer.Text;
+				}
+			}
+			return text;
 		}
 	}
 

@@ -39,7 +39,8 @@ public partial class Chat
 						AIFunctionFactory.Create(navigationTool.NavigateTo),
 						AIFunctionFactory.Create(voiceSettingsTool.GetVoices),
 						AIFunctionFactory.Create(voiceSettingsTool.SetVoice),
-						AIFunctionFactory.Create(SearchAsync)
+						AIFunctionFactory.Create(synthaTool.Ask),
+						//AIFunctionFactory.Create(SearchAsync)
 					]
 		};
 		await NewChat();
@@ -233,7 +234,7 @@ public partial class Chat
 		await BeginThinking(async () =>
 		{
 			ChatResponse response = await ai.GetResponseAsync(system);
-			messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
+			//messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
 		});
 	}
 	async Task OnFileSelect(FileSelectEventArgs args)

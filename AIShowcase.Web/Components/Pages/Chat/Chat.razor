@@ -12,12 +12,13 @@
 @inject ITextToSpeechService tts
 @inject NavigationTool navigationTool
 @inject VoiceSettingsTool voiceSettingsTool
+@inject SynthaTool synthaTool
 @inject ApplicationSettings settings
 
 <SectionContent SectionId="ChatLayout.Sections.ChatOutput">
     <ChatOutput Messages="messages" StreamingText="@streamingText" IsThinking="isThinking" />
-    <ChatSuggestions OnSelected="RespondWithStreamingText" @ref="chatSuggestions" />
-</SectionContent>
+@*     <ChatSuggestions OnSelected="RespondWithStreamingText" @ref="chatSuggestions" />
+ *@</SectionContent>
 
 <SectionContent SectionId="ChatLayout.Sections.ChatInput">
 
