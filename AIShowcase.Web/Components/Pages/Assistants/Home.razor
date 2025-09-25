@@ -16,7 +16,11 @@
                     <Content>
                         <TelerikChat Data="uiChatHistory" 
                             TextField="@nameof(UIChatMessage.Content)" 
+                            AuthorId="user"
                             OnSendMessage="@(async (args) => await HandlePromptRequest(args))">
+                            <ChatSettings>
+                                <AIPromptSpeechToTextButtonSettings Lang="en-US"></AIPromptSpeechToTextButtonSettings>
+                            </ChatSettings>
                     </TelerikChat>
                     </Content>
                 </DockManagerContentPane>

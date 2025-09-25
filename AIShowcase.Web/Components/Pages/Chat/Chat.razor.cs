@@ -130,7 +130,7 @@ public partial class Chat
 		ChatMessage system = new(ChatRole.System, SystemPrompt);
 		messages.Add(system);
 		ChatResponse systemResponse = await ai.GetResponseAsync(messages, chatOptions);
-		ChatMessage userPrompt = new(ChatRole.User, "What features does this app have? Provide an ordered list with a description. Example: - **Feature**: Feature description...");
+		ChatMessage userPrompt = new(ChatRole.User, "What features does this app have? What settings are you able to operate? Provide an ordered list with a description. Example: - **Feature**: Feature description...");
 		ChatResponse response = await ai.GetResponseAsync([..messages, userPrompt], chatOptions);
 		messages.AddMessages(response);
 		await EndThinking();

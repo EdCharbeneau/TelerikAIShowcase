@@ -50,7 +50,8 @@ public partial class Home
 			- Help guide the user by asking questions about missing data without revealing they are filling out a form.
 			- Only ask about one item.
             - If you need to clear a field use the tool {nameof(ClearFormField)} instead of saving the JSON data.
-            - When the all fields are filled, use the tool {nameof(OnSubmitHandler)} to submit the form. If the submission fails, ask the user if they would like assistance fixing the errors. If the submission was successful summarize the task for the user in 1-2 sentences.";
+            - When the all fields are filled ask the user if they would like to submit the form.
+            - Use the tool {nameof(OnSubmitHandler)} to submit the form at the user's request. If the submission fails, ask the user if they would like assistance fixing the errors. If the submission was successful summarize the task for the user in 1-2 sentences.";
         messages = new List<ChatMessage>
         {
             new ChatMessage(ChatRole.System, systemPrompt),
