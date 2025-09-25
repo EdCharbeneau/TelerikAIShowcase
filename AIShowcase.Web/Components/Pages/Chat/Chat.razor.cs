@@ -6,10 +6,9 @@ public partial class Chat
 {
 	private string SystemPrompt = @"
         You are an assistant who answers questions about information you retrieve.
+		Additional capabilities are provided by tools.
         
         Use only simple markdown to format your responses.
-
-       When conducting a search using the search tool use HTML cite tags for referenced materials.
 		";
 
 	string? streamingText;
@@ -50,7 +49,7 @@ public partial class Chat
    <example>What's on your mind?</example>
    <example>What can I help with?</example>
    <example>I'm here to help.</example>
-   "));
+   "), chatOptions);
 		if (ChatInputRef is not null && helloMessage.Text is not null)
 		{
 			await ChatInputRef.PlaySpeech(helloMessage.Text);
@@ -120,16 +119,20 @@ public partial class Chat
 
 	async Task EndThinking()
 	{
-		if(messages.Count > 0) chatSuggestions?.Update(messages);
+		chatSuggestions?.Update(messages);
 		isThinking = false;
 		await Task.CompletedTask;
 	}
 
 	async Task NewChat()
 	{
-		ChatMessage system = new(ChatRole.System, SystemPrompt);
 		await BeginThinking();
-		ChatResponse response = await ai.GetResponseAsync([system]);
+		ChatMessage system = new(ChatRole.System, SystemPrompt);
+		messages.Add(system);
+		ChatResponse systemResponse = await ai.GetResponseAsync(messages, chatOptions);
+		ChatMessage userPrompt = new(ChatRole.User, "What features does this app have? Provide an ordered list with a description. Example: - **Feature**: Feature description...");
+		ChatResponse response = await ai.GetResponseAsync([..messages, userPrompt], chatOptions);
+		messages.AddMessages(response);
 		await EndThinking();
 	}
 
@@ -143,7 +146,7 @@ public partial class Chat
 		messages.Add(imageMessage);
 
 		await BeginThinking();
-		ChatResponse response = await ai.GetResponseAsync(imageMessage);
+		ChatResponse response = await ai.GetResponseAsync(imageMessage, chatOptions);
 		messages.Add(new ChatMessage(ChatRole.Assistant, response.Text));
 		await EndThinking();
 	}

@@ -1,5 +1,6 @@
 using AIShowcase.WebApp.Components;
 using AIShowcase.WebApp.Components.ChatOutputServices;
+using AIShowcase.WebApp.Components.Pages.Assistants.Grid;
 using AIShowcase.WebApp.MenuData;
 using AIShowcase.WebApp.Services;
 using System.Globalization;
@@ -29,6 +30,8 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<MenuVectorData>();
 builder.Services.AddScoped<ApplicationSettings>();
 builder.Services.AddScoped<PrismInterop>();
+builder.Services.AddScoped<CustomerService>();
+builder.Services.AddScoped<PatientService>();
 builder.Services.AddTelerikBlazor();
 
 var culture = new CultureInfo("en-US");

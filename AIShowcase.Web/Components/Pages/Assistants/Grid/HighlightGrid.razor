@@ -1,0 +1,196 @@
+﻿@page "/grid/ai-highlight"
+
+@using System.Net.Http.Json
+@using Telerik.AI.SmartComponents.Extensions
+
+@inject PatientService PatientService
+@inject HttpClient HttpClientInstance
+
+<TelerikGrid @ref="@GridRef"
+             Data="@GridData"
+             HighlightedItems="@HighlightedItems"
+             HighlightedCells="@HighlightedCells"
+             Pageable="true"
+             Reorderable="true"
+             Resizable="true"
+             Sortable="true">
+    <GridToolBar>
+        <GridToolBarAIAssistantTool>
+            <GridToolBarAIAssistantToolSettings>
+                <GridToolBarAIAssistantToolPromptSettings PromptPlaceholder="Highlight Grid items with AI"
+                                                          OnPromptRequest="@OnAIPromptRequest"
+                                                          EnableSpeechToText="true"
+                                                          PromptSuggestions="@AIPromptSuggestions">
+                    <AIPromptSpeechToTextButtonSettings Lang="en-US"></AIPromptSpeechToTextButtonSettings>
+                </GridToolBarAIAssistantToolPromptSettings>
+
+                <GridToolBarAIAssistantToolWindowSettings Height="80vh"
+                                                          MaxHeight="490px"
+                                                          MaxWidth="420px"
+                                                          Width="80vw">
+                </GridToolBarAIAssistantToolWindowSettings>
+            </GridToolBarAIAssistantToolSettings>
+        </GridToolBarAIAssistantTool>
+
+        <GridToolBarSpacerTool />
+
+        <GridToolBarCustomTool>
+            <TelerikButton Icon="@nameof(SvgIcon.ArrowRotateCcw)" OnClick="@OnResetChangesClick">Reset Changes</TelerikButton>
+        </GridToolBarCustomTool>
+    </GridToolBar>
+
+    <GridColumns>
+        <GridColumn Field="@nameof(PatientDto.PatientName)" Title="Patient Name" Width="180px" />
+        <GridColumn Field="@nameof(PatientDto.Age)" Title="Age" Width="80px" />
+        <GridColumn Field="@nameof(PatientDto.ConditionSeverity)" Title="Condition Severity" Width="180px">
+            <Template>
+                @{
+                    var dataItem = (PatientDto)context;
+                    var themeColor = GetSeverityThemeColor(dataItem);
+
+                    <TelerikBadge Position="@BadgePosition.Inline"
+                                  Rounded="@ThemeConstants.Badge.Rounded.Medium"
+                                  ThemeColor="@themeColor">
+                        @dataItem.ConditionSeverity
+                    </TelerikBadge>
+                }
+            </Template>
+        </GridColumn>
+        <GridColumn Field="@nameof(PatientDto.Department)" Title="Department" Width="160px" />
+        <GridColumn Field="@nameof(PatientDto.Status)" Title="Status" Width="170px">
+            <Template>
+                @{
+                    var dataItem = (PatientDto)context;
+
+                    <TelerikChip Text="@dataItem.Status"
+                                 ThemeColor="@GetStatusThemeColor(dataItem)"
+                                 Selectable="false">
+                    </TelerikChip>
+                }
+            </Template>
+        </GridColumn>
+        <GridColumn Field="@nameof(PatientDto.AdmissionDate)" Title="Admission Date" DisplayFormat="{0:d}" Width="170px" />
+        <GridColumn Field="@nameof(PatientDto.RiskScore)" Title="Risk Score">
+            <Template>
+                @{
+                    var dataItem = (PatientDto)context;
+
+                    <TelerikProgressBar Class="progressbar"
+                                        Max="100"
+                                        Value="@dataItem.RiskScore">
+                    </TelerikProgressBar>
+                }
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</TelerikGrid>
+
+<style>
+    .grid-aiprompt {
+        max-height: 600px;
+    }
+</style>
+
+@code {
+    private TelerikGrid<PatientDto> GridRef { get; set; }
+    private List<PatientDto> GridData { get; set; }
+    private List<PatientDto> HighlightedItems { get; set; } = new();
+    private List<GridHighlightedCellDescriptor> HighlightedCells { get; set; } = new();
+
+    private List<string> AIPromptSuggestions { get; set; } = new()
+    {
+        "Highlight patients with critical condition",
+        "Highlight patients with age over 18 under treatment",
+        "Highlight patients in Neurology department",
+        "Highlight patients with risk score between 5 and 20",
+        "Clear highlighting"
+    };
+
+    private async Task OnAIPromptRequest(AIPromptPromptRequestEventArgs args)
+    {
+        try
+        {
+            var requestResult = await this.HttpClientInstance.PostAsJsonAsync("https://demos.telerik.com/service/v2/ai/grid/smart-state", args.Request);
+            var resultContent = await requestResult.Content.ReadAsStringAsync();
+            var aiResponse = await requestResult.Content.ReadFromJsonAsync<GridAIResponse>();
+
+            args.Response = resultContent;
+            args.Output = $"The request was processed. {string.Join(". ", aiResponse.Messages)}.";
+        }
+        catch (Exception)
+        {
+            args.Output = "The request returned no results. Try another request from the prompt suggestions.";
+        }
+    }
+
+    private async Task OnResetChangesClick()
+    {
+        await GridRef.SetStateAsync(null);
+
+        HighlightedItems = new List<PatientDto>();
+        HighlightedCells = new List<GridHighlightedCellDescriptor>();
+    }
+
+    private string GetSeverityThemeColor(PatientDto dataItem)
+    {
+        string themeColor = ThemeConstants.Badge.ThemeColor.Base;
+
+        switch (dataItem.ConditionSeverity)
+        {
+            case "Critical":
+                themeColor = ThemeConstants.Badge.ThemeColor.Error;
+                break;
+            case "Severe":
+                themeColor = ThemeConstants.Badge.ThemeColor.Warning;
+                break;
+            case "Moderate":
+                themeColor = ThemeConstants.Badge.ThemeColor.Info;
+                break;
+            case "Mild":
+                themeColor = ThemeConstants.Badge.ThemeColor.Success;
+                break;
+            case "Clinical":
+                themeColor = ThemeConstants.Badge.ThemeColor.Inverse;
+                break;
+        }
+
+        return themeColor;
+    }
+
+    private string GetStatusThemeColor(PatientDto dataItem)
+    {
+        string themeColor = ThemeConstants.Chip.ThemeColor.Base;
+
+        switch (dataItem.Status)
+        {
+            case "Awaiting Diagnosis":
+                themeColor = ThemeConstants.Chip.ThemeColor.Base;
+                break;
+            case "Transferred":
+                themeColor = ThemeConstants.Chip.ThemeColor.Base;
+                break;
+            case "Under Treatment":
+                themeColor = ThemeConstants.Chip.ThemeColor.Info;
+                break;
+            case "In Surgery":
+                themeColor = ThemeConstants.Chip.ThemeColor.Warning;
+                break;
+            case "Critical":
+                themeColor = ThemeConstants.Chip.ThemeColor.Error;
+                break;
+            case "Monitoring":
+                themeColor = ThemeConstants.Chip.ThemeColor.Info;
+                break;
+            case "Discharged":
+                themeColor = ThemeConstants.Chip.ThemeColor.Success;
+                break;
+        }
+
+        return themeColor;
+    }
+
+    protected override void OnInitialized()
+    {
+        GridData = PatientService.GetData();
+    }
+}

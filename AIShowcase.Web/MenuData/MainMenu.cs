@@ -33,8 +33,22 @@ namespace AIShowcase.WebApp.MenuData;
 				Url = "/basic-chat",
 				Description = "A basic chat interface"
 			});
+			Items.Add(new MenuItem()
+			{
+				Text = "RMA Assistant",
+				Icon = SvgIcon.Accessibility,
+				Url = "/assistant",
+				Description = "Complete an RMA process using an AI Assistant."
+			});
+			Items.Add(new MenuItem()
+			{
+				Text = "Data Grid Assistant",
+				Icon = SvgIcon.Grid,
+				Url = "/grid",
+				Description = "Interact with a data grid using an AI Assistant."
+			});
 
-		}
+	}
 		public List<MenuItem> Items { get; set; } = [];
 
 	}

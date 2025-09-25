@@ -1,0 +1,180 @@
+﻿@page "/grid"
+
+@using System.Net.Http.Json
+@using Telerik.AI.SmartComponents.Extensions
+
+@inject CustomerService CustomerService
+@inject HttpClient HttpClientInstance
+
+<TelerikGrid @ref="@GridRef"
+             Data="@GridData"
+             FilterMode="@GridFilterMode.FilterMenu"
+             HighlightedItems="@HighlightedItems"
+             HighlightedCells="@HighlightedCells"
+             Groupable="true"
+             Pageable="true"
+             Reorderable="true"
+             Resizable="true"
+             Sortable="true">
+    <GridToolBar>
+        <GridToolBarAIAssistantTool>
+            <GridToolBarAIAssistantToolSettings>
+                <GridToolBarAIAssistantToolPromptSettings PromptPlaceholder="Filter, sort or group with AI"
+                                                          OnPromptRequest="@OnAIPromptRequest"
+                                                          EnableSpeechToText="true"
+                                                          PromptSuggestions="@AIPromptSuggestions">
+                    <AIPromptSpeechToTextButtonSettings Lang="en-US"></AIPromptSpeechToTextButtonSettings>
+                </GridToolBarAIAssistantToolPromptSettings>
+
+                <GridToolBarAIAssistantToolWindowSettings Height="80vh"
+                                                          MaxHeight="490px"
+                                                          MaxWidth="420px"
+                                                          Width="80vw"
+                                                          @bind-Visible="@IsAIPromptWindowVisible">
+                </GridToolBarAIAssistantToolWindowSettings>
+            </GridToolBarAIAssistantToolSettings>
+        </GridToolBarAIAssistantTool>
+
+        <GridToolBarSpacerTool />
+
+        <GridToolBarCustomTool>
+            <TelerikButton Icon="@nameof(SvgIcon.ArrowRotateCcw)" OnClick="@OnResetChangesClick">Reset Changes</TelerikButton>
+        </GridToolBarCustomTool>
+    </GridToolBar>
+
+    <GridColumns>
+        <GridColumn Field="@nameof(CustomerDto.CustomerName)" Title="Name" Width="130px" />
+        <GridColumn Field="@nameof(CustomerDto.Amount)" Title="Amount" Width="100px" />
+        <GridColumn Field="@nameof(CustomerDto.Fee)" Title="Fee" Width="90px" />
+        <GridColumn Field="@nameof(CustomerDto.Currency)" Title="Currency" Width="100px" />
+        <GridColumn Field="@nameof(CustomerDto.Status)" Title="Status" Width="110px">
+            <Template>
+                @{
+                    var dataItem = (CustomerDto)context;
+
+                    <TelerikChip Text="@dataItem.Status"
+                                 ThemeColor="@GetStatusThemeColor(dataItem)"
+                                 Selectable="false">
+                    </TelerikChip>
+                }
+            </Template>
+        </GridColumn>
+        <GridColumn Field="@nameof(CustomerDto.TransactionType)" Title="Transaction Type" Width="110px" />
+        <GridColumn Field="@nameof(CustomerDto.AccountType)" Title="Account Type" Width="110px">
+            <Template>
+                @{
+                    var dataItem = (CustomerDto)context;
+
+                    <TelerikChip Text="@dataItem.AccountType"
+                                 Icon="@GetAccountTypeIcon(dataItem)"
+                                 FillMode="@ThemeConstants.Chip.FillMode.Outline"
+                                 Selected="false">
+                    </TelerikChip>
+                }
+            </Template>
+        </GridColumn>
+        <GridColumn Field="@nameof(CustomerDto.TransactionDate)" Title="Transaction Date" DisplayFormat="{0:d}" Width="100px" />
+        <GridColumn Field="@nameof(CustomerDto.Description)" Title="Description" Width="120px" />
+        <GridColumn Field="@nameof(CustomerDto.Region)" Title="Region" Width="110px" />
+    </GridColumns>
+</TelerikGrid>
+
+@code {
+    private TelerikGrid<CustomerDto> GridRef { get; set; }
+    private List<CustomerDto> GridData { get; set; }
+    private List<CustomerDto> HighlightedItems { get; set; } = new();
+    private List<GridHighlightedCellDescriptor> HighlightedCells { get; set; } = new();
+    private bool IsAIPromptWindowVisible { get; set; }
+
+    private List<string> AIPromptSuggestions { get; set; } = new()
+    {
+        "Sort by Amount descending",
+        "Group by Account Type",
+        "Show failed transactions",
+        "Filter where currency is USD",
+        "Display withdrawals whose amount is less than 5,000",
+        "Clear filtering",
+        "Clear sorting",
+        "Clear grouping",
+    };
+
+    private async Task OnAIPromptRequest(AIPromptPromptRequestEventArgs args)
+    {
+        try
+        {
+            var requestResult = await this.HttpClientInstance.PostAsJsonAsync("https://demos.telerik.com/service/v2/ai/grid/smart-state", args.Request);
+            var requestContent = await requestResult.Content.ReadAsStringAsync();
+            var aiResponse = await requestResult.Content.ReadFromJsonAsync<GridAIResponse>();
+
+            args.Response = requestContent;
+            args.Output = $"The request was processed. {string.Join(". ", aiResponse.Messages)}.";
+
+            // Optionally, close the AI Prompt after the result is processed.
+            _ = Task.Delay(2000).ContinueWith(_ =>
+            {
+                IsAIPromptWindowVisible = false;
+                InvokeAsync(StateHasChanged);
+            });
+        }
+        catch (Exception)
+        {
+            args.Output = "The request returned no results. Try another request from the prompt suggestions.";
+        }
+    }
+
+    private string GetStatusThemeColor(CustomerDto dataItem)
+    {
+        string themeColor = ThemeConstants.Chip.ThemeColor.Base;
+
+        switch (dataItem.Status)
+        {
+            case "Completed":
+                themeColor = ThemeConstants.Chip.ThemeColor.Success;
+                break;
+            case "Pending":
+                themeColor = ThemeConstants.Chip.ThemeColor.Info;
+                break;
+            case "Failed":
+                themeColor = ThemeConstants.Chip.ThemeColor.Error;
+                break;
+        }
+
+        return themeColor;
+    }
+
+    private object GetAccountTypeIcon(CustomerDto dataItem)
+    {
+        object icon = null;
+
+        switch (dataItem.AccountType)
+        {
+            case "Checking":
+                icon = SvgIcon.MoneyExchange;
+                break;
+            case "Savings":
+                icon = SvgIcon.WalletSolid;
+                break;
+            case "Business":
+                icon = SvgIcon.BuildingsSolid;
+                break;
+            default:
+                break;
+        }
+
+        return icon;
+    }
+
+
+    private async Task OnResetChangesClick()
+    {
+        await GridRef.SetStateAsync(new GridState<CustomerDto>());
+
+        HighlightedItems = new List<CustomerDto>();
+        HighlightedCells = new List<GridHighlightedCellDescriptor>();
+    }
+
+    protected override void OnInitialized()
+    {
+        GridData = CustomerService.GetData();
+    }
+}
