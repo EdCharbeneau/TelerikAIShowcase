@@ -345,3 +345,35 @@ a {
     a:visited {
         color: var(--kendo-color-primary-emphasis);
     }
+
+    /* Layout helpers */
+    .app-shell { min-height:100dvh; }
+    .app-header { height: var(--ai-showcase-appbar-height); display:flex; align-items:center; padding:0 .75rem; }
+    .app-header .app-title { font-size: var(--kendo-font-size-sm); font-weight:600; }
+    .app-header { box-sizing:border-box; overflow:hidden; }
+    .app-header-left .toggle-btn { width:auto; min-width:unset; }
+    .app-header-left, .app-header-right { flex:0 0 auto; }
+    .app-header .k-appbar-spacer { flex:1 1 auto; }
+     /* Allow the document (body) to scroll naturally so pages without the internal
+         .app-main-scroll wrapper (or in case it fails to size) still get a scrollbar.
+         Keep .app-shell overflow hidden so internal layout relies on the dedicated
+         .app-main-scroll region for scrolling. */
+     body { overflow:auto; }
+     .app-shell { overflow:hidden; }
+
+    /* Primary themed header override */
+    .app-header .app-title { color: var(--kendo-color-on-dark); }
+    .app-body { flex:1 1 auto; }
+    .app-drawer { display:flex; }
+    .app-main { flex:1 1 auto; }
+    .app-main-scroll { flex:1 1 auto; overflow:auto; min-height:0; }
+    .app-footer { border-top: 1px solid var(--kendo-color-border); }
+
+    @media (max-width: 768px){
+        .app-header h1 { font-size: var(--kendo-h5-font-size); }
+    }
+
+    /* Drawer item states */
+    .drawer-item.collapsed { justify-content:center; padding-left:0; padding-right:0; }
+    .drawer-item.collapsed .drawer-text { display:none; }
+    .drawer-item.expanded .drawer-text { display:inline; }

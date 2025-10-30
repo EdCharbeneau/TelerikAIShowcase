@@ -1,36 +1,50 @@
 ﻿@inherits LayoutComponentBase
-@layout TelerikLayout
-@using System.Globalization
+@using AIShowcase.WebApp.MenuData
 
-<div>
-    <TopBar OnToggleDrawer="ToggleDrawer" />
+@* Master layout using Telerik components: Header(AppBar), Drawer Nav + Main content, Footer *@
+<TelerikRootComponent>
+	<div class="app-shell k-d-flex k-flex-col" style="min-height:100dvh;">
+		<!-- Header -->
+		<HeaderBar OnToggleDrawer="ToggleDrawer"/>
 
-    <TelerikDrawer Data="@menu.Items"
-                   MiniMode="true"
-                   Mode="@DrawerMode.Push"
-                   @ref="@DrawerRef"
-                   @bind-Expanded="@DrawerExpanded"
-                   @bind-SelectedItem="@SelectedDrawerItem"
-                   Class="ai-showcase-drawer"
-                   Width="248px">
-        <DrawerContent>
-            <div class="k-px-2 k-px-sm-4.5 k-px-md-6 k-px-lg-4 k-px-xl-10 k-py-2 k-py-sm-4.5 k-py-md-6 k-py-lg-4 k-py-xl-12 k-pt-8">
-                <div class="k-display-flex k-flex-col k-gap-10">
-                    @Body
-                </div>
-            </div>
-            @* Start of Footer Card 7 *@
-            <div class="!k-bg-surface !k-color-subtle k-mt-4 k-bg-light k-py-6 k-px-10">
-                <p class="!k-mb-0">Copyright &#169; 2024 Progress Software. All rights reserved.</p>
-            </div>
-            @* End of Footer Card 7 *@
-        </DrawerContent>
-    </TelerikDrawer>
+		<!-- Body: Nav + Main -->
+		<div class="app-body k-d-flex k-flex-row k-flex-grow" style="min-height:0;">
+			<TelerikDrawer Data="@menu.Items"
+						   MiniMode="true"
+						   Mode="@DrawerMode.Push"
+						   @ref="DrawerRef"
+						   @bind-Expanded="@DrawerExpanded"
+						   @bind-SelectedItem="@SelectedDrawerItem"
+						   Class="app-drawer"
+						   Width="248px">
+				<DrawerContent>
+					<div class="app-main k-d-flex k-flex-col k-flex-grow" style="min-height:0;">
+						<div class="app-main-scroll k-flex-grow k-overflow-auto k-p-4">
+							@Body
+						</div>
+						<!-- Footer -->
+						<footer class="app-footer k-text-center k-p-4 k-border-top" style="">
+							<small>&copy; 2024 Progress Software. All rights reserved.</small>
+						</footer>
+					</div>
+				</DrawerContent>
+			</TelerikDrawer>
+		</div>
+	</div>
+</TelerikRootComponent>
 
+@code {
+	private MainMenu menu = new();
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
-</div>
+	private TelerikDrawer<MenuItem>? DrawerRef { get; set; }
+	private bool DrawerExpanded { get; set; } = true;
+
+	private MenuItem _selectedDrawerItem = null!;
+	private MenuItem SelectedDrawerItem
+	{
+		get => _selectedDrawerItem ?? menu.Items.First();
+		set => _selectedDrawerItem = value;
+	}
+
+	private async Task ToggleDrawer() => await DrawerRef!.ToggleAsync();
+}

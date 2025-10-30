@@ -1,0 +1,17 @@
+﻿<TelerikAppBar Class="app-header" ThemeColor="@ThemeConstants.AppBar.ThemeColor.Dark" Position="AppBarPosition.Top">
+    <AppBarSection Class="app-header-left k-d-flex k-align-items-center">
+        <TelerikButton ButtonType="ButtonType.Button" OnClick="ToggleDrawer" FillMode="@ThemeConstants.Button.FillMode.Flat" Icon="SvgIcon.Menu" Title="Menu" AriaLabel="Toggle navigation" />
+        <a href="#"><span class="app-title">AI Showcase</span></a>
+    </AppBarSection>
+    <AppBarSpacer />
+    <AppBarSection Class="app-header-right k-d-flex k-align-items-center k-pr-2">
+        @* Placeholder for future actions *@
+    </AppBarSection>
+</TelerikAppBar>
+
+@code {
+    Task ToggleDrawer(MouseEventArgs args) => OnToggleDrawer.InvokeAsync(args);
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnToggleDrawer { get; set; }
+}
